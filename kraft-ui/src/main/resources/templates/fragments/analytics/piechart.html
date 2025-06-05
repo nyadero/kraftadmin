@@ -1,0 +1,27 @@
+<!-- piechart.html -->
+<div th:fragment="pieChart(title, labels, values)" xmlns:th="http://www.w3.org/1999/xhtml">
+    <h2 th:text="${title}"></h2>
+    <canvas th:id="${title.replaceAll('[^A-Za-z0-9]', '')}"></canvas>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const chartId = [[${title.replaceAll('[^A-Za-z0-9]', '')}]];
+        const ctx = document.getElementById(chartId).getContext('2d');
+
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: [[${labels}]],
+                datasets: [{
+                    label: '[[${title}]]',
+                    data: [[${values}]],
+                    backgroundColor: [
+                        '#f87171', '#60a5fa', '#34d399', '#facc15', '#c084fc'
+                    ]
+                }]
+            }
+        });
+        /*]]>*/
+    </script>
+</div>

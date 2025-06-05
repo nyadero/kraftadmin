@@ -1,0 +1,5 @@
+com.bowerzlabs.KraftrAdminAutoConfiguration
+com.bowerzlabs.KraftrCoreAutoConfiguration
+com.bowerzlabs.KraftSecurityAutoConfiguration
+com.bowerzlabs.KraftrJPAAutoConfiguration
+com.bowerzlabs.KraftUIAutoConfiguration

@@ -1,0 +1,34 @@
+<div th:fragment="toast-container" xmlns:th="http://www.w3.org/1999/xhtml">
+    <div id="toast-container" th:if="${toastMessage}" th:class="'toast ' + ${toastType}">
+        <span th:text="${toastMessage}"></span>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let toast = document.getElementById("toast-container");
+            if (toast) {
+                toast.style.display = "block";
+                setTimeout(() => {
+                    toast.style.display = "none";
+                }, 3000); // Hide after 3 seconds
+            }
+        });
+    </script>
+
+    <style>
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #333;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            display: none;
+        }
+        .toast.success { background: green; }
+        .toast.error { background: red; }
+        .toast.info { background: blue; }
+        .toast.warning { background: orange; }
+    </style>
+</div>

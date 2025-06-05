@@ -1,0 +1,120 @@
+<div th:fragment="sidebar-container" xmlns:th="http://www.w3.org/1999/xhtml">
+    <div class="h-screen w-80 bg-white overflow-y-auto sticky top-0 left-0">
+        <!-- Title -->
+        <div class="py-5 px-4 flex items-center">
+            <h3 class="text-lg font-bold" th:text="${title}">Library System</h3>
+        </div>
+
+        <hr class="border-dark" />
+
+        <div class="p-4 pb-24">
+            <ul class="flex flex-col space-y-2">
+                <li>
+                    <a class="block w-full px-4 py-2 border border-blue-500 rounded hover:bg-blue-500 transition"
+                       th:href="@{/admin/dashboard}">
+                        📚 Dashboard
+                    </a>
+                </li>
+
+                <li>
+                    <a class="block w-full px-4 py-2 border border-blue-500 rounded hover:bg-blue-500 transition"
+                       th:href="@{/admin/modules}">
+                        📚 Modules
+                    </a>
+                </li>
+
+<!--                <li class="flex items-center justify-between px-4 py-2 border border-blue-500 rounded hover:bg-blue-500 transition">-->
+<!--                    <h3>Content</h3>-->
+<!--                    <button type="button"-->
+<!--                            onclick="document.getElementById('entity-list').classList.toggle('hidden')"-->
+<!--                            class="transition">-->
+<!--                        &gt;&gt;-->
+<!--                    </button>-->
+<!--                </li>-->
+
+<!--                <div id="entity-list" class="space-y-2 hidden">-->
+<!--                    <li th:each="entity : ${entities}">-->
+<!--                        <a class="block w-full px-4 py-2 border border-blue-500 rounded capitalize flex items-center space-x-2 hover:bg-blue-500 hover:text-white transition"-->
+<!--                           th:href="@{/admin/{entity}(entity=${entity.name.value})}">-->
+<!--                            <i th:class="${entity.icon ?: 'fa fa-puzzle-piece'}"></i>-->
+<!--                            <span th:text="${entity.name.key}"></span>-->
+<!--                        </a>-->
+<!--                    </li>-->
+<!--                </div>-->
+
+                <li>
+                    <button type="button"
+                            onclick="document.getElementById('entity-list').classList.toggle('hidden')"
+                            class="w-full flex items-center justify-between px-4 py-2 border border-blue-500 rounded hover:bg-blue-500 hover:text-white transition group">
+                        <span class="font-semibold">📁 Content</span>
+                        <i class="fa fa-chevron-down group-hover:rotate-180 transition-transform"></i>
+                    </button>
+
+                    <!-- Scrollable inner container with max-height -->
+                    <ul id="entity-list" class="space-y-2 mt-2 max-h-32 overflow-y-auto hidden">
+                        <li th:each="entity : ${entities}">
+                            <a class="flex items-center px-4 py-2 border border-blue-500 rounded capitalize space-x-2 hover:bg-blue-500 hover:text-white transition"
+                               th:href="@{/admin/{entity}(entity=${entity.name.value})}">
+                                <i th:class="${entity.icon ?: 'fa fa-cubes'}"></i>
+                                <span th:text="${entity.name.key}"></span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+
+                <li class="flex items-center justify-between px-4 py-2 border border-blue-500 rounded hover:bg-blue-500 transition">
+                    <h3>Monitoring</h3>
+                    <button type="button"
+                            onclick="document.getElementById('monitoring-list').classList.toggle('hidden')"
+                            class="transition">
+                        &gt;&gt;
+                    </button>
+                </li>
+
+                <div id="monitoring-list" class="space-y-2 hidden">
+                    <ul>
+                        <li>
+                            <a class="block w-full px-4 py-2 border border-blue-500 rounded hover:bg-blue-500 transition"
+                               th:href="@{/admin/actions}">
+                                ⚡ Actions
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <li>
+                    <a class="block w-full px-4 py-2 border border-blue-500 rounded hover:bg-blue-500 transition"
+                       th:href="@{/admin/roles}">
+                        📚 Roles and Permissions
+                    </a>
+                </li>
+
+                <li>
+                    <a class="block w-full px-4 py-2 border border-blue-500 rounded hover:bg-blue-500 transition"
+                       th:href="@{/admin/administrators}">
+                        👤 Users
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Footer -->
+        <div class="absolute bottom-0 w-full px-4 py-3 bg-white border-t">
+            <ul class="flex flex-col space-y-2">
+                <li>
+                    <a class="block w-full text-left px-4 py-2 border border-blue-500 rounded hover:bg-blue-500 transition"
+                       th:href="@{/admin/settings}">
+                        ⚙️ Settings
+                    </a>
+                </li>
+                <li>
+                    <a class="block w-full text-left px-4 py-2 border border-blue-500 rounded hover:bg-blue-500 transition"
+                       th:href="@{/admin/auth/logout}">
+                        🚪 Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>

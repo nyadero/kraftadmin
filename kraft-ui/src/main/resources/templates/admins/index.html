@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <head>
+        <meta charset="UTF-8">
+        <title>Administrators</title>
+    </head>
+<body>
+<th:block layout:fragment="content">
+    <div>
+        <h3>Administrators</h3>
+        <a th:href="@{/admin/administrators/add-admin}">
+            <button>New Administrator</button>
+        </a>
+    </div>
+
+    <section th:if="${size} > 0">
+    <table>
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>CreatedAt</th>
+            <th>UpdatedAt</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+
+        <thead>
+        <tr>
+            <th>
+                <input type="checkbox">
+            </th>
+
+            <!--                table head from item data-->
+            <th:block th:if="${not #lists.isEmpty(fieldNames)}">
+                <th th:each="field : ${fieldNames}"
+                    th:with="isSortable=${sortableFieldNames.contains(field)},
+                         isActive=${sortBy == field},
+                         newSortOrder=${isActive} ? (${sortOrder} == 'asc' ? 'desc' : 'asc') : 'asc'">
+
+                    <a th:if="${isSortable}"
+                       th:href="@{/admin/{entityName}(entityName=${entityName}, filter.sortBy=${field}, filter.sortOrder=${newSortOrder})}">
+                        <span th:text="${field}"></span>
+                        <span th:if="${isActive}" th:text="${sortOrder == 'asc' ? '↑' : '↓'}"
+                              style="margin-left: 4px; color: #666;"></span>
+                    </a>
+
+                    <span th:if="${!isSortable}" th:text="${field}"></span>
+                </th>
+            </th:block>
+
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${administrators}">
+            <td th:text="${item.id}"></td>
+            <td th:text="${item.name}"></td>
+            <td th:text="${item.username}"></td>
+            <td th:text="${item.role}"></td>
+            <td th:text="${item.createdAt}"></td>
+            <td th:text="${item.updatedAt}"></td>
+            <td>
+                <a th:href="@{/admin/administrators/delete/{id}(id=${item.id})}">Delete</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    </section>
+</th:block>
+</body>
+</html>

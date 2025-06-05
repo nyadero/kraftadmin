@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+  <title>Customize View</title>
+</head>
+<body>
+<th:block layout:fragment="content">
+
+<h1 th:text="${title}"></h1>
+
+<form th:action="@{'/admin/settings/' + ${entityName} + '/customize-entity-view'}" method="post">
+  <div th:each="field : ${checkboxFields}">
+    <label>
+      <input type="checkbox"
+             th:name="${field.name}"
+             th:value="${field.name}"
+             th:checked="${field.value}"/>
+      <span th:text="${field.label}">Field Label</span>
+    </label>
+    <br/>
+  </div>
+
+  <button type="submit">Save preferences</button>
+</form>
+</th:block>
+</body>
+</html>

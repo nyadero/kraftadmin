@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="'Manage ' + ${entityName}"></title>
+    <style>
+        th, td {
+    padding: 0.75rem;
+    border: 1px solid #dee2e6;
+    text-align: left;
+    word-wrap: break-word;       /* ensures words wrap */
+    word-break: break-word;      /* breaks long words */
+    white-space: normal;         /* allows wrapping */
+    max-width: 200px;            /* you can tweak this value */
+}
+
+table {
+    table-layout: fixed;         /* ensures equal width columns */
+    width: 100%;
+     border-collapse: collapse;
+           margin-top: 1rem;
+           background: white;
+           box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+        tr.selected {
+       background-color: #e0f0ff;
+   }
+<!--       table {-->
+<!--           width: 100%;-->
+<!--           border-collapse: collapse;-->
+<!--           margin-top: 1rem;-->
+<!--           background: white;-->
+<!--           box-shadow: 0 2px 8px rgba(0,0,0,0.05);-->
+<!--       }-->
+
+       thead {
+           background: #f8f9fa;
+       }
+
+       th, td {
+           padding: 0.75rem;
+           border: 1px solid #dee2e6;
+           text-align: left;
+       }
+
+       th a {
+           color: #212529;
+       }
+
+       th.active-sort {
+           background: #e9ecef;
+       }
+
+       tbody tr:hover {
+           background: #f1f3f5;
+       }
+
+       .pagination {
+           margin-top: 1.5rem;
+           display: flex;
+           justify-content: space-between;
+           align-items: center;
+       }
+
+       .pagination a {
+           margin: 0 0.25rem;
+           color: #007bff;
+       }
+
+       .pagination a:hover {
+           text-decoration: underline;
+       }
+
+         .actions-dropdown {
+       position: relative;
+       display: inline-block;
+   }
+
+   .actions-menu {
+       display: none;
+       position: absolute;
+       background-color: white;
+       box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+       min-width: 120px;
+       z-index: 1;
+       padding: 5px 0;
+       border-radius: 4px;
+   }
+
+   .actions-menu a {
+       display: block;
+       padding: 6px 12px;
+       text-decoration: none;
+       color: black;
+   }
+
+   .actions-menu a:hover {
+       background-color: #f2f2f2;
+   }
+
+   .actions-icon {
+       cursor: pointer;
+       font-size: 18px;
+       user-select: none;
+   }
+    </style>
+
+</head>
+<body>
+
+<th:block layout:fragment="content">
+
+    <div style="display:flex; justify-content:space-between; align-items:center">
+        <h1 th:text="${totalElements} + ' ' + ${entityName}"></h1>
+
+        <div>
+            <a th:href="@{/admin/{entityName}/create(entityName=${entityName})}">Create New</a>
+            <button>Import</button>
+            <a th:href="@{/admin/{entityName}/export?format={format}(entityName=${entityName}, format=${format})}">Export</a>
+            <!--        <ul>-->
+            <!--            <li th:each="format : ${formats}">-->
+            <!--                <a th:href="@{/admin/{entityName}/export(format=${format}, entityName=${entityName})}"-->
+            <!--                   th:text="${format.toUpperCase()}">Format</a>-->
+            <!--            </li>-->
+            <!--        </ul>-->
+            <a th:href="@{/admin/settings/{entityName}/customize-entity-view(entityName=${entityName})}">
+                Customize display
+            </a>
+        </div>
+    </div>
+
+    <button id="filtersBtn">Show filters</button>
+
+    <!--    filters section -->
+    <div>
+        <form method="get" th:action="@{'/admin/' + ${entityName}}">
+            <div th:each="queryParam : ${currentParams.entrySet()}">
+                <!--                <input type="hidden"-->
+                <!--                       th:if="${not #strings.startsWith(queryParam.key, 'filter.') or not enumFields.containsKey(queryParam.key.substring(7))}"-->
+                <!--                       th:name="${queryParam.key}"-->
+                <!--                       th:value="${queryParam.value}" />-->
+                <input type="hidden"
+                       th:if="${not (#strings.startsWith(queryParam.key, 'filter.') and enumFields.containsKey(queryParam.key.substring(7)) and #strings.isEmpty(queryParam.value))}"
+                       th:name="${queryParam.key}"
+                       th:value="${queryParam.value}" />
+
+            </div>
+
+            <!-- Render actual filter dropdowns -->
+            <div th:each="entry : ${enumFields}">
+                <label th:for="${'filter_' + entry.key}" th:text="${entry.key}">Field</label>
+                <select th:id="${entry.key}" th:name="${'filter.' + entry.key}">
+                    <option value="" selected disabled>All</option>
+                    <option th:each="val : ${entry.value}"
+                            th:value="${val}"
+                            th:selected="${currentParams['filter.' + entry.key] == val}"
+                            th:text="${val}">
+                    </option>
+                </select>
+            </div>
+
+            <button type="submit">Apply Filters</button>
+        </form>
+
+
+        <section th:if="${totalElements != null and totalElements > 0}">
+            <table border="1">
+                <thead>
+                <tr>
+                    <th><input type="checkbox" id="selectAll"/></th>
+                    <!--                    <th th:each="field : ${fieldNames}" th:text="${field}"></th>-->
+                    <th:block th:if="${not #lists.isEmpty(fieldNames)}">
+                        <th th:each="field : ${fieldNames}"
+                            th:with="isSortable=${sortableFieldNames.contains(field)},
+                                                            isActive=${sortBy == field},
+                                                            newSortOrder=${isActive} ? (${sortOrder} == 'asc' ? 'desc' : 'asc') : 'asc'">
+
+                            <a th:if="${isSortable}"
+                               th:href="@{/admin/{entityName}(entityName=${entityName}, filter.sortBy=${field}, filter.sortOrder=${newSortOrder})}">
+                                <span th:text="${field}"></span>
+                                <span th:if="${isActive}" th:text="${sortOrder == 'asc' ? '↑' : '↓'}"
+                                      style="margin-left: 4px; color: #666;"></span>
+                            </a>
+
+                            <!--                                <a th:if="${isSortable}"-->
+                            <!--                                   th:href="@{/admin/{entityName}(entityName=${entityName},-->
+                            <!--                                 sort=${#lists.concat(currentParams['sort'], field + ',' + newSortOrder)})}">-->
+                            <!--                                    <span th:text="${field}"></span>-->
+                            <!--                                    <span th:if="${isActive}" th:text="${sortOrder == 'asc' ? '↑' : '↓'}"-->
+                            <!--                                          style="margin-left: 4px; color: #666;"></span>-->
+                            <!--                                </a>-->
+
+                            <span th:if="${!isSortable}" th:text="${field}"></span>
+                        </th>
+                    </th:block>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+
+                <tr th:each="displayItem : ${displayItems}">
+                    <td>
+                        <input type="checkbox" name="selectedIds"
+                               th:value="${displayItem.get(primaryKey)?.value}" class="rowCheckbox"/>
+                    </td>
+                    <td th:each="field : ${fieldNames}">
+                        <div th:with="displayField=${displayItem.get(field)}">
+                            <!-- Display Image -->
+                            <img th:if="${displayField?.fieldType?.name() == 'IMAGE'}"
+                                 th:src="${displayField.value}" width="100" alt="Image"/>
+
+                            <!-- Document or Link -->
+                            <a th:if="${displayField?.fieldType?.name() == 'DOCUMENT' or displayField?.fieldType?.name() == 'LINK'}"
+                               th:href="${displayField.value}" target="_blank">View File</a>
+
+                            <!-- Text -->
+                            <span th:if="${displayField?.fieldType?.name() == 'TEXT'}"
+                                  th:text="${displayField.value}"></span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="action-dropdown">
+                            <button type="button" onclick="toggleActions(this)">⋮</button>
+                            <div class="actions-menu" style="display: none;">
+                                <a th:href="@{/admin/{entityName}/edit/{id}(entityName=${entityName}, id=${displayItem.get(primaryKey)?.value})}">Edit</a><br>
+                                <a th:href="@{/admin/{entityName}/{id}(entityName=${entityName}, id=${displayItem.get(primaryKey)?.value})}">Details</a>
+                                <div th:inline="text">
+                                    Test: [[${entityName}]]
+                                    [[${displayItem.get(primaryKey)?.value}]]
+                                    <a href="#" th:onclick="showDeleteModal([[${displayItem.get(primaryKey)?.value}]], [[${entityName}]])">Delete</a>
+                                </div>
+
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+
+                </tbody>
+
+            </table>
+
+            <!--        bulk actions component -->
+            <div class="w-max mx-auto items-center justify-center hidden" id="bulkActions">
+                <div th:replace="~{components/bulk-action :: bulkActions}"></div>
+            </div>
+
+            <!--     pagination -->
+            <div th:replace="components/pagination :: pagination(${entityName}, ${currentPage}, ${totalPages}, ${size}, ${search})"></div>
+
+        </section>
+
+        <!--        delete -->
+        <div id="deleteModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center;">
+            <div style="background:white; padding:20px; border-radius:8px; text-align:center; max-width:300px;">
+                <p>Are you sure you want to delete this item?</p>
+                <form id="deleteForm" method="get">
+                    <input type="hidden" name="_method" value="delete"/>
+                    <button type="submit">Yes, Delete</button>
+                    <button type="button" onclick="closeDeleteModal()">Cancel</button>
+                </form>
+            </div>
+        </div>
+
+
+
+        <!-- No items message -->
+        <section th:if="${totalElements == 0}">
+            <p>No items available</p>
+            <div th:replace="~{components/no-data :: nodata-container}"></div>
+        </section>
+
+        <!--   item filter container     -->
+        <div style="display: none; justify-content: center; align-items: center; height: fit-content; width:100%; position:absolute;" id="searchModal">
+            <div th:replace="~{fragments/components/filter-modal :: filter-container}"></div>
+        </div>
+
+    </div>
+</th:block>
+
+</body>
+</html>

@@ -1,0 +1,21 @@
+<!-- resources/templates/analytics/fragments/bar-chart.html -->
+<div th:fragment="chart(title, labels, values)" xmlns:th="http://www.w3.org/1999/xhtml">
+    <h2 th:text="${title}"></h2>
+    <canvas th:attr="id=${title.replaceAll(' ', '')}"></canvas>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const ctx = document.getElementById([[${title.replaceAll(' ', '')}]]).getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [[${labels}]],
+                datasets: [{
+                    label: '[[${title}]]',
+                    data: [[${values}]],
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)'
+                }]
+            }
+        });
+        /*]]>*/
+    </script>
+</div>

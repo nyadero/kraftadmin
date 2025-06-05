@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="bulkActions" class=" text-white flex items-center gap-5 my-5">
+   <div class="bg-blue-500 rounded p-2 shadow flex items-center justify-center">
+      X
+   </div>
+
+   <div class="bg-blue-500 rounded p-2 shadow flex items-center gap-4">
+      <button onclick="performBulkAction('delete')">Delete Selected</button>
+      <button onclick="performBulkAction('export')">Export Selected</button>
+      <button onclick="performBulkAction('export')">Duplicate Selected</button>
+      <button onclick="performBulkAction('export')">Print Selected</button>
+   </div>
+
+</div>
+</body>
+</html>

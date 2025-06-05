@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<main class="content" style="min-height:100vh">
+    <th:block layout:fragment="content">
+        <h2 class="mb-4" th:text="${title}">📚</h2>
+        <div class="flex items-center gap-5">
+            <div class="col-md-4 mb-4">
+                <div class="bg-blue-500 text-white p-3">
+                    <h4>Total Books</h4>
+                    <p th:text="${totalBooks}">150</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card bg-red-500 text-white p-3">
+                    <h4>Active Users</h4>
+                    <p th:text="${activeUsers}">30</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card bg-green-500 text-white p-3">
+                    <h4>Pending Returns</h4>
+                    <p th:text="${pendingReturns}">5</p>
+                </div>
+            </div>
+        </div>
+
+           <div th:each="component : ${components}">
+               <h3 th:text="${component.type}"></h3>
+               <div th:switch="${component.type}">
+                   <div th:case="'BarChart'">
+                   <div th:replace="${component.templatePath} :: chart(
+                         ${component.modelData.title},
+                         ${component.modelData.labels},
+                         ${component.modelData.values}
+                     )">
+                   </div>
+                   </div>
+
+<!--                   <div th:case="'PieCharts'">-->
+<!--                       <div th:replace="${component.templatePath} :: pieChart(-->
+<!--                         ${component.modelData.title},-->
+<!--                         ${component.modelData.labels},-->
+<!--                         ${component.modelData.values}-->
+<!--                     )">-->
+<!--                       </div>-->
+<!--                   </div>-->
+
+               </div>
+           </div>
+
+<!--           <div th:each="component : ${components}">-->
+<!--               <th:block th:with="type=${component.type}">-->
+<!--                   <th:block th:switch="${type}">-->
+<!--                       <th:block th:case="'PieCharts'" th:replace="~{${component.templatePath} :: pieChart(-->
+<!--                       _arg0=${component.modelData.title},-->
+<!--                       _arg1=${component.modelData.labels},-->
+<!--                       _arg2=${component.modelData.values})}" />-->
+<!--                       <th:block th:case="'BarChart'" th:replace="~{${component.templatePath} :: chart(-->
+<!--                       _arg0=${component.modelData.title},-->
+<!--                       _arg1=${component.modelData.labels},-->
+<!--                       _arg2=${component.modelData.values})}" />-->
+<!--                       <th:block th:case="'LineChart'" th:replace="~{${component.templatePath} :: lineChart(-->
+<!--                       _arg0=${component.modelData.title},-->
+<!--                       _arg1=${component.modelData.labels},-->
+<!--                       _arg2=${component.modelData.values})}" />-->
+<!--                       <th:block th:case="'RadarChart'" th:replace="~{${component.templatePath} :: radarChart(-->
+<!--                       _arg0=${component.modelData.title},-->
+<!--                       _arg1=${component.modelData.labels},-->
+<!--                       _arg2=${component.modelData.values})}" />-->
+<!--                   </th:block>-->
+<!--               </th:block>-->
+<!--           </div>-->
+
+
+    </th:block>
+</main>
+</body>
+</html>

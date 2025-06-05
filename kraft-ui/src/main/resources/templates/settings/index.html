@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+  <meta charset="UTF-8">
+  <title>Settings</title>
+  <style>
+    .tab-button {
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      color: gray;
+      border: none;
+      background: none;
+    }
+
+    .tab-button.active {
+      font-weight: bold;
+      color: black;
+      border-bottom: 2px solid #3b82f6; /* Tailwind blue-500 */
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+<th:block layout:fragment="content">
+
+  <!-- Tabs Header -->
+  <div class="space-y-4">
+    <div class="flex items-center gap-4 bg-white rounded shadow-md p-2 mb-5">
+      <button class="tab-button" data-tab="account">Account</button>
+      <button class="tab-button" data-tab="general">General</button>
+      <button class="tab-button" data-tab="site">Site Settings</button>
+      <button class="tab-button" data-tab="content">Content Settings</button>
+      <button class="tab-button" data-tab="integrations">Integrations</button>
+    </div>
+
+    <!-- Tabs Content -->
+    <div class="w-full bg-white shadow p-4 rounded-md">
+      <div class="tab-content" id="tab-account">
+        <h3 class="text-xl font-semibold mb-2">Account</h3>
+        <p>Update account details and preferences.</p>
+        <div th:replace="~{settings/account-settings :: account-settings-container(${adminUser})}"></div>
+      </div>
+
+      <div class="tab-content" id="tab-general">
+        <h3 class="text-xl font-semibold mb-2">General Settings</h3>
+        <p>Manage general preferences here.</p>
+        <div th:replace="~{components/coming-soon :: coming-soon-container}"></div>
+      </div>
+
+      <div class="tab-content" id="tab-site">
+        <h3 class="text-xl font-semibold mb-2">Site Settings</h3>
+        <p>Configure your website settings here.</p>
+      </div>
+
+      <div class="tab-content" id="tab-content">
+        <h3 class="text-xl font-semibold mb-2">Content Settings</h3>
+        <p>Adjust how content is displayed or managed.</p>
+      </div>
+
+      <div class="tab-content" id="tab-integrations">
+        <h3 class="text-xl font-semibold mb-2">Integrations</h3>
+        <p>Connect third-party services or APIs.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const buttons = document.querySelectorAll(".tab-button");
+      const contents = document.querySelectorAll(".tab-content");
+
+      function activateTab(tabName) {
+        buttons.forEach(btn => {
+          btn.classList.toggle("active", btn.dataset.tab === tabName);
+        });
+
+        contents.forEach(content => {
+          content.classList.toggle("active", content.id === `tab-${tabName}`);
+        });
+      }
+
+      // Add click event to each tab button
+      buttons.forEach(button => {
+        button.addEventListener("click", () => {
+          activateTab(button.dataset.tab);
+        });
+      });
+
+      // Set default tab to "account"
+      activateTab("account");
+    });
+  </script>
+
+</th:block>
+</body>
+</html>

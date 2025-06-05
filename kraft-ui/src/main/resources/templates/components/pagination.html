@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="pagination(entityName, currentPage, totalPages, size, search)"
+     style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center;">
+
+    <!-- Page Info -->
+    <div>
+        <span>Page </span>
+        <span th:text="${currentPage + 1}"></span>
+        <span> of </span>
+        <span th:text="${totalPages}"></span>
+    </div>
+
+    <!-- Page Navigation -->
+    <div>
+        <a th:if="${currentPage > 0}"
+           th:href="@{/admin/{entityName}(entityName=${entityName}, page=${currentPage - 1}, size=${size}, search=${search})}">
+            Previous
+        </a>
+
+        <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                <a th:href="@{/admin/{entityName}(entityName=${entityName}, page=${i}, size=${size}, search=${search})}"
+                   th:text="${i + 1}"
+                   th:style="${i == currentPage} ? 'font-weight: bold; text-decoration: underline;' : ''">
+                </a>
+                &nbsp;
+            </span>
+
+        <a th:if="${currentPage < totalPages - 1}"
+           th:href="@{/admin/{entityName}(entityName=${entityName}, page=${currentPage + 1}, size=${size}, search=${search})}">
+            Next
+        </a>
+    </div>
+
+    <!-- Items per page -->
+    <div>
+        <form method="get" th:action="@{/admin/{entityName}(entityName=${entityName})}">
+            <label for="size">Items per page:</label>
+            <select id="size" name="size" onchange="this.form.submit()">
+                <option th:each="s : ${ {10, 20, 50, 100} }"
+                        th:value="${s}"
+                        th:selected="${s == size}" th:text="${s}">
+                </option>
+            </select>
+            <input type="hidden" name="page" th:value="${currentPage}">
+            <input type="hidden" name="search" th:value="${search}">
+        </form>
+    </div>
+</div>
+</body>
+</html>

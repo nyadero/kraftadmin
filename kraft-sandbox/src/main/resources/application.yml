@@ -1,0 +1,39 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: Kraftr
+  datasource:
+    url: jdbc:h2:mem:testdb  # In-memory database
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: password
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update  # Automatically creates tables
+    show-sql: true
+    enabled: true  # Logs SQL querie
+  h2:
+    console:
+      enabled: true  # Enables H2 web console
+      path: /h2-console  # Accessible at http://localhost:8080/h2-console
+
+  logging:
+    level: debug
+
+  #files
+  servlet:
+    multipart:
+      max-file-size: 100000000MB
+#      max-request-size: 100000000MB
+
+
+kraft:
+  kraft-admin:
+    enabled: true
+  title: Kraft Sandbox11
+  storage:
+    provider: local
+    upload-dir: ${user.dir}/uploads

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.4.4</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.bowerzlabs</groupId>
+	<artifactId>kraft</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>kraft</name>
+	<description>Management,logging,monitoring and analytics library for springboot apps</description>
+	<url/>
+	<licenses>
+		<license/>
+	</licenses>
+	<developers>
+		<developer/>
+	</developers>
+	<modules>
+		<module>kraft-core</module>
+		<module>kraft-sandbox</module>
+		<module>kraft-docs</module>
+		<module>kraft-data-jpa</module>
+		<module>kraft-data-mongo</module>
+		<module>kraft-admin</module>
+        <module>kraft-ui</module>
+        <module>kraft-security</module>
+        <module>kraft-starter</module>
+    </modules>
+	<scm>
+		<connection/>
+		<developerConnection/>
+		<tag/>
+		<url/>
+	</scm>
+	<properties>
+		<java.version>17</java.version>
+		<spring.boot.version>3.2.5</spring.boot.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-dependencies</artifactId>
+			<version>${spring.boot.version}</version>
+			<type>pom</type>
+			<scope>import</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-autoconfigure</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+
+	</dependencies>
+
+</project>

@@ -1,0 +1,33 @@
+<div th:fragment="account-settings-container(adminUser)" xmlns:th="http://www.w3.org/1999/xhtml">
+    Account settings
+
+    <form action="" method="post">
+<!--        name-->
+        <div class="w-full">
+            <label class="mb-3">Name</label>
+            <input type="text" name="name" placeholder="name" th:value="${adminUser.name}" class="w-full p-2 rounded shadow">
+        </div>
+
+<!--        email-->
+        <div class="w-full">
+            <label>Email</label>
+            <input type="text" name="username" placeholder="name" th:value="${adminUser.username}" class="w-full p-2 rounded shadow">
+        </div>
+
+<!--        password-->
+        <div class="w-full">
+            <label>Password</label>
+            <input type="text" name="name" placeholder="name" th:value="${adminUser.password}" class="w-full p-2 rounded shadow">
+        </div>
+
+<!--        avatar-->
+        <div class="w-full">
+            <label>Avatar</label>
+            <input type="file" name="name" placeholder="name">
+        </div>
+
+        <div>
+            <button type="submit" class="bg-blue-500 p-2 my-4 rounded shadow-md w-full">Update Account Details</button>
+        </div>
+    </form>
+</div>
