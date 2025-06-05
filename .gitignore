@@ -31,3 +31,9 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### uploads directory ###
+uploads/
+
+### node modules ###
+/kraft-ui/node_modules/
