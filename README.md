@@ -217,7 +217,7 @@ Kraftr AdminX will automatically reflect this in the UI form without extra front
 
 📸 Screenshots
 
-    Coming soon: screenshots of listing pages, filters, and preview support.
+<img src="/images/kraft-admin.png" alt="kraftadmin list page">
 
 📃 License
 
