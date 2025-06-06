@@ -4,27 +4,110 @@
 A modular and customizable admin dashboard library for Spring Boot applications. It provides dynamic filtering, sorting, pagination, file preview, and global search across fields — all with minimal configuration.
 
 Ideal for building internal tools, CMS interfaces, data dashboards, or managing entities in CRUD-heavy applications.
-✨ Features
 
-    🔁 Dynamic filtering and sorting on any field
+Coming soon as a Maven/Gradle dependency. For now, clone and build locally.
+#### ✨ Features
 
-    📄 File preview support in listings
+- Dynamic filtering and sorting on any field
 
-    📦 Pagination with URL state preservation
+- File preview support in listings
 
-    🔍 Global search across all fields (WIP)
+- Pagination with URL state preservation
 
-    🔧 Easily customizable for different data models
+- Global search across all fields
 
-    ⚙️ Works out-of-the-box with Spring Data JPA
+- Easily customizable for different data models
 
-    📁 Enum-based filters for structured querying
+- Works out-of-the-box with Spring Data JPA
 
-📦 Installation
+- Enum-based filters for structured querying
 
-Coming soon as a dependency via Maven/Gradle. For now, clone or copy into your project.
+### Installation (Current Method)
 
-    git clone https://github.com/yourusername/spring-boot-admin-library.git
+Until it's available via Maven Central or GitHub Packages, you can use it by cloning and building the project locally:
+
+```bash
+git clone https://github.com/nyadero/kraftadmin.git
+cd kraftadmin
+mvn clean install
+```
+
+#### Add to Your Spring Boot Project
+Add the Maven Dependency
+
+````
+<dependency>
+  <groupId>com.bowerzlabs</groupId>
+  <artifactId>kraft-starter</artifactId>
+  <version>0.1.0</version> <!-- Replace with the local version -->
+</dependency>
+````
+
+### Configuration
+application.properties
+````
+# Enable the admin library
+kraft.kraft-admin.enabled=true
+
+# Set the admin panel title
+kraft.title=Hacksurge Dashboard
+
+````
+
+OR application.yml
+
+````
+kraft:
+  kraft-admin:
+    enabled: true
+  title: Kraft Sandbox11
+````
+
+### Entity & Repository Setup
+
+Update your main application class to scan KraftAdmin's models and repositories:
+
+````
+@SpringBootApplication
+@EnableJpaRepositories(basePackages = {
+  "your.own.repository.package",
+  "com.bowerzlabs.repository.kraftrepos"
+})
+@EntityScan(basePackages = {
+  "your.own.model.package",
+  "com.bowerzlabs.models.kraftmodels"
+})
+public class Application {
+  public static void main(String[] args) {
+  SpringApplication.run(Application.class, args);
+  }
+}
+
+````
+
+###  Modules Overview
+## 📦 Modules Overview
+
+| Module          | Description                                   |
+|------------------|-----------------------------------------------|
+| `kraft-ui`       | UI components for the admin dashboard         |
+| `kraft-security` | Auth & permission middleware                  |
+| `kraft-admin`    | Core admin logic and utilities                |
+| `kraft-starter`  | Combines and exposes all modules for plug-and-play |
+
+### Coming Soon
+
+- GitHub Packages + Maven Central
+
+- Example project
+
+- Admin UI customization docs
+
+- Starter guide with multi-tenant support
+- Monitoring and logging
+- Analytics 
+
+
 
 🧩 Form Field Factory
 
@@ -138,4 +221,4 @@ Kraftr AdminX will automatically reflect this in the UI form without extra front
 
 📃 License
 
-MIT License — free to use and modify. Credit appreciated but not required.# kraftadmin
+MIT License — free to use and modify.
