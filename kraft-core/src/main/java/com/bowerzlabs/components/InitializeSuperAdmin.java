@@ -1,12 +1,11 @@
 package com.bowerzlabs.components;
 
-import com.bowerzlabs.config.KraftrProperties;
+import com.bowerzlabs.config.KraftProperties;
 import com.bowerzlabs.constants.Role;
 import com.bowerzlabs.models.kraftmodels.AdminUser;
 import com.bowerzlabs.repository.kraftrepos.KraftAdminUsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -16,12 +15,12 @@ import java.util.Optional;
 //@ConditionalOnProperty(name = "kraft.kraft-jpa.enabled", havingValue = "true")
 public class InitializeSuperAdmin implements CommandLineRunner {
     private final KraftAdminUsersRepository kraftAdminUsersRepository;
-    private final KraftrProperties adminProperties;
+    private final KraftProperties adminProperties;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
 
-    public InitializeSuperAdmin(KraftAdminUsersRepository kraftAdminUsersRepository, KraftrProperties adminProperties) {
+    public InitializeSuperAdmin(KraftAdminUsersRepository kraftAdminUsersRepository, KraftProperties adminProperties) {
         this.kraftAdminUsersRepository = kraftAdminUsersRepository;
         this.adminProperties = adminProperties;
     }
@@ -38,7 +37,7 @@ public class InitializeSuperAdmin implements CommandLineRunner {
             AdminUser adminUser1 = new AdminUser();
             adminUser1.setRole(Role.SUPER_ADMIN);
             adminUser1.setUsername(adminProperties.getAdminUsername());
-            adminUser1.setName("Nyadero Brian Odhiambo");
+            adminUser1.setName(adminProperties.getName());
             adminUser1.setPassword(passwordEncoder.encode(adminProperties.getPassword()));
             kraftAdminUsersRepository.save(adminUser1);
         }
