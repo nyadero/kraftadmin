@@ -5,12 +5,38 @@ import org.springframework.stereotype.Component;
 
 @Component
 @ConfigurationProperties(prefix = "kraft")
-public class KraftrProperties {
+public class KraftProperties {
+/**
+ * Whether kraft-admin is enabled
+ * Default false
+ * */
     private boolean enabled = false;
+    /**
+     * The title/name of your application
+     * Default "Admin Dashboard"
+     * */
     private String title = "Admin Dashboard";
-    private String adminUsername = "admin@admina.com";
+    /**
+     * The username of your dashboard's superuser/admin
+     * Default "admin@kraftadmin.com"
+     * */
+    private String adminUsername = "admin@kraftadmin.com";
+    /**
+     * The superuser/admin's name
+     * Default "Nyadero Brian Odhiambo"
+     * */
+    private String adminName = "Nyadero Brian";
+    /**
+     * The superuser/admin's password
+     * Advised to immediately change once superuser has been saved to db
+     * Default "password"
+     * */
     private String password = "password";
-    private String baseUrl;
+    /**
+     * The base url endpoint your application will use to access the admin resources
+     * Default "admin"
+     * */
+    private String baseUrl = "admin";
     private String type;
     private String name;
     public boolean isEnabled() {
@@ -64,5 +90,13 @@ public class KraftrProperties {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getAdminName() {
+        return adminName;
+    }
+
+    public void setAdminName(String adminName) {
+        this.adminName = adminName;
     }
 }
