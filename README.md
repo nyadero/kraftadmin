@@ -143,34 +143,6 @@ The FormFieldFactory is a dynamic form generator for Java entity classes. It aut
 
         Begins groundwork for handling embedded/complex objects (incomplete but structured for expansion).
 
-🛠️ Potential Improvements
-
-- WYSIWYG & Range Field Support:
-
-        Implement support for unhandled FormInputTypes like WYSIWYG and RANGE.
-
-- Embedded Object Handling:
-
-        Currently logs embedded fields but doesn't generate nested forms—this could be improved using recursion or child factories.
-
-- Error Handling & Logging:
-
-        Logging is verbose; can be toggled or switched to debug level in production.
-
-        Handle class cast exceptions more gracefully for mismatched types.
-
-- Refactor Monolithic Method:
-
-        Break createFormFieldsFromEntity into smaller strategy-based handlers per type/annotation.
-
-- Custom Field Types:
-
-        Allow user-defined custom components to extend form field rendering.
-
-- Caching for Related Entities:
-
-        Optimize performance by caching related entity lists where necessary.
-
 Annotate Your Entities
 
     @Entity
