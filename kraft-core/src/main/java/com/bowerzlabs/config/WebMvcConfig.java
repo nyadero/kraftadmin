@@ -23,17 +23,18 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Autowired
     private HttpSession session;
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(requestTimingInterceptor);
-    }
+//    @Override
+//    public void addInterceptors(InterceptorRegistry registry) {
+//        registry.addInterceptor(requestTimingInterceptor);
+//    }
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // Adjust the classpath location to your actual library module's resource path
-        registry.addResourceHandler("/js/**", "/css/**", "/uploads/**")
+        registry.addResourceHandler("/js/**", "/css/**", "/uploads/**", "/images/**")
                 .addResourceLocations("classpath:/static/css/")
                 .addResourceLocations("/uploads/")
+                .addResourceLocations("classpath:/static/images/")
                 .addResourceLocations("classpath:/static/js/");
     }
 
