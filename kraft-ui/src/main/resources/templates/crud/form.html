@@ -13,7 +13,7 @@
         <div th:each="field : ${fields}">
             <label th:for="${field.name}" th:text="${field.label}" class="capitalize text-lg"></label>
             <div th:switch="${field.type}">
-                <div th:case="'text'">
+                <div th:case="'text'" class="mb-2">
                     <div th:replace="~{fragments/inputs/inputs :: textInput(${field})}"></div>
                     <div>
                          <span th:if="${validationErrors != null and validationErrors.containsKey(field.name)}"
@@ -182,6 +182,17 @@
     </form>
 
 </th:block>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.querySelector("form");
+        form.addEventListener("keydown", function (event) {
+            if (event.key === "Enter" && event.target.tagName !== "TEXTAREA") {
+                event.preventDefault(); // stop Enter from submitting
+            }
+        });
+    });
+</script>
 
 </body>
 </html>
