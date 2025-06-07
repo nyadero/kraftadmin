@@ -6,15 +6,6 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("sidebar")?.classList.toggle("d-none");
   });
 
-  /** ---------------- TinyMCE Editor ---------------- **/
-  tinymce.init({
-    selector: ".wysiwyg-editor",
-    height: 300,
-    menubar: false,
-    plugins: "lists link image preview code",
-    toolbar: "undo redo | formatselect | bold italic | bullist numlist | link image | code",
-  });
-
   /** ---------------- Tab Navigation ---------------- **/
   const buttons = document.querySelectorAll(".tab-button");
   const contents = document.querySelectorAll(".tab-content");
@@ -36,57 +27,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Set default tab
   activateTab("account");
-
-  /** ---------------- Select/Deselect All ---------------- **/
-  const selectAll = document.getElementById("selectAll");
-  const rowCheckboxes = document.querySelectorAll(".rowCheckbox");
-
-  selectAll?.addEventListener("change", function () {
-    console.log("Selecting all checkboxes:", selectAll.checked);
-    rowCheckboxes.forEach((cb) => {
-      cb.checked = selectAll.checked;
-    });
-  });
-
-  rowCheckboxes.forEach((cb) => {
-    cb.addEventListener("change", function () {
-      if (!cb.checked) {
-        selectAll.checked = false;
-      } else if ([...rowCheckboxes].every((c) => c.checked)) {
-        selectAll.checked = true;
-      }
-    });
-  });
-
-  /** ---------------- Row Click Select ---------------- **/
-  document.querySelectorAll("tbody tr").forEach((row) => {
-    row.addEventListener("click", function (e) {
-      if (
-        e.target.tagName !== "INPUT" &&
-        e.target.tagName !== "A" &&
-        !e.target.closest(".actions-menu")
-      ) {
-        const checkbox = row.querySelector(".rowCheckbox");
-        checkbox.checked = !checkbox.checked;
-        checkbox.dispatchEvent(new Event("change"));
-      }
-    });
-  });
-
-  /** ---------------- Dropdown Actions ---------------- **/
-  const actionsMenu = document.querySelectorAll(".actions-menu");
-
-  function toggleMenu(id) {
-    console.log("Toggling actions menu for", id);
-    actionsMenu.forEach((menu) => {
-      if (menu.id !== id) menu.style.display = "none";
-    });
-
-    const menu = document.getElementById(id);
-    if (menu) {
-      menu.style.display = menu.style.display === "block" ? "none" : "block";
-    }
-  }
 
   /** ---------------- Filtering Select Inputs ---------------- **/
   function filterSelectOptions(selectId) {
