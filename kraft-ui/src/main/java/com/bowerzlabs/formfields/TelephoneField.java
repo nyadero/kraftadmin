@@ -1,5 +1,11 @@
 package com.bowerzlabs.formfields;
 
+import com.bowerzlabs.utils.CountryCode;
+import com.bowerzlabs.utils.CountryCodesUtil;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class TelephoneField extends FormField{
@@ -10,6 +16,7 @@ public class TelephoneField extends FormField{
     private String name;
     private final Map<String, String> validationErrors;
     private final Map<String, String> validationRules;
+    private final List<CountryCode> countryCodeList;
 
     public TelephoneField(String label, String placeholder, boolean required, String  value, String name, Map<String, String> validationRules, Map<String, String> validationErrors) {
         super();
@@ -20,7 +27,9 @@ public class TelephoneField extends FormField{
         this.name = name;
         this.validationRules = validationRules;
         this.validationErrors = validationErrors;
+        this.countryCodeList = CountryCodesUtil.getCountryCodeList();
     }
+
     /**
      * @return
      */
@@ -85,6 +94,11 @@ public class TelephoneField extends FormField{
         return validationRules;
     }
 
+    // Todo - Get countries' telephone code
+    public List<CountryCode> getCountryCodeList() {
+        return countryCodeList;
+    }
+
     @Override
     public void setName(String s) {
         this.name = s;
@@ -94,7 +108,6 @@ public class TelephoneField extends FormField{
     public void setLabel(String s) {
         this.label = s;
     }
-
 
     /**
      * builds the input model data
@@ -108,6 +121,7 @@ public class TelephoneField extends FormField{
                 "value", value,
                 "required", required,
                 "type", getType(),
+                "countryCodes", countryCodeList,
                 "validationRules", validationRules,
                 "validationErrors", validationErrors
         );
