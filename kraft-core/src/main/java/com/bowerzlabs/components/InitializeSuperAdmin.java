@@ -37,7 +37,7 @@ public class InitializeSuperAdmin implements CommandLineRunner {
             AdminUser adminUser1 = new AdminUser();
             adminUser1.setRole(Role.SUPER_ADMIN);
             adminUser1.setUsername(adminProperties.getAdminUsername());
-            adminUser1.setName(adminProperties.getName());
+            adminUser1.setName(adminProperties.getAdminName());
             adminUser1.setPassword(passwordEncoder.encode(adminProperties.getPassword()));
             kraftAdminUsersRepository.save(adminUser1);
         }
