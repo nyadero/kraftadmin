@@ -1,11 +1,11 @@
 <div th:fragment="sidebar-container" xmlns:th="http://www.w3.org/1999/xhtml">
-    <div class="h-screen w-80 bg-white overflow-y-auto sticky top-0 left-0">
+    <div class="h-screen w-80 bg-white overflow-y-auto sticky top-0 left-0 border-l-2 border-l-black">
         <!-- Title -->
         <div class="py-5 px-4 flex items-center">
             <h3 class="text-lg font-bold" th:text="${title}">Library System</h3>
         </div>
 
-        <hr class="border-dark" />
+<!--        <hr class="border-dark" />-->
 
         <div class="p-4 pb-24">
             <ul class="flex flex-col space-y-2">
@@ -42,6 +42,8 @@
 <!--                    </li>-->
 <!--                </div>-->
 
+                <hr class="border-dark" />
+
                 <li>
                     <button type="button"
                             onclick="document.getElementById('entity-list').classList.toggle('hidden')"
@@ -53,8 +55,8 @@
                     <!-- Scrollable inner container with max-height -->
                     <ul id="entity-list" class="space-y-2 mt-2 max-h-32 overflow-y-auto hidden">
                         <li th:each="entity : ${entities}">
-                            <a class="flex items-center px-4 py-2 border border-blue-500 rounded capitalize space-x-2 hover:bg-blue-500 hover:text-white transition"
-                               th:href="@{/admin/{entity}(entity=${entity.name.value})}">
+                            <a class="flex items-center px-4 py-2  ml-5 mr-5 border border-blue-500 rounded capitalize space-x-2 hover:bg-blue-500 hover:text-white transition"
+                               th:href="@{/admin/crud/{entity}(entity=${entity.name.value})}">
                                 <i th:class="${entity.icon ?: 'fa fa-cubes'}"></i>
                                 <span th:text="${entity.name.key}"></span>
                             </a>
@@ -62,6 +64,7 @@
                     </ul>
                 </li>
 
+                        <hr class="border-dark" />
 
                 <li class="flex items-center justify-between px-4 py-2 border border-blue-500 rounded hover:bg-blue-500 transition">
                     <h3>Monitoring</h3>
@@ -82,6 +85,9 @@
                         </li>
                     </ul>
                 </div>
+
+                        <hr class="border-dark" />
+
 
                 <li>
                     <a class="block w-full px-4 py-2 border border-blue-500 rounded hover:bg-blue-500 transition"

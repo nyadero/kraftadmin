@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<body>
+<th:block th:fragment="entityTable(entityName, fieldNames, sortableFieldNames, sortBy, sortOrder, displayItems, primaryKey, totalElements, currentParams, enumFields)">
+
+    <!-- Header Section -->
+    <div style="display:flex; justify-content:space-between; align-items:center">
+        <h1 th:text="${totalElements} + ' ' + ${entityName}"></h1>
+
+        <div class="flex items-center gap-5">
+            <a th:href="@{/admin/crud/{entityName}/create(entityName=${entityName})}" class="bg-blue-500 p-2 rounded text-white">Create New</a>
+
+            <div>
+                <span>Export as:</span>
+                <a th:href="@{/admin/crud/{entityName}/export?format=CSV(entityName=${entityName})}">CSV</a> |
+                <a th:href="@{/admin/crud/{entityName}/export(format='json')(entityName=${entityName})}">JSON</a> |
+                <a th:href="@{/admin/crud/{entityName}/export(format='xml')(entityName=${entityName})}">XML</a>
+            </div>
+
+            <select onchange="if(this.value) window.location.href=this.value">
+                <option disabled selected>Select Export Format</option>
+                <option th:value="@{/admin/crud/{entityName}/export(format='csv')(entityName=${entityName})}">CSV</option>
+                <option th:value="@{/admin/crud/{entityName}/export(format='json')(entityName=${entityName})}">JSON</option>
+                <option th:value="@{/admin/crud/{entityName}/export(format='xml')(entityName=${entityName})}">XML</option>
+            </select>
+
+            <a th:href="@{/admin/settings/{entityName}/customize-entity-view(entityName=${entityName})}">
+                Customize display
+            </a>
+        </div>
+    </div>
+
+
+    <!-- Filter Section -->
+    <div class="my-4">
+        <form method="get" th:action="@{'/admin/crud/' + ${entityName}}" class="flex items-center gap-5 flex-wrap">
+            <div th:each="queryParam : ${currentParams.entrySet()}">
+                <input type="hidden"
+                       th:if="${not (#strings.startsWith(queryParam.key, 'filter.') and enumFields.containsKey(queryParam.key.substring(7)) and #strings.isEmpty(queryParam.value))}"
+                       th:name="${queryParam.key}"
+                       th:value="${queryParam.value}" />
+            </div>
+
+            <div th:each="entry : ${enumFields}">
+                <label th:for="${entry.key}" class="block font-semibold text-gray-700 mb-3 capitalize"
+                       th:text="${entry.key}">Field</label>
+
+                <select th:id="${entry.key}"
+                        th:name="${'filter.' + entry.key}"
+                        class="w-full p-2 rounded border">
+                    <option value="" disabled
+                            th:selected="${#strings.isEmpty(currentParams['filter.' + entry.key])}">All</option>
+
+                    <option th:each="val : ${entry.value}"
+                            th:value="${val}"
+                            th:text="${val}"
+                            th:selected="${currentParams['filter.' + entry.key] == val}">
+                    </option>
+                </select>
+            </div>
+
+            <button type="submit" class="bg-blue-400 p-2 rounded shadow">Apply Filters</button>
+        </form>
+    </div>
+
+    <section th:if="${totalElements != null and totalElements > 0}" >
+
+    <!-- Table Section -->
+    <table border="1">
+        <thead>
+        <tr>
+            <th><input type="checkbox" id="selectAll"/></th>
+            <th:block th:if="${not #lists.isEmpty(fieldNames)}">
+                <th th:each="field : ${fieldNames}"
+                    th:with="isSortable=${sortableFieldNames.contains(field)},
+                             isActive=${sortBy == field},
+                             newSortOrder=${isActive} ? (${sortOrder} == 'asc' ? 'desc' : 'asc') : 'asc'">
+                    <a th:if="${isSortable}"
+                       th:href="@{/admin/{entityName}(entityName=${entityName}, filter.sortBy=${field}, filter.sortOrder=${newSortOrder})}"
+                       style="text-decoration: none; color: inherit;">
+                        <span th:text="${field}"></span>
+                        <span th:if="${isActive}" style="margin-left: 5px; color: #444;" th:text="${sortOrder == 'asc' ? '↑' : '↓'}"></span>
+                        <span th:if="${!isActive}" style="margin-left: 5px; color: #ccc;">⇅</span>
+                    </a>
+                    <span th:if="${!isSortable}" th:text="${field}"></span>
+                </th>
+            </th:block>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="displayItem : ${displayItems}">
+            <td>
+                <input type="checkbox" name="selectedIds"
+                       th:value="${displayItem.get(primaryKey)?.value}" class="rowCheckbox"/>
+            </td>
+            <td th:each="field : ${fieldNames}">
+                <div th:with="displayField=${displayItem.get(field)}">
+                    <div th:replace="~{fragments/displays/display-field :: render(${displayField})}"></div>
+                </div>
+            </td>
+            <td>
+                <div class="action-dropdown">
+                    <button type="button" onclick="toggleActions(this)">⋮</button>
+                    <div class="actions-menu" style="display: none;">
+                        <a th:href="@{/admin/crud/{entityName}/edit/{id}(entityName=${entityName}, id=${displayItem.get(primaryKey)?.value})}" class="text-blue-500">Edit</a>
+                        <a th:href="@{/admin/crud/{entityName}/{id}(entityName=${entityName}, id=${displayItem.get(primaryKey)?.value})}">Details</a>
+                        <div th:inline="text">
+                            <a href="#" th:onclick="showDeleteModal([[${displayItem.get(primaryKey)?.value}]], [[${entityName}]])">Delete</a>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    </section>
+</th:block>
+</body>
+</html>

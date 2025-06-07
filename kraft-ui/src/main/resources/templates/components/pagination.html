@@ -15,12 +15,12 @@
     <!-- Page Navigation -->
     <div>
         <a th:if="${currentPage > 0}"
-           th:href="@{/admin/{entityName}(entityName=${entityName}, page=${currentPage - 1}, size=${size}, search=${search})}">
+           th:href="@{/admin/crud/{entityName}(entityName=${entityName}, page=${currentPage - 1}, size=${size}, search=${search})}">
             Previous
         </a>
 
         <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
-                <a th:href="@{/admin/{entityName}(entityName=${entityName}, page=${i}, size=${size}, search=${search})}"
+                <a th:href="@{/admin/crud/{entityName}(entityName=${entityName}, page=${i}, size=${size}, search=${search})}"
                    th:text="${i + 1}"
                    th:style="${i == currentPage} ? 'font-weight: bold; text-decoration: underline;' : ''">
                 </a>
@@ -28,14 +28,14 @@
             </span>
 
         <a th:if="${currentPage < totalPages - 1}"
-           th:href="@{/admin/{entityName}(entityName=${entityName}, page=${currentPage + 1}, size=${size}, search=${search})}">
+           th:href="@{/admin/crud/{entityName}(entityName=${entityName}, page=${currentPage + 1}, size=${size}, search=${search})}">
             Next
         </a>
     </div>
 
     <!-- Items per page -->
     <div>
-        <form method="get" th:action="@{/admin/{entityName}(entityName=${entityName})}">
+        <form method="get" th:action="@{/admin/crud/{entityName}(entityName=${entityName})}">
             <label for="size">Items per page:</label>
             <select id="size" name="size" onchange="this.form.submit()">
                 <option th:each="s : ${ {10, 20, 50, 100} }"
