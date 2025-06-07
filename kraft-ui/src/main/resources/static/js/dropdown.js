@@ -21,7 +21,7 @@ window.addEventListener('click', function (event) {
 // show confirm delete modal
  function showDeleteModal(id, entityName) {
       const form = document.getElementById("deleteForm");
-      form.action = `/admin/${entityName}/delete/${id}`;
+      form.action = `/admin/crud/${entityName}/delete/${id}`;
       document.getElementById("deleteModal").style.display = "flex";
  }
 
