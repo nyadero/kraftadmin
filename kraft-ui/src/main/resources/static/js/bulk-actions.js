@@ -38,5 +38,5 @@ function performBulkAction(action) {
   if (!selectedIds) return alert('Please select at least one item.');
   if (action === 'delete' && !confirm('Are you sure you want to delete the selected items?')) return;
 
-  window.location.href = `/admin/${entityName}/bulk-action?action=${action}&selectedIds=${selectedIds}`;
+  window.location.href = `/admin/crud/${entityName}/bulk-action?action=${action}&selectedIds=${selectedIds}`;
 }
