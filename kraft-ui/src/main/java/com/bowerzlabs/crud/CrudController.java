@@ -2,6 +2,8 @@ package com.bowerzlabs.crud;
 
 import com.bowerzlabs.EntitiesScanner;
 import com.bowerzlabs.InputGenerator;
+import com.bowerzlabs.annotations.AdminController;
+import com.bowerzlabs.constants.BulkAction;
 import com.bowerzlabs.constants.FieldType;
 import com.bowerzlabs.constants.Status;
 import com.bowerzlabs.constants.UserActionType;
@@ -13,6 +15,9 @@ import com.bowerzlabs.dtos.PageResponse;
 import com.bowerzlabs.dtos.TableRowDTO;
 import com.bowerzlabs.events.UIEvent;
 import com.bowerzlabs.events.UserActionEvent;
+import com.bowerzlabs.files.LocalMultipartFileStorage;
+import com.bowerzlabs.files.MultipartFileStorage;
+import com.bowerzlabs.files.StorageProperties;
 import com.bowerzlabs.formfields.FormField;
 import com.bowerzlabs.models.kraftmodels.AdminUser;
 import com.bowerzlabs.service.CrudService;
@@ -37,7 +42,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/admin")
+@RequestMapping("/admin/crud")
+//@AdminController
 public class CrudController {
     private static final Logger log = LoggerFactory.getLogger(CrudController.class);
     private final EntitiesScanner entitiesScanner;
@@ -45,6 +51,8 @@ public class CrudController {
     private final CrudService crudService;
     private final DataExporterRegistry dataExporterRegistry;
     private final FileStorageService fileStorageService;
+    private MultipartFileStorage multipartFileStorage;
+    private final StorageProperties storageProperties;
 //    private final LocalStorageServiceProvider localStorageServiceProvider;
 
     public CrudController(EntitiesScanner entitiesScanner, ApplicationEventPublisher applicationEventPublisher, CrudService crudService, DataExporterRegistry dataExporterRegistry) {
@@ -52,14 +60,15 @@ public class CrudController {
         this.applicationEventPublisher = applicationEventPublisher;
         this.crudService = crudService;
         this.dataExporterRegistry = dataExporterRegistry;
-        this.fileStorageService = new FileStorageService();
+        this.storageProperties = new StorageProperties();
+        this.fileStorageService = new FileStorageService(new StorageProperties());
     }
 
     // render create item page
     @GetMapping("/{entityName}/create")
     public String renderCreateForm(
             @PathVariable("entityName") String entityName,
-            @RequestParam Map<String, String> formData, // Capture submitted data
+            @RequestParam Map<String, String> formData,
             Model model
     ){
         try {
@@ -69,6 +78,7 @@ public class CrudController {
             log.info("Validation errors in renderCreateForm {} and formData {}", validationErrors, model.getAttribute("formValues"));
             DbObjectSchema dbObjectSchema = new DbObjectSchema(entityInstance,null);
             List<FormField> formFields = InputGenerator.generateFormInput(entityInstance, dbObjectSchema, "/admin/" + entityName + "/create", false, false,validationErrors);
+            log.info("formFields {}", formFields);
             model.addAttribute("actionUrl", "/admin/" + entityName + "/create");
             model.addAttribute("fields", formFields);
             model.addAttribute("entityName", entityName);
@@ -100,6 +110,7 @@ public class CrudController {
 
             // 1. Validate input
             Map<String, String> validationErrors = dbObjectSchema.validateFormValues(formValues);
+            log.info("add data validation errors {}", validationErrors);
             if (!validationErrors.isEmpty()) {
                 redirectAttributes.addFlashAttribute("validationErrors", validationErrors);
                 redirectAttributes.addFlashAttribute("formValues", formValues);
@@ -111,11 +122,24 @@ public class CrudController {
                 for (Map.Entry<String, MultipartFile> entry : fileInputs.entrySet()) {
                     String field = entry.getKey();
                     MultipartFile file = entry.getValue();
+                    String uploadedFile = null;
 
                     if (file != null && !file.isEmpty()) {
-                        String uploadedFileName = fileStorageService.upload(file);
-                        formValues.put(field, uploadedFileName); // Add it as if it was submitted in the form
-                        System.out.println("📁 File uploaded for field " + field + ": " + uploadedFileName);
+                        switch (new StorageProperties().getProvider()){
+                            case Local:
+                                multipartFileStorage = new LocalMultipartFileStorage(storageProperties);
+                                uploadedFile = multipartFileStorage.uploadSingle(file);
+                                break;
+                            case Cloudinary:
+                                break;
+                            case AWS_S3:
+                                break;
+                            default:
+                                log.info("Unknown provider");
+                        }
+                        String uploadedFileName = null;
+                        formValues.put(field, uploadedFile); // Add it as if it was submitted in the form
+                        System.out.println("📁 File uploaded for field " + field + ": " + uploadedFile);
                     }
                 }
             }
@@ -292,35 +316,53 @@ public class CrudController {
         return "crud/list";
     }
 
-//    private FieldType getDataType(Object value1) {
-//        if(value1.toString().contains(".jpg") || value1.toString().contains(".png")){
-//            return FieldType.IMAGE;
-//        } else if (value1.toString().contains(".pdf")) {
-//            return FieldType.DOCUMENT;
-//        } else if (value1.toString().contains(".mp4")) {
-//            return FieldType.VIDEO;
-//        } else if (value1.toString().contains(".mp3")) {
-//            return FieldType.AUDIO;
-//        }
-//        return FieldType.TEXT;
-//    }
-
     private FieldType getDataType(Object value) {
         if (value == null) return FieldType.TEXT;
 
-        String val = value.toString().toLowerCase();
+//        String val = value.toString().toLowerCase();
+        String val = value.toString().trim().toLowerCase();
 
-        if (val.endsWith(".jpg") || val.endsWith(".jpeg") || val.endsWith(".png") || val.endsWith(".gif")) {
+
+        if (val.endsWith(".jpg") || val.endsWith(".jpeg") || val.endsWith(".png") || val.endsWith(".gif") || val.endsWith(".webp")) {
             return FieldType.IMAGE;
         } else if (val.endsWith(".pdf") || val.endsWith(".doc") || val.endsWith(".docx")) {
             return FieldType.DOCUMENT;
         } else if (val.startsWith("http")) {
             return FieldType.LINK;
-        } else {
+        } else if (isColorValue(val)) {
+            return FieldType.COLOR;
+        }else {
             return FieldType.TEXT;
         }
     }
 
+    private boolean isColorValue(String val) {
+        return isHexColor(val) || isRgbOrHsl(val) || isNamedColor(val);
+    }
+
+//    private boolean isHexColor(String val) {
+//        return val.matches("^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$");
+//    }
+
+    private boolean isHexColor(String val) {
+        return val.matches("(?i)^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$");
+    }
+
+
+    private boolean isRgbOrHsl(String val) {
+        return val.matches("^(rgb|rgba|hsl|hsla)\\s*\\(.*\\)$");
+    }
+
+    private boolean isNamedColor(String val) {
+        // Simple check for common CSS color names
+        Set<String> cssColors = Set.of(
+                "black", "white", "red", "green", "blue", "yellow", "pink", "cyan", "magenta",
+                "orange", "purple", "gray", "brown", "lime", "navy", "teal", "maroon", "olive",
+                "silver", "gold", "beige", "coral", "crimson", "indigo", "ivory", "khaki", "lavender",
+                "plum", "salmon", "tan", "turquoise", "violet", "wheat"
+        );
+        return cssColors.contains(val);
+    }
 
     // render update item page
     @GetMapping("/{entityName}/edit/{id}")
@@ -417,34 +459,34 @@ public class CrudController {
     @GetMapping("/{entityName}/bulk-action")
     public String bulkOperations(
             @PathVariable("entityName") String entityName,
-            @RequestParam(name = "action") String bulkAction,
+            @RequestParam(name = "action") BulkAction bulkAction,
             @RequestParam(name= "selectedIds") List<String> selectedIds,
-//            RedirectAttributes redirectAttributes,
+            @RequestParam(name = "format", defaultValue = "JSON") String format,
+            RedirectAttributes redirectAttributes,
             Model model
     ){
-        System.out.println("Inside bulk operations");
         log.info("action {} ids {}", bulkAction, selectedIds);
-//        if ("delete".equalsIgnoreCase(action)) {
-//            // Example: delete from database
-//            myService.bulkDelete(entityName, selectedIds);
-//            redirectAttributes.addFlashAttribute("success", "Items deleted successfully.");
-//            return "redirect:/admin/" + entityName;
-//        }
-//
-//        if ("export".equalsIgnoreCase(action)) {
-//            // Example: return a downloadable CSV
-//            String csv = myService.generateCsvForIds(entityName, selectedIds);
-//            response.setContentType("text/csv");
-//            response.setHeader("Content-Disposition", "attachment; filename=export.csv");
-//            response.getWriter().write(csv);
-//            response.getWriter().flush();
-//            return null;
-//        }
-//
-//        redirectAttributes.addFlashAttribute("error", "Unknown bulk action.");
+        switch (bulkAction){
+            case Delete -> {
+                crudService.bulkDelete(entityName, selectedIds);
+                redirectAttributes.addFlashAttribute("success", "Items deleted successfully.");
+            }
+            case Export -> {
+                crudService.exportData(entityName, selectedIds, format);
+                redirectAttributes.addFlashAttribute("success", "Items exported successfully.");
+            }
+            case Print -> {
+                // Todo
+            }
+            case Duplicate -> {
+                // Todo -- create new data similar to the selected ones
+            }
+            default -> {
+                redirectAttributes.addFlashAttribute("error", "Unknown bulk action.");
+            }
+        }
         return "redirect:/admin/" + entityName;
     }
-
 
     /**
      * export entity data in defined format

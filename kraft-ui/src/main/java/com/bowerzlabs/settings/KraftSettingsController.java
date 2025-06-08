@@ -1,6 +1,7 @@
 package com.bowerzlabs.settings;
 
 import com.bowerzlabs.EntitiesScanner;
+import com.bowerzlabs.annotations.AdminController;
 import com.bowerzlabs.formfields.CheckboxField;
 import com.bowerzlabs.models.kraftmodels.AdminUser;
 import com.bowerzlabs.models.kraftmodels.DisplayFieldsPreference;
@@ -26,6 +27,7 @@ import java.util.Optional;
 
 @Controller
 @RequestMapping("/admin")
+//@AdminController
 public class KraftSettingsController {
     private final EntitiesScanner entitiesScanner;
     private final KraftDisplayedFieldPreferenceRepository kraftDisplayedFieldPreferenceRepository;
