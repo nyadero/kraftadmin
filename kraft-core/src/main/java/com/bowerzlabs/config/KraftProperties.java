@@ -3,6 +3,9 @@ package com.bowerzlabs.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+/**
+ * This is the class that holds configuration properties of the library such as title, baseUrl etc
+ */
 @Component
 @ConfigurationProperties(prefix = "kraft")
 public class KraftProperties {
@@ -39,6 +42,7 @@ public class KraftProperties {
     private String baseUrl = "admin";
     private String type;
     private String name;
+
     public boolean isEnabled() {
         return enabled;
     }
