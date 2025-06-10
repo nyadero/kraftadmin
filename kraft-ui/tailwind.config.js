@@ -3,7 +3,7 @@ import forms from '@tailwindcss/forms';
 
 module.exports = {
   content: [
-    "./src/main/resources/templates/**/*.html"
+    "./src/main/resources/templates/**/*.{html/js}"
   ],
   theme: {
     extend: {

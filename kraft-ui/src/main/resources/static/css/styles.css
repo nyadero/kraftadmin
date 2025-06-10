@@ -1,13 +1,13 @@
 @import "tailwindcss";
-/* @tailwind base;
-@tailwind components; */
+@tailwind base;
+@tailwind components;
 @tailwind utilities;
 
-       th, td {
+th, td {
     padding: 0.75rem;
     border: 1px solid #dee2e6;
     text-align: left;
-    word-wrap: break-word;       /* ensures words wrap */
+    word-wrap: break-word;
     word-break: break-word;      /* breaks long words */
     white-space: normal;         /* allows wrapping */
     max-width: 200px;            /* you can tweak this value */
