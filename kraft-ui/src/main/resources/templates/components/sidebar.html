@@ -53,7 +53,7 @@
                     </button>
 
                     <!-- Scrollable inner container with max-height -->
-                    <ul class="space-y-2 mt-2 max-h-32 overflow-y-auto mx-5 hidden" id="entity-list">
+                    <ul class="space-y-2 mt-2 max-h-32 overflow-y-auto hidden" id="entity-list">
                         <li th:each="entity : ${entities}">
                             <a class="flex items-center px-4 py-2  ml-5 mr-5 border border-blue-500 rounded capitalize space-x-2 hover:bg-blue-500 hover:text-white transition"
                                th:href="@{/admin/crud/{entity}(entity=${entity.name.value})}">
