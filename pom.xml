@@ -31,6 +31,7 @@
         <module>kraft-ui</module>
         <module>kraft-security</module>
         <module>kraft-starter</module>
+        <module>kraft-analytics</module>
     </modules>
 	<scm>
 		<connection/>

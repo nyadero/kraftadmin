@@ -3,12 +3,12 @@ package com.bowerzlabs.utils;
 public class CountryCode {
     private String name;
     private String code;
-    private String telPrefix;
+    private String dialCode;
 
     public CountryCode(String name, String code, String telPrefix) {
         this.name = name;
         this.code = code;
-        this.telPrefix = telPrefix;
+        this.dialCode = telPrefix;
     }
 
     public String getName() {
@@ -27,12 +27,12 @@ public class CountryCode {
         this.code = code;
     }
 
-    public String getTelPrefix() {
-        return telPrefix;
+    public String getDialCode() {
+        return dialCode;
     }
 
-    public void setTelPrefix(String telPrefix) {
-        this.telPrefix = telPrefix;
+    public void setDialCode(String dialCode) {
+        this.dialCode = dialCode;
     }
 
     @Override
@@ -40,7 +40,7 @@ public class CountryCode {
         return "CountryCode{" +
                 "name='" + name + '\'' +
                 ", code='" + code + '\'' +
-                ", telPrefix='" + telPrefix + '\'' +
+                ", telPrefix='" + dialCode + '\'' +
                 '}';
     }
 }

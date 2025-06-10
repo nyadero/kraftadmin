@@ -77,7 +77,7 @@
                              isActive=${sortBy == field},
                              newSortOrder=${isActive} ? (${sortOrder} == 'asc' ? 'desc' : 'asc') : 'asc'">
                     <a th:if="${isSortable}"
-                       th:href="@{/admin/{entityName}(entityName=${entityName}, filter.sortBy=${field}, filter.sortOrder=${newSortOrder})}"
+                       th:href="@{/admin/crud/{entityName}(entityName=${entityName}, filter.sortBy=${field}, filter.sortOrder=${newSortOrder})}"
                        style="text-decoration: none; color: inherit;">
                         <span th:text="${field}"></span>
                         <span th:if="${isActive}" style="margin-left: 5px; color: #444;" th:text="${sortOrder == 'asc' ? '↑' : '↓'}"></span>

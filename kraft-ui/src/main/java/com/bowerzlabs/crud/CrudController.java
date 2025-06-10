@@ -2,7 +2,6 @@ package com.bowerzlabs.crud;
 
 import com.bowerzlabs.EntitiesScanner;
 import com.bowerzlabs.InputGenerator;
-import com.bowerzlabs.annotations.AdminController;
 import com.bowerzlabs.constants.BulkAction;
 import com.bowerzlabs.constants.FieldType;
 import com.bowerzlabs.constants.Status;
@@ -50,7 +49,7 @@ public class CrudController {
     private final ApplicationEventPublisher applicationEventPublisher;
     private final CrudService crudService;
     private final DataExporterRegistry dataExporterRegistry;
-    private final FileStorageService fileStorageService;
+    private FileStorageService fileStorageService;
     private MultipartFileStorage multipartFileStorage;
     private final StorageProperties storageProperties;
 //    private final LocalStorageServiceProvider localStorageServiceProvider;
@@ -61,7 +60,6 @@ public class CrudController {
         this.crudService = crudService;
         this.dataExporterRegistry = dataExporterRegistry;
         this.storageProperties = new StorageProperties();
-        this.fileStorageService = new FileStorageService(new StorageProperties());
     }
 
     // render create item page
@@ -77,9 +75,9 @@ public class CrudController {
             Map<String, String> validationErrors = (Map<String, String>) model.getAttribute("validationErrors");
             log.info("Validation errors in renderCreateForm {} and formData {}", validationErrors, model.getAttribute("formValues"));
             DbObjectSchema dbObjectSchema = new DbObjectSchema(entityInstance,null);
-            List<FormField> formFields = InputGenerator.generateFormInput(entityInstance, dbObjectSchema, "/admin/" + entityName + "/create", false, false,validationErrors);
+            List<FormField> formFields = InputGenerator.generateFormInput(entityInstance, dbObjectSchema, "/admin/crud/" + entityName + "/create", false, false, validationErrors);
             log.info("formFields {}", formFields);
-            model.addAttribute("actionUrl", "/admin/" + entityName + "/create");
+            model.addAttribute("actionUrl", "/admin/crud/" + entityName + "/create");
             model.addAttribute("fields", formFields);
             model.addAttribute("entityName", entityName);
             assert validationErrors != null;
@@ -114,7 +112,7 @@ public class CrudController {
             if (!validationErrors.isEmpty()) {
                 redirectAttributes.addFlashAttribute("validationErrors", validationErrors);
                 redirectAttributes.addFlashAttribute("formValues", formValues);
-                return "redirect:/admin/" + entityName + "/create";
+                return "redirect:/admin/crud/" + entityName + "/create";
             }
 
             // 2. Upload files
@@ -190,7 +188,7 @@ public class CrudController {
         Class<?> entityInstance = entitiesScanner.getEntityByName(entityName);
         try {
             DbObjectSchema schema = new DbObjectSchema(entitiesScanner.getEntityByName(entityName),null);
-            List<FormField> formFields = InputGenerator.generateFormInput(entityInstance, schema, "/admin/" + entityName + "/create", false, true, new HashMap<>());
+            List<FormField> formFields = InputGenerator.generateFormInput(entityInstance, schema, "/admin/crud/" + entityName + "/create", false, true, new HashMap<>());
             List<Field> sortFields = schema.getSortableFields();
             List<Field> filterFields = schema.getFilterableFields();
             List<Field> searchFields = schema.getSearchableFields();
@@ -380,7 +378,7 @@ public class CrudController {
                 log.info("item in controller ${}", item);
                 Object entityInstance = item.get().getEntity(); // Get the actual entity instance
                 System.out.println("Item " + item.get().getFieldsWithData());
-                List<FormField> formFields = InputGenerator.generateFormInput(entityClass, item.get(), "/admin/" + entityName + "/edit", true, false, validationErrors);
+                List<FormField> formFields = InputGenerator.generateFormInput(entityClass, item.get(), "/admin/crud/" + entityName + "/edit", true, false, validationErrors);
                 model.addAttribute("fields", formFields);
                 model.addAttribute("entityName", entityName);
             } else {
@@ -413,7 +411,7 @@ public class CrudController {
                 if (!validationErrors.isEmpty()) {
                     redirectAttributes.addFlashAttribute("validationErrors", validationErrors);
                     redirectAttributes.addFlashAttribute("formValues", formValues);
-                    return "redirect:/admin/" + entityName + "/edit";
+                    return "redirect:/admin/crud/" + entityName + "/edit";
                 }
                 // Save the updated entity
                 Object savedEntity = crudService.save(entityName, formValues, item.get().getEntity());

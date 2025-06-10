@@ -14,8 +14,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.ParameterizedType;
 import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -157,9 +155,9 @@ public class CrudService {
                         if (nestedObject == null) {
                             nestedObject = field.getType().getDeclaredConstructor().newInstance();
                             field.set(target, nestedObject);
+                            target = nestedObject;
+                            currentClass = field.getType();
                         }
-                        target = nestedObject;
-                        currentClass = field.getType();
                     }
 
                 } catch (NoSuchFieldException e) {
@@ -193,73 +191,6 @@ public class CrudService {
             List<Predicate> predicates = new ArrayList<>();
         
             // --- Handle Global Search ---
-//            String searchKeyword = filters.get("search");
-//            if (searchKeyword != null && !searchKeyword.isBlank()) {
-//                List<Predicate> searchPredicates = new ArrayList<>();
-//                for (Field field : entityClass.getDeclaredFields()) {
-//                    String fieldName = field.getName();
-//                    Class<?> fieldType = field.getType();
-//                    try {
-//                        if (fieldType.equals(String.class)) {
-//                            searchPredicates.add(cb.like(cb.lower(root.get(fieldName)), "%" + searchKeyword.toLowerCase() + "%"));
-//                        } else if (Number.class.isAssignableFrom(fieldType) || fieldType.isPrimitive()) {
-//                            Object convertedValue = convertValue(fieldType, searchKeyword);
-//                            if (convertedValue != null) {
-//                                searchPredicates.add(cb.equal(root.get(fieldName), convertedValue));
-//                            }
-//                        } else if (fieldType.isEnum()) {
-//                            Object enumValue = Arrays.stream(fieldType.getEnumConstants())
-//                                    .filter(e -> e.toString().equalsIgnoreCase(searchKeyword))
-//                                    .findFirst().orElse(null);
-//                            if (enumValue != null) {
-//                                searchPredicates.add(cb.equal(root.get(fieldName), enumValue));
-//                            }
-//                        }
-//                    } catch (Exception ignored) {}
-//                }
-//                if (!searchPredicates.isEmpty()) {
-//                    predicates.add(cb.or(searchPredicates.toArray(new Predicate[0])));
-//                }
-//            }
-
-//            String searchKeyword = filters.get("search");
-//            if (searchKeyword != null && !searchKeyword.isBlank()) {
-//                List<Predicate> searchPredicates = new ArrayList<>();
-//                String lowerKeyword = searchKeyword.toLowerCase();
-//
-//                for (Field field : entityClass.getDeclaredFields()) {
-//                    field.setAccessible(true); // allow private field access
-//                    String fieldName = field.getName();
-//                    Class<?> fieldType = field.getType();
-//
-//                    try {
-//                        if (fieldType.equals(String.class)) {
-//                            searchPredicates.add(cb.like(cb.lower(root.get(fieldName)), "%" + lowerKeyword + "%"));
-//                        } else if (Number.class.isAssignableFrom(fieldType) || fieldType.isPrimitive()) {
-//                            Object convertedValue = convertValue(fieldType, searchKeyword);
-//                            if (convertedValue != null) {
-//                                searchPredicates.add(cb.equal(root.get(fieldName), convertedValue));
-//                            }
-//                        } else if (fieldType.isEnum()) {
-//                            Object enumValue = Arrays.stream(fieldType.getEnumConstants())
-//                                    .filter(e -> e.toString().equalsIgnoreCase(searchKeyword))
-//                                    .findFirst()
-//                                    .orElse(null);
-//                            if (enumValue != null) {
-//                                searchPredicates.add(cb.equal(root.get(fieldName), enumValue));
-//                            }
-//                        }
-//                        // TODO: Handle LocalDate, Boolean, or nested @Embeddable objects if needed
-//                    } catch (Exception ignored) {
-//                        // Log field issue if debugging: e.g., fieldName + " skipped due to error"
-//                    }
-//                }
-//
-//                if (!searchPredicates.isEmpty()) {
-//                    predicates.add(cb.or(searchPredicates.toArray(new Predicate[0])));
-//                }
-//            }
-
             String searchKeyword = filters.get("search");
             if (searchKeyword != null && !searchKeyword.isBlank()) {
                 List<Predicate> searchPredicates = new ArrayList<>();
@@ -270,8 +201,6 @@ public class CrudService {
                     predicates.add(cb.or(searchPredicates.toArray(new Predicate[0])));
                 }
             }
-
-
 
             // --- Handle Field Filters ---
             for (Map.Entry<String, String> entry : filters.entrySet()) {
@@ -687,36 +616,13 @@ public class CrudService {
                                        String searchKeyword,
                                        List<Predicate> searchPredicates,
                                        Set<String> visitedPaths) {
-        for (Field field : clazz.getDeclaredFields()) {
-            field.setAccessible(true);
-            String fieldName = field.getName();
-            Class<?> fieldType = field.getType();
 
-            try {
-                if (visitedPaths.contains(fieldName)) continue;
-                visitedPaths.add(fieldName);
-
-                if (fieldType.equals(String.class)) {
-                    searchPredicates.add(cb.like(cb.lower(path.get(fieldName)), "%" + searchKeyword.toLowerCase() + "%"));
-
-                } else if (fieldType.isEnum()) {
-                    Object enumValue = Arrays.stream(fieldType.getEnumConstants())
-                            .filter(e -> e.toString().equalsIgnoreCase(searchKeyword))
-                            .findFirst()
-                            .orElse(null);
-                    if (enumValue != null) {
-                        searchPredicates.add(cb.equal(path.get(fieldName), enumValue));
-                    }
-
-                } else if (field.getAnnotation(Embedded.class) != null || fieldType.isAnnotationPresent(Embeddable.class)) {
-                    buildSearchPredicates(cb, path.get(fieldName), fieldType, searchKeyword, searchPredicates, visitedPaths);
-                }
-
-            } catch (Exception e) {
-                // Log error if needed
-            }
-        }
     }
 
 
+    public void bulkDelete(String entityName, List<String> selectedIds) {
+    }
+
+    public void exportData(String entityName, List<String> selectedIds, String format) {
+    }
 }

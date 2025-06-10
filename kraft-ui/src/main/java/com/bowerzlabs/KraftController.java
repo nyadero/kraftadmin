@@ -35,15 +35,6 @@ public class KraftController {
             analyticsComponent.setData(Map.of("Jan", 42424, "feb", 55656));
             analyticsComponent.setData(Map.of("Jan", 42424, "feb", 886787, "march", 97866));
             analyticsComponent.setData(Map.of("Jan", 42424, "oct", 89797, "dec", 89786));
-
-//            List<AnalyticsComponent> components = List.of(
-//                    new BarChart("Revenue Chart", "Monthly revenue breakdown"),
-//                    new PieCharts("Monthly Users", "Users per month"),
-//                    new LineGraph("Daily Traffic", "Traffic patterns")
-//                    // Add more here
-//            );
-
-//            model.addAttribute("components", components);
             return "dashboard";
     }
 

@@ -142,17 +142,46 @@
 </th:block>
 
 <!-- tel input -->
+<!--<th:block th:fragment="telInput(field)">-->
+<!--  <label th:for="${field.name}">-->
+<!--    <input type="tel"-->
+<!--           th:id="${field.name}"-->
+<!--           th:name="${field.name}"-->
+<!--           th:placeholder="${field.placeholder}"-->
+<!--           th:value="${field.value}"-->
+<!--           th:attr="required=${field.required ? 'required' : null}"-->
+<!--           class="w-full p-2 rounded border outline-none bg-white my-5"/>-->
+<!--  </label>-->
+<!--</th:block>-->
 <th:block th:fragment="telInput(field)">
-  <label th:for="${field.name}">
-    <input type="tel"
-           th:id="${field.name}"
-           th:name="${field.name}"
-           th:placeholder="${field.placeholder}"
-           th:value="${field.value}"
-           th:attr="required=${field.required ? 'required' : null}"
-           class="w-full p-2 rounded border outline-none bg-white my-5"/>
+    <label class="block" th:for="${field.name}">
+        <div class="flex items-center space-x-2 my-5">
+            <!-- Country Code Selector -->
+            <select
+                    class="border p-2 rounded bg-white"
+                    onchange="updatePhonePrefix(this, '${field.name}')"
+                    th:id="${field.name + '_countryCode'}">
+                <option th:each="code : ${field.countryCodeList}"
+                        th:selected="${code.dialCode == '+254'}"
+                        th:text="${code.name + ' (' + code.dialCode + ')'}"
+                        th:value="${code.dialCode}">
+                </option>
+            </select>
+
+            <!-- Telephone Input -->
+            <input class="flex-1 p-2 rounded border outline-none bg-white"
+                   th:attr="required=${field.required ? 'required' : null}"
+                   th:id="${field.name}"
+                   th:name="${field.name}"
+                   th:placeholder="${field.placeholder}"
+                   th:value="${field.value}"
+                   type="tel"/>
+        </div>
   </label>
+
+    <!-- Add validation display here if needed -->
 </th:block>
+
 
 <!-- url input -->
 <th:block th:fragment="urlInput(field)">
@@ -194,17 +223,57 @@
 </th:block>
 
 <!-- file input -->
+<!--<th:block th:fragment="fileInput(field)">-->
+<!--  <label th:for="${field.name}">-->
+<!--    <input type="file"-->
+<!--           th:id="${field.name}"-->
+<!--           th:name="${field.name}"-->
+<!--           th:placeholder="${field.placeholder}"-->
+<!--           th:value="${field.value}"-->
+<!--           th:attr="required=${field.required ? 'required' : null}"-->
+<!--           class="w-full p-2 rounded border outline-none bg-white my-5"/>-->
+<!--  </label>-->
+<!--</th:block>-->
 <th:block th:fragment="fileInput(field)">
-  <label th:for="${field.name}">
-    <input type="file"
-           th:id="${field.name}"
-           th:name="${field.name}"
-           th:placeholder="${field.placeholder}"
-           th:value="${field.value}"
-           th:attr="required=${field.required ? 'required' : null}"
-           class="w-full p-2 rounded border outline-none bg-white my-5"/>
+    <label class="block w-full" th:for="${field.name}">
+        <div class="w-full p-4 mt-3 border-2 border-dashed rounded cursor-pointer bg-gray-50 text-center hover:border-blue-400"
+             onclick="this.querySelector('input').click()"
+             ondragover="handleDragOver(event)"
+             ondrop="handleFileDrop(event, this)">
+            <span class="block text-gray-600">Click or drag a file to upload</span>
+            <input accept="image/*,.pdf,.doc,.docx"
+                   class="hidden"
+                   onchange="previewFile(event, this)"
+                   th:attr="required=${field.required ? 'required' : null}"
+                   th:id="${field.name}"
+                   th:name="${field.name}"
+                   type="file"/>
+        </div>
+        <div class="mt-2" id="preview-${field.name}"></div>
+    </label>
+</th:block>
+
+<!--multiple files-->
+<th:block th:fragment="fileInput(field)">
+    <label class="block w-full" th:for="${field.name}">
+        <div class="w-full p-4 mt-3 border-2 border-dashed rounded cursor-pointer bg-gray-50 text-center hover:border-blue-400"
+             onclick="this.querySelector('input').click()"
+             ondragover="handleDragOver(event)"
+             ondrop="handleFileDrop(event, this)">
+            <span class="block text-gray-600">Click or drag files to upload</span>
+            <input accept="image/*,.pdf,.doc,.docx"
+                   class="hidden"
+                   multiple
+                   onchange="previewFiles(event, this)"
+                   th:attr="required=${field.required ? 'required' : null}"
+                   th:id="${field.name}"
+                   th:name="${field.name}"
+                   type="file"/>
+        </div>
+        <div class="grid grid-cols-2 gap-2 mt-2" th:id="'preview-' + ${field.name}"></div>
   </label>
 </th:block>
+
 
 <!-- radio input -->
 <th:block th:fragment="radioInput(field)">
@@ -259,55 +328,216 @@
 </th:block>
 
 <!-- This block renders the embedded field -->
+<!--<th:block th:fragment="embeddedInput(field)">-->
+<!--  <fieldset>-->
+<!--    <legend th:text="${field.label}"></legend>-->
+<!--    &lt;!&ndash; Loop through each embedded field &ndash;&gt;-->
+<!--    <div th:each="subField : ${field.formFieldList}">-->
+<!--      &lt;!&ndash; Render different field types based on sub-field type &ndash;&gt;-->
+<!--      <label th:for="${subField.name}" th:text="${subField.label}"></label>-->
+<!--      <div th:switch="${subField.type}">-->
+<!--        &lt;!&ndash; Render Text Input &ndash;&gt;-->
+<!--        <input th:switch="${subField.type}" type="text" th:name="${subField.name}" th:placeholder="${subField.placeholder}" th:value="${subField.value}" th:required="${subField.required}" class="w-full p-2 rounded border outline-none bg-white my-5" />-->
+
+<!--        &lt;!&ndash; Render Select Input &ndash;&gt;-->
+<!--&lt;!&ndash;        <select th:switch="${subField.type}" th:name="${subField.name}">&ndash;&gt;-->
+<!--&lt;!&ndash;          <option th:each="opt : ${subField.options}" th:value="${opt}" th:text="${opt}"></option>&ndash;&gt;-->
+<!--&lt;!&ndash;        </select>&ndash;&gt;-->
+
+<!--        &lt;!&ndash; Render Checkbox &ndash;&gt;-->
+<!--&lt;!&ndash;        <input th:switch="${subField.type}" type="checkbox" th:name="${subField.name}" th:checked="${subField.value}" />&ndash;&gt;-->
+<!--      </div>-->
+<!--      &lt;!&ndash; Display validation errors &ndash;&gt;-->
+<!--      <span th:if="${subField.validationErrors != null}" th:text="${subField.validationErrors[subField.name]}" style="color:red;"></span>-->
+<!--    </div>-->
+<!--  </fieldset>-->
+<!--</th:block>-->
+<!-- Embedded Field Fragment with Grid Layout -->
 <th:block th:fragment="embeddedInput(field)">
-  <fieldset>
-    <legend th:text="${field.label}"></legend>
-    <!-- Loop through each embedded field -->
-    <div th:each="subField : ${field.formFieldList}">
-      <!-- Render different field types based on sub-field type -->
-      <label th:for="${subField.name}" th:text="${subField.label}"></label>
-      <div th:switch="${subField.type}">
-        <!-- Render Text Input -->
-        <input th:switch="${subField.type}" type="text" th:name="${subField.name}" th:placeholder="${subField.placeholder}" th:value="${subField.value}" th:required="${subField.required}" class="w-full p-2 rounded border outline-none bg-white my-5" />
+    <fieldset class="border border-gray-300 rounded p-4 my-4">
+        <legend class="font-semibold text-lg px-2" th:text="${field.label}"></legend>
 
-        <!-- Render Select Input -->
-<!--        <select th:switch="${subField.type}" th:name="${subField.name}">-->
-<!--          <option th:each="opt : ${subField.options}" th:value="${opt}" th:text="${opt}"></option>-->
-<!--        </select>-->
+        <!-- Grid container -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Loop through each embedded field -->
+            <div th:each="subField : ${field.formFieldList}">
+                <label class="block text-sm font-medium text-gray-700" th:for="${subField.name}"
+                       th:text="${subField.label}"></label>
 
-        <!-- Render Checkbox -->
-<!--        <input th:switch="${subField.type}" type="checkbox" th:name="${subField.name}" th:checked="${subField.value}" />-->
+                <!-- Switch by field type -->
+                <div th:switch="${subField.type}">
+                    <!-- Text input -->
+                    <input class="w-full p-2 border rounded-md shadow-sm outline-none focus:ring focus:ring-indigo-200" th:case="'text'"
+                           th:name="${subField.name}"
+                           th:placeholder="${subField.placeholder}"
+                           th:required="${subField.required}"
+                           th:value="${subField.value}"
+                           type="text"/>
+
+                    <!-- Select input -->
+                    <select class="w-full p-2 border rounded-md shadow-sm" th:case="'select'"
+                            th:name="${subField.name}">
+                        <option th:each="opt : ${subField.options}" th:text="${opt}" th:value="${opt}"></option>
+                    </select>
+
+                    <!-- Checkbox input -->
+                    <input th:case="'checkbox'" th:checked="${subField.value}"
+                           th:name="${subField.name}"
+                           type="checkbox"/>
+                </div>
+
+                <!-- Error Display -->
+                <p class="text-red-600 text-sm mt-1" th:if="${subField.validationErrors != null}"
+                   th:text="${subField.validationErrors[subField.name]}"></p>
       </div>
-      <!-- Display validation errors -->
-      <span th:if="${subField.validationErrors != null}" th:text="${subField.validationErrors[subField.name]}" style="color:red;"></span>
     </div>
   </fieldset>
 </th:block>
 
+
 <!--search select input-->
+<!--<th:block th:fragment="searchSelectInput(field)">-->
+<!--  <div class="form-group">-->
+<!--    <label th:for="${field.name}" th:text="${field.label} + (field.required ? ' *' : '')"></label>-->
+
+<!--    <input type="text" id="${field.name}-search" placeholder="Search..." onkeyup="filterSelectOptions('${field.name}')" class="w-full">-->
+
+<!--    &lt;!&ndash; Select input &ndash;&gt;-->
+<!--    <select th:name="${field.name}" id="${field.name}" class="w-full">-->
+<!--      &lt;!&ndash; Search input for filtering options &ndash;&gt;-->
+<!--      <option disabled th:text="${field.name}" selected></option>-->
+<!--      <option th:each="opt : ${field.options}"-->
+<!--              th:value="${opt.value}"-->
+<!--              th:text="${opt.key}"-->
+<!--              th:selected="${opt == field.value}"></option>-->
+<!--    </select>-->
+
+<!--    &lt;!&ndash; Error handling &ndash;&gt;-->
+<!--    <span th:if="${validationErrors != null and validationErrors[field.name] != null}"-->
+<!--          th:text="${validationErrors[field.name]}"-->
+<!--          style="color:red;display:block;">-->
+<!--    </span>-->
+<!--  </div>-->
+<!--</th:block>-->
+
 <th:block th:fragment="searchSelectInput(field)">
-  <div class="form-group">
-    <label th:for="${field.name}" th:text="${field.label} + (field.required ? ' *' : '')"></label>
+    <label class="block mb-2 font-medium text-sm text-gray-700" th:for="${field.name}"
+           th:text="${field.label} + (field.required ? ' *' : '')"></label>
 
-    <input type="text" id="${field.name}-search" placeholder="Search..." onkeyup="filterSelectOptions('${field.name}')" class="w-full">
+    <div class="relative">
+        <!-- Fake select (input as trigger + dropdown list) -->
+        <input class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+               th:attr="id=${field.name + '-search'}, onkeyup=|filterSelectOptions('${field.name}')|"
+               th:placeholder="'Search ' + ${field.label}"
+               type="search"
+        />
 
-    <!-- Select input -->
-    <select th:name="${field.name}" id="${field.name}" class="w-full">
-      <!-- Search input for filtering options -->
-      <option disabled th:text="${field.name}" selected></option>
+        <!-- Select options shown below the input -->
+        <select class="absolute z-10 w-full bg-white border border-gray-300 mt-1 rounded shadow max-h-60 overflow-y-auto"
+                size="5"
+                th:id="${field.name}"
+                th:name="${field.name}">
+            <option disabled selected th:text="'Select ' + ${field.label}"></option>
+            <option th:each="opt : ${field.options}"
+                    th:selected="${opt == field.value}"
+                    th:text="${opt.key}"
+                    th:value="${opt.value}">
+            </option>
+        </select>
+    </div>
+</th:block>
+
+<!--currency-->
+<th:block th:fragment="currencyInput(field)">
+    <label class="block mb-2 font-medium text-sm text-gray-700" th:for="${field.name}"
+           th:text="${field.label} + (field.required ? ' *' : '')"></label>
+
+    <div class="flex items-center space-x-2">
+        <!-- Currency Selector -->
+        <select
+                class="p-2 border rounded bg-white"
+                th:id="${field.name + '_currency'}"
+                th:name="${field.name + '.currency'}">
+            <option th:each="code : ${field.currencyList}"
+                    th:selected="${code == field.currency}"
+                    th:text="${code}"
+                    th:value="${code}">
+            </option>
+        </select>
+
+        <!-- Amount Input -->
+        <input class="flex-1 p-2 rounded border outline-none bg-white" step="0.01"
+               th:id="${field.name + '_amount'}"
+               th:name="${field.name + '.amount'}"
+               th:placeholder="'Enter amount'"
+               th:value="${field.amount}"
+               type="number"/>
+    </div>
+</th:block>
+
+<!--multipe select-->
+<!--<select th:if="${field.options != null and !#lists.isEmpty(field.options)}"-->
+<!--        th:name="${field.name}"-->
+<!--        th:id="${field.name}"-->
+<!--        multiple-->
+<!--        size="5"-->
+<!--        class="absolute z-10 w-full bg-white border border-gray-300 mt-1 rounded shadow min-h-fit overflow-y-auto">-->
+<!--  <option th:each="opt : ${field.options}"-->
+<!--          th:value="${opt.value}"-->
+<!--          th:text="${opt.key}"-->
+<!--          th:selected="${#lists.contains(field.value, opt)}">-->
+<!--  </option>-->
+<!--</select>-->
+<th:block th:fragment="searchMultiSelectInput(field)">
+    <label class="block mb-2 font-medium text-sm text-gray-700"
+           th:for="${field.name}"
+           th:text="${field.label} + (field.required ? ' *' : '')"></label>
+
+    <div class="relative">
+        <!-- Search Input -->
+        <input class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+               th:attr="id=${field.name + '-search'}, onkeyup=|filterSelectOptions('${field.name}')|"
+               th:placeholder="'Search ' + ${field.label}"
+               type="text"/>
+
+        <!-- No Options Placeholder -->
+        <div class="absolute z-10 w-full bg-white border border-gray-300 mt-1 rounded shadow text-gray-500 p-2 text-sm italic"
+             th:if="${field.options == null or #lists.isEmpty(field.options)}">
+            No options available
+        </div>
+
+        <!-- Multi Select -->
+        <select class="absolute z-10 w-full bg-white border border-gray-300 mt-1 rounded shadow min-h-fit overflow-y-auto"
+                multiple
+                size="5"
+                th:id="${field.name}"
+                th:if="${field.options != null and !#lists.isEmpty(field.options)}"
+                th:name="${field.name}">
       <option th:each="opt : ${field.options}"
               th:value="${opt.value}"
               th:text="${opt.key}"
-              th:selected="${opt == field.value}"></option>
+              th:selected="${#lists.contains(field.value, opt)}">
+      </option>
     </select>
-
-    <!-- Error handling -->
-    <span th:if="${validationErrors != null and validationErrors[field.name] != null}"
-          th:text="${validationErrors[field.name]}"
-          style="color:red;display:block;">
-    </span>
   </div>
 </th:block>
+
+<!-- Tag Input Field -->
+<div class="mb-4" th:if="${field.type == 'taginput'}">
+    <label class="block text-sm font-medium text-gray-700 mb-1" th:for="${field.name}" th:text="${field.label}"></label>
+
+    <input class="tagify-input border border-gray-300 rounded px-3 py-2 w-full"
+           th:id="${field.name}"
+           th:name="${field.name}"
+           th:placeholder="${field.placeholder}"
+           th:value="${#strings.arrayJoin(field.value, ',')}"/>
+
+    <!-- Validation error -->
+    <div class="text-sm text-red-600 mt-1"
+         th:if="${field.validationErrors[field.name]}"
+         th:text="${field.validationErrors[field.name]}"></div>
+</div>
+
 
 <!-- Radio Input -->
 <th:block th:fragment="radioGroupInput(field)">
@@ -350,44 +580,6 @@
          oninput="document.getElementById('${field.name}-value').textContent = this.value" />
   <span th:id="${field.name + '-value'}" th:text="${field.value}"></span>
 </th:block>
-
-
-<script>
-  // Function to filter the options based on the search input
-  console.log("in searchselectinput field");
-  function filterSelectOptions(selectId) {
-    var input = document.getElementById(selectId + '-search');
-    var filter = input.value.toLowerCase();
-    var select = document.getElementById(selectId);
-    var options = select.getElementsByTagName('option');
-
-    // Loop through all options and hide those that don't match the search term
-    for (var i = 0; i < options.length; i++) {
-      var option = options[i];
-      var text = option.textContent || option.innerText;
-
-      // Check if the option text matches the search term
-      if (text.toLowerCase().indexOf(filter) > -1) {
-        option.style.display = ''; // Show matching option
-      } else {
-        option.style.display = 'none'; // Hide non-matching option
-      }
-    }
-  }
-</script>
-
-
-<!-- Include Choices.js initialization script for search functionality -->
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    // Initialize Choices.js for the select field
-    new Choices('#${field.name}-select', {
-      searchEnabled: true, // Enables the search input field
-      itemSelectText: '', // Optional: Text to display when no selection has been made
-      shouldSort: false, // Optional: Keeps the options in the original order
-    });
-  });
-</script>
 
 </body>
 </html>

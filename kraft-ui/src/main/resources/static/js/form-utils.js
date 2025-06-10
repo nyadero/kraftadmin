@@ -69,23 +69,56 @@ function confirmDeleteSingle(id, entityName) {
   }
 }
 
-function updatePhonePrefix(selectElement, inputId) {
-    console.log("update phone prefix");
-    const input = document.getElementById(inputId);
-//    const input = document.getElementById(inputId);
-      if (!input) {
-        console.warn("Input with ID", inputId, "not found.");
-        return;
-      }
-    const newCode = selectElement.value;
+function filterSelectOptions(selectId) {
+  console.log("Searching " + selectId);
 
-    // Remove existing dial code (if any)
-    const existingValue = input.value;
-
-    // If the input starts with a country code, strip it
-    const cleaned = existingValue.replace(/^\+\d+/, '').trim();
-
-    // Update input with selected country code
-    input.value = newCode + cleaned;
+  const input = document.getElementById(selectId + '-search');
+  if (!input) {
+    console.warn("Input element not found: " + selectId + '-search');
+    return;
   }
+
+  const filter = input.value.toLowerCase();
+  const select = document.getElementById(selectId);
+  const options = Array.from(select.getElementsByTagName('option'));
+
+  let visibleCount = 0;
+
+  options.forEach(option => {
+    if (option.disabled && option.selected) return; // skip default
+    const text = option.textContent || option.innerText;
+    const match = text.toLowerCase().includes(filter);
+    option.style.display = match ? '' : 'none';
+    if (match) visibleCount++;
+  });
+
+  // Remove any existing 'no-data' option
+  const existingNoData = select.querySelector('option.no-data');
+  if (existingNoData) {
+    select.removeChild(existingNoData);
+  }
+
+  // If none are visible, add a 'No data found' disabled option
+  if (visibleCount === 0) {
+    const noDataOption = document.createElement('option');
+    noDataOption.disabled = true;
+    noDataOption.className = 'no-data';
+    noDataOption.textContent = 'No data found';
+    select.appendChild(noDataOption);
+  }
+}
+
+
+ // Initialize Tagify on all inputs with class 'tagify-input'
+    document.querySelectorAll('.tagify-input').forEach(input => {
+        new Tagify(input, {
+            whitelist: input.dataset.suggestions ? input.dataset.suggestions.split(",") : [],
+            dropdown: {
+                enabled: 1,
+                maxItems: 20,
+                classname: "tagify-dropdown",
+                closeOnSelect: false
+            }
+        });
+    });
 
