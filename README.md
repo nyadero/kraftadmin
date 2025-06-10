@@ -6,7 +6,8 @@ A modular and customizable admin dashboard library for Spring Boot applications.
 Ideal for building internal tools, CMS interfaces, data dashboards, or managing entities in CRUD-heavy applications.
 
 Coming soon as a Maven/Gradle dependency. For now, clone and build locally.
-#### ✨ Features
+
+#### Features
 
 - Dynamic filtering and sorting on any field
 
@@ -86,7 +87,8 @@ public class Application {
 ````
 
 ###  Modules Overview
-## 📦 Modules Overview
+
+## Modules Overview
 
 | Module          | Description                                   |
 |------------------|-----------------------------------------------|
@@ -107,13 +109,11 @@ public class Application {
 - Monitoring and logging
 - Analytics 
 
-
-
-🧩 Form Field Factory
+Form Field Factory
 
 The FormFieldFactory is a dynamic form generator for Java entity classes. It automatically generates form fields (e.g., TextField, DateField, SearchableSelectField, etc.) based on entity attributes and annotations.
 
-✅ Core Functionality
+### Core Functionality
 
 - Field Type Inference: Determines the appropriate form field component by inspecting:
 
@@ -186,11 +186,7 @@ This means you can declaratively control whether a field appears as a textbox, n
 
 Kraftr AdminX will automatically reflect this in the UI form without extra frontend code.
 
-
-📸 Screenshots
+### Screenshots
 
 <img src="/images/kraft-admin.png" alt="kraftadmin list page">
 
-📃 License
-
-MIT License — free to use and modify.
