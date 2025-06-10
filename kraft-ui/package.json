@@ -5,10 +5,11 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "npx tailwindcss -i ../src/main/resources/static/css/styles.css -o ../src/main/resources/static/css/app.css --watch"
+    "dev": "tailwindcss --watch -i ./src/main/resources/static/css/styles.css -o ./src/main/resources/static/css/app.css",
+    "build": "tailwindcss -i ./src/main/resources/static/css/styles.css -o ./src/main/resources/static/css/app.css"
   },
   "keywords": [],
-  "author": "",
+  "author": "Nyadero Odhiambo",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
