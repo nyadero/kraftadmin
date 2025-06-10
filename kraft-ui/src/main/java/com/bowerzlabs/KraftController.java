@@ -6,8 +6,10 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,6 +44,11 @@ public class KraftController {
     public String test(){
         System.out.println("🔥 /admin/test hit!");
         return "test";
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ModelAndView handleException(Exception ex) {
+        return new ModelAndView("error").addObject("exception", ex);
     }
 
 
