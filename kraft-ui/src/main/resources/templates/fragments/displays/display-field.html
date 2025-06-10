@@ -1,0 +1,59 @@
+<th:block th:fragment="render(displayField)" xmlns:th="http://www.w3.org/1999/xhtml">
+    <div>
+        <!-- Image -->
+        <img alt="Image"
+             class="rounded shadow" height="30px" th:attr="onerror=|this.onerror=null;this.src='@{/images/person.png}';|" th:if="${displayField?.fieldType?.name() == 'IMAGE'}" th:src="${displayField.value}"
+             width="30px"
+        />
+
+        <!-- Document or Link -->
+        <a class="text-blue-600 underline"
+           target="_blank" th:href="${displayField.value}" th:if="${displayField?.fieldType?.name() == 'DOCUMENT' or displayField?.fieldType?.name() == 'LINK'}">
+            View File
+        </a>
+
+        <!-- Color -->
+        <div class="flex items-center gap-2 mt-1" th:if="${displayField?.fieldType?.name() == 'COLOR'}">
+            <div class="w-6 h-6 rounded border shadow" th:style="'background-color:' + ${displayField.value}"></div>
+            <span class="text-sm text-gray-600" th:text="${displayField.value}"></span>
+        </div>
+
+        <!-- Markdown (as HTML) -->
+        <div th:if="${displayField?.fieldType?.name() == 'MARKDOWN'}"
+             th:utext="${displayField.value}"></div>
+
+        <!-- Video -->
+        <video controls
+               th:if="${displayField?.fieldType?.name() == 'VIDEO'}" th:src="${displayField.value}" width="250"></video>
+
+        <!-- Audio -->
+        <audio controls
+               th:if="${displayField?.fieldType?.name() == 'AUDIO'}" th:src="${displayField.value}"></audio>
+
+        <!-- QR Code -->
+        <img alt="QR Code"
+             th:if="${displayField?.fieldType?.name() == 'QR'}" th:src="'data:image/png;base64,' + ${displayField.value}" width="100"/>
+
+        <!-- HTML (as trusted content) -->
+        <div th:if="${displayField?.fieldType?.name() == 'HTML'}"
+             th:utext="${displayField.value}"></div>
+
+        <!-- JSON (formatted) -->
+        <pre th:if="${displayField?.fieldType?.name() == 'JSON'}"
+             th:text="${displayField.value}"></pre>
+
+        <!-- Badge (e.g., status) -->
+        <span th:class="'badge ' + ${displayField.value.toLowerCase()}"
+              th:if="${displayField?.fieldType?.name() == 'BADGE'}"
+              th:text="${displayField.value}"></span>
+
+        <!-- Map (lat,lng links) -->
+        <a target="_blank"
+           th:href="'https://www.google.com/maps?q=' + ${displayField.value}"
+           th:if="${displayField?.fieldType?.name() == 'MAP'}">🗺️ View Map</a>
+
+        <!-- Text -->
+        <span class="text-gray-800"
+              th:if="${displayField?.fieldType?.name() == 'TEXT'}" th:text="${displayField.value}"></span>
+    </div>
+</th:block>
