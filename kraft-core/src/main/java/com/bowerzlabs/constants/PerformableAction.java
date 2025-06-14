@@ -1,5 +1,5 @@
 package com.bowerzlabs.constants;
 
 public enum PerformableAction {
-    CREATE, DELETE, EDIT
+    CREATE, DELETE, VIEW, EXPORT, IMPORT, EDIT
 }
