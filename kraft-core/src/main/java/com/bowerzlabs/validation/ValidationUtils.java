@@ -136,7 +136,7 @@ public class ValidationUtils {
             if (rules.contains("size")) {
                 int min = extractSizeValue(rules, "min");
                 int max = extractSizeValue(rules, "max");
-                log.info("Extracted size for {}: min={}, max={}", fieldName, min, max);
+//                log.info("Extracted size for {}: min={}, max={}", fieldName, min, max);
                 if (fieldValue.length() < min || fieldValue.length() > max) {
                     validationErrors.put(fieldName, fieldLabels.get(fieldName) + " must be between " + min + " and " + max + " characters.");
                 }
