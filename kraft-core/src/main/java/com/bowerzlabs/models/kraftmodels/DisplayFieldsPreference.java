@@ -1,7 +1,11 @@
 package com.bowerzlabs.models.kraftmodels;
 
 import com.bowerzlabs.annotations.InternalAdminResource;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,19 +20,11 @@ public class DisplayFieldsPreference {
 
     private List<String> fields;
 
+    @CreationTimestamp
     private LocalDateTime createdAt;
+
+    @UpdateTimestamp
     private LocalDateTime updatedAt;
-
-    @PrePersist
-    public void prePersist(){
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    @PostUpdate
-    public void postUpdate(){
-        this.updatedAt = LocalDateTime.now();
-    }
 
     public String getId() {
         return id;
