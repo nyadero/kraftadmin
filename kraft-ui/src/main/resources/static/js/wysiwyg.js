@@ -7,12 +7,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const quill = new Quill(`#${editorDiv.id}`, { theme: 'snow' });
 
-    if (input.value) {
+    if (input && input.value) {
       quill.root.innerHTML = input.value;
     }
 
     quill.on('text-change', function () {
-      input.value = quill.root.innerHTML;
+      if (input) input.value = quill.root.innerHTML;
     });
   });
 });
