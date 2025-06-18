@@ -2,19 +2,26 @@ package com.bowerzlabs.admin_users;
 
 import com.bowerzlabs.EntitiesScanner;
 import com.bowerzlabs.constants.Status;
+import com.bowerzlabs.dtos.AdminUserForm;
 import com.bowerzlabs.events.UIEvent;
 import com.bowerzlabs.models.kraftmodels.AdminUser;
 import com.bowerzlabs.repository.kraftrepos.KraftAdminUsersRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,7 +29,6 @@ import java.util.Optional;
 @RequestMapping("/admin/administrators")
 public class KraftAdminUserController {
     private static final Logger log = LoggerFactory.getLogger(KraftAdminUserController.class);
-    //    KraftAdminUsersRepository adminUserRepository = SpringContextHolder.getBean(KraftAdminUsersRepository.class);
     private final KraftAdminUsersRepository userRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final EntitiesScanner entitiesScanner;
@@ -102,5 +108,46 @@ public class KraftAdminUserController {
         }
         return "redirect:/admin/administrators";
     }
-    
+
+
+    @PostMapping("/update-admin")
+    public String createAdminUser(@ModelAttribute AdminUserForm form, RedirectAttributes redirectAttributes) throws IOException {
+        Optional<AdminUser> user = userRepository.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+        if (user.isPresent()) {
+            user.get().setUsername(form.getUsername());
+            user.get().setName(form.getName());
+            if (form.getPassword() != null) {
+                user.get().setPassword(new BCryptPasswordEncoder(6).encode(form.getPassword()));
+            }
+
+            if (form.getRole() != null) {
+                user.get().setRole(form.getRole());
+            }
+
+            if (!form.getAvatar().isEmpty()) {
+                user.get().setAvatar(form.getAvatar().getBytes());
+            }
+
+            userRepository.save(user.get());
+            redirectAttributes.addFlashAttribute("message", "Admin user updated successfully!");
+        }
+        return "redirect:/admin/settings";
+    }
+
+    @GetMapping("/avatar/{userId}")
+    public ResponseEntity<byte[]> getUserAvatar(@PathVariable Long userId) {
+        Optional<AdminUser> userOpt = userRepository.findById(userId);
+
+        if (userOpt.isEmpty() || userOpt.get().getAvatar() == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        byte[] avatar = userOpt.get().getAvatar();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_PNG); // or detect from content type
+        return new ResponseEntity<>(avatar, headers, HttpStatus.OK);
+    }
+
+
 }
