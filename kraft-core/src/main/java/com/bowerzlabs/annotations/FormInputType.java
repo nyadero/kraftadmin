@@ -11,6 +11,6 @@ public @interface FormInputType {
     Type value(); // Define the type of input field
 
     enum Type {
-        TEXT, NUMBER, COLOR, CHECKBOX, IMAGE, DATE, EMAIL, PASSWORD, FILE, TEXTAREA, WYSIWYG, DATETIME, TIME, RANGE, TEL, URL, RADIO
+        TEXT, NUMBER, COLOR, CHECKBOX, IMAGE, DATE, EMAIL, PASSWORD, FILE, TEXTAREA, WYSIWYG, DATETIME, TIME, RANGE, TEL, URL, RADIO, CURRENCY
     }
 }
