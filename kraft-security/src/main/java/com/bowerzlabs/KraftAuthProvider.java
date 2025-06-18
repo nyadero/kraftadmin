@@ -5,7 +5,6 @@ import com.bowerzlabs.repository.kraftrepos.KraftAdminUsersRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -22,17 +21,15 @@ import java.util.Collections;
 //        name = "kraft.kraft-security.enabled",
 //        havingValue = "true"
 //)
-@Qualifier("kraftrAuthProvider")
-public class KraftrAuthProvider implements AuthenticationProvider {
-
-
+@Qualifier("kraftAuthProvider")
+public class KraftAuthProvider implements AuthenticationProvider {
 
     private final KraftAdminUsersRepository kraftAdminUsersRepository;
     private final PasswordEncoder kraftPasswordEncoder;
 
     @Autowired
-    public KraftrAuthProvider(KraftAdminUsersRepository kraftAdminUsersRepository,
-                              @Qualifier("kraftPasswordEncoder") PasswordEncoder kraftPasswordEncoder) {
+    public KraftAuthProvider(KraftAdminUsersRepository kraftAdminUsersRepository,
+                             @Qualifier("kraftPasswordEncoder") PasswordEncoder kraftPasswordEncoder) {
         this.kraftAdminUsersRepository = kraftAdminUsersRepository;
         this.kraftPasswordEncoder = kraftPasswordEncoder;
     }
