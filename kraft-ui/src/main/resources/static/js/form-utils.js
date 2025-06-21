@@ -1,27 +1,51 @@
+document.addEventListener("DOMContentLoaded", function () {
+    // Single select
+           document.querySelectorAll('.tom-select').forEach(el => {
+               new TomSelect(el, {
+                   allowEmptyOption: true
+               });
+           });
 
-//
-//function filterSelectOptions(selectId) {
-//  console.log("Searching " + selectId);
-//
-//  const input = document.getElementById(selectId + '-search');
-//  if (!input) {
-//    console.warn("Input element not found: " + selectId + '-search');
-//    return;
-//  }
-//
-//  const filter = input.value.toLowerCase();
-//  const select = document.getElementById(selectId);
-//  const options = select.getElementsByTagName('option');
-//
-//  for (let i = 0; i < options.length; i++) {
-//    const option = options[i];
-//    if (option.disabled) continue;
-//
-//    const text = option.textContent || option.innerText;
-//    option.style.display = text.toLowerCase().includes(filter) ? '' : 'none';
-//  }
-//}
+           // Multi-select
+           document.querySelectorAll('.tom-multiselect').forEach(el => {
+               new TomSelect(el, {
+                   plugins: ['remove_button'],
+                   persist: false,
+                   create: false
+               });
+           });
 
+           // Tag input
+           document.querySelectorAll('.tom-tags').forEach(el => {
+               new TomSelect(el, {
+                   delimiter: ',',
+                   persist: false,
+                   create: true
+               });
+           });
+
+    const subtypeSelector = document.querySelector("select[name='subtype']");
+    const allSubtypeGroups = document.querySelectorAll(".subtype-group");
+
+    function toggleSubtypeFields(selected) {
+        allSubtypeGroups.forEach(group => {
+            if (group.classList.contains(`subtype-group-${selected}`)) {
+                group.classList.remove("hidden");
+            } else {
+                group.classList.add("hidden");
+            }
+        });
+    }
+
+    subtypeSelector?.addEventListener("change", function () {
+        toggleSubtypeFields(this.value);
+    });
+
+    // Initial load (e.g., edit mode)
+    if (subtypeSelector?.value) {
+        toggleSubtypeFields(subtypeSelector.value);
+    }
+});
 
 function filterSelectOptions(selectId) {
   console.log("Searching " + selectId);
@@ -122,3 +146,16 @@ function filterSelectOptions(selectId) {
         });
     });
 
+ function updatePhonePrefix(selectElement, inputId) {
+    const input = document.getElementById(inputId);
+    const newCode = selectElement.value;
+
+    // Remove existing dial code (if any)
+    const existingValue = input.value;
+
+    // If the input starts with a country code, strip it
+    const cleaned = existingValue.replace(/^\+\d+/, '').trim();
+
+    // Update input with selected country code
+    input.value = newCode + cleaned;
+  }
