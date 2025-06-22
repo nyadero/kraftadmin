@@ -1,26 +1,30 @@
-package com.bowerzlabs.formfields;
+package com.bowerzlabs.formfields.fields;
 
+import com.bowerzlabs.formfields.FormField;
+
+import java.time.LocalTime;
 import java.util.Map;
 
-public class URLField extends FormField{
+public class TimeField extends FormField {
     private String label;
     private final String placeholder;
     private final boolean required;
-    private final String value;
+    private final LocalTime value;
     private String name;
     private final Map<String, String> validationErrors;
     private final Map<String, String> validationRules;
 
-    public URLField(String label, String placeholder, boolean required, String  value, String name, Map<String, String> validationRules, Map<String, String> validationErrors) {
+    public TimeField(String label, String placeholder, boolean required, LocalTime value, String name, Map<String, String> validationErrors, Map<String, String> validationRules) {
         super();
         this.label = formatLabel(label);
         this.placeholder = placeholder;
         this.required = required;
         this.value = value;
         this.name = name;
-        this.validationRules = validationRules;
         this.validationErrors = validationErrors;
+        this.validationRules = validationRules;
     }
+
     /**
      * @return
      */
@@ -34,7 +38,7 @@ public class URLField extends FormField{
      */
     @Override
     public String getType() {
-        return "url";
+        return "time";
     }
 
     /**
@@ -58,14 +62,14 @@ public class URLField extends FormField{
      */
     @Override
     public boolean getRequired() {
-        return false;
+        return required;
     }
 
     /**
      * @return
      */
     @Override
-    public String getValue() {
+    public Object getValue() {
         return value;
     }
 
@@ -74,7 +78,7 @@ public class URLField extends FormField{
      */
     @Override
     public Map<String, String> getValidationErrors() {
-        return validationErrors;
+        return Map.of();
     }
 
     /**
@@ -82,7 +86,7 @@ public class URLField extends FormField{
      */
     @Override
     public Map<String, String> getValidationRules() {
-        return validationRules;
+        return Map.of();
     }
 
     @Override
@@ -95,7 +99,6 @@ public class URLField extends FormField{
         this.label = s;
     }
 
-//
 //    /**
 //     * @param label
 //     * @param type
@@ -108,18 +111,8 @@ public class URLField extends FormField{
 //     */
 //    @Override
 //    public String toHtml(String label, String type, String placeholder, String name, Object value, boolean required, Map<String, String> validationErrors) {
-//        StringBuilder html = new StringBuilder();
-//
-//        html.append("<label>").append(label).append(": ")
-//                .append("<input type='").append(type).append("' name='").append(name).append("' value='")
-//                .append(value != null ? value : "").append("' placeholder='").append(placeholder).append("'")
-//                .append(required ? " required" : "").append("></label><br/>");
-//
-//        if (validationErrors != null && !validationErrors.isEmpty() && validationErrors.containsKey(name)) {
-//            html.append("<span style='color:red;'>").append(validationErrors.get(name)).append("</span><br/>");
-//        }
-//
-//        return html.toString();
+//        return "<label>" + label + ": <input type='" + type + "' name='" + name + "' value='" +
+//                (value != null ? value : "") + "' placeholder='" + placeholder + "' required='" + required + "'></label><br/>";
 //    }
 
     /**
@@ -127,15 +120,6 @@ public class URLField extends FormField{
      */
     @Override
     public Map<String, Object> getModelData() {
-        return Map.of(
-                "label", label,
-                "placeholder", placeholder,
-                "name", name,
-                "value", value,
-                "required", required,
-                "type", getType(),
-                "validationRules", validationRules,
-                "validationErrors", validationErrors
-        );
+        return Map.of();
     }
 }

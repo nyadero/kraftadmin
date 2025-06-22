@@ -1,9 +1,11 @@
-package com.bowerzlabs.formfields;
+package com.bowerzlabs.formfields.fields;
+
+import com.bowerzlabs.formfields.FormField;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class RangeField extends FormField{
+public class RangeField extends FormField {
     private final String label;
     private final String placeholder;
     private final boolean required;

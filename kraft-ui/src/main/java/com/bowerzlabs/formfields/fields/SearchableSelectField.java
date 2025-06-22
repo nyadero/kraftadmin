@@ -1,4 +1,6 @@
-package com.bowerzlabs.formfields;
+package com.bowerzlabs.formfields.fields;
+
+import com.bowerzlabs.formfields.FormField;
 
 import java.util.Map;
 

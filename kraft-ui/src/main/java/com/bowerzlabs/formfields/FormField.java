@@ -8,6 +8,8 @@ public abstract class FormField {
     private String name;
     private String label;
     private List<String> searchOperations = new ArrayList<>();
+    public String wrapperClass = "wrapper";
+
     /**
     returns the form-field label
      */
@@ -109,4 +111,11 @@ public abstract class FormField {
     }
 
 
+    public String getWrapperClass() {
+        return wrapperClass;
+    }
+
+    public void setWrapperClass(String wrapperClass) {
+        this.wrapperClass = wrapperClass;
+    }
 }

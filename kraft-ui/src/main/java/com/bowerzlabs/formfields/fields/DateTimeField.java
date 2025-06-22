@@ -1,20 +1,21 @@
-package com.bowerzlabs.formfields;
+package com.bowerzlabs.formfields.fields;
 
-import java.time.LocalTime;
+import com.bowerzlabs.formfields.FormField;
+
 import java.util.Map;
 
-public class TimeField extends FormField{
+public class DateTimeField extends FormField {
     private String label;
     private final String placeholder;
     private final boolean required;
-    private final LocalTime value;
+    private final String value;
     private String name;
     private final Map<String, String> validationErrors;
     private final Map<String, String> validationRules;
 
-    public TimeField(String label, String placeholder, boolean required, LocalTime value, String name, Map<String, String> validationErrors, Map<String, String> validationRules) {
+    public DateTimeField(String label, String placeholder, boolean required, String value, String name, Map<String, String> validationErrors, Map<String, String> validationRules) {
         super();
-        this.label = formatLabel(label);
+        this.label = label;
         this.placeholder = placeholder;
         this.required = required;
         this.value = value;
@@ -36,7 +37,7 @@ public class TimeField extends FormField{
      */
     @Override
     public String getType() {
-        return "time";
+        return "datetime-local";
     }
 
     /**
@@ -96,22 +97,6 @@ public class TimeField extends FormField{
     public void setLabel(String s) {
         this.label = s;
     }
-
-//    /**
-//     * @param label
-//     * @param type
-//     * @param placeholder
-//     * @param name
-//     * @param value
-//     * @param required
-//     * @param validationErrors
-//     * @return
-//     */
-//    @Override
-//    public String toHtml(String label, String type, String placeholder, String name, Object value, boolean required, Map<String, String> validationErrors) {
-//        return "<label>" + label + ": <input type='" + type + "' name='" + name + "' value='" +
-//                (value != null ? value : "") + "' placeholder='" + placeholder + "' required='" + required + "'></label><br/>";
-//    }
 
     /**
      * builds the input model data

@@ -1,10 +1,12 @@
-package com.bowerzlabs.formfields;
+package com.bowerzlabs.formfields.fields;
+
+import com.bowerzlabs.formfields.FormField;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class EmbeddedField extends FormField{
+public class EmbeddedField extends FormField {
     private final String label;
     public final List<FormField> formFieldList;
     private final Map<String, String> validationErrors;

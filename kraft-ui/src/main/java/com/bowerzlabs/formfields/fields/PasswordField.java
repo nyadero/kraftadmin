@@ -1,19 +1,21 @@
-package com.bowerzlabs.formfields;
+package com.bowerzlabs.formfields.fields;
+
+import com.bowerzlabs.formfields.FormField;
 
 import java.util.Map;
 
-public class TextField extends FormField {
+public class PasswordField extends FormField {
     private String label;
     private final String placeholder;
     private final boolean required;
-    private final Object value;
+    private final String value;
     private String name;
     private final Map<String, String> validationErrors;
     private final Map<String, String> validationRules;
 
-    public TextField(String label, String placeholder, boolean required, Object value, String name, Map<String, String> validationRules, Map<String, String> validationErrors) {
+    public PasswordField(String label, String placeholder, boolean required, String value, String name, Map<String, String> validationRules, Map<String, String> validationErrors) {
         super();
-        this.label = label;
+        this.label = formatLabel(label);
         this.placeholder = placeholder;
         this.required = required;
         this.value = value;
@@ -22,48 +24,82 @@ public class TextField extends FormField {
         this.validationErrors = validationErrors;
     }
 
+    /**
+     * @return
+     */
     @Override
     public String getLabel() {
         return label;
     }
 
+    /**
+     * @return
+     */
     @Override
     public String getType() {
-        return "text";
+        return "password";
     }
 
+    /**
+     * @return
+     */
     @Override
     public String getName() {
         return name;
     }
 
+    /**
+     * @return
+     */
     @Override
     public String getPlaceholder() {
         return placeholder;
     }
 
+    /**
+     * @return
+     */
     @Override
     public boolean getRequired() {
-        return required;
+        return false;
     }
 
+    /**
+     * @return
+     */
     @Override
-    public Object getValue() {
+    public String getValue() {
         return value;
     }
 
+    /**
+     * @return
+     */
     @Override
     public Map<String, String> getValidationErrors() {
         return validationErrors;
     }
 
+    /**
+     * @return
+     */
     @Override
     public Map<String, String> getValidationRules() {
         return validationRules;
     }
 
+    @Override
+    public void setName(String s) {
+        this.name = s;
+    }
+
+    @Override
+    public void setLabel(String s) {
+        this.label = s;
+    }
+
     /**
-     * builds the input model data
+     * builds teh input model data
      */
     @Override
     public Map<String, Object> getModelData() {
@@ -77,28 +113,5 @@ public class TextField extends FormField {
                 "validationRules", validationRules,
                 "validationErrors", validationErrors
         );
-    }
-
-    @Override
-    public void setName(String s) {
-       this.name = s;
-    }
-
-    @Override
-    public void setLabel(String s) {
-        this.label = s;
-    }
-
-    @Override
-    public String toString() {
-        return "TextField{" +
-                "label='" + label + '\'' +
-                ", placeholder='" + placeholder + '\'' +
-                ", required=" + required +
-                ", value=" + value +
-                ", name='" + name + '\'' +
-                ", validationErrors=" + validationErrors +
-                ", validationRules=" + validationRules +
-                '}';
     }
 }

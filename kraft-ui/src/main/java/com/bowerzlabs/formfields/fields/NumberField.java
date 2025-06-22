@@ -1,70 +1,53 @@
-package com.bowerzlabs.formfields;
+package com.bowerzlabs.formfields.fields;
+
+import com.bowerzlabs.formfields.FormField;
 
 import java.util.Map;
 
-public class DateTimeField extends FormField{
+public class NumberField extends FormField {
     private String label;
-    private final String placeholder;
-    private final boolean required;
-    private final String value;
+    private final Number value; // Supports int, long, float, double
     private String name;
+    private final boolean required;
+//    private final List<String> searchOperations;
     private final Map<String, String> validationErrors;
     private final Map<String, String> validationRules;
 
-    public DateTimeField(String label, String placeholder, boolean required, String value, String name, Map<String, String> validationErrors, Map<String, String> validationRules) {
+    public NumberField(String label, Number value, String name, boolean required, Map<String, String> validationErrors, Map<String, String> validationRules) {
         super();
-        this.label = label;
-        this.placeholder = placeholder;
-        this.required = required;
+        this.label = formatLabel(label);
         this.value = value;
         this.name = name;
+        this.required = required;
         this.validationErrors = validationErrors;
         this.validationRules = validationRules;
     }
 
-    /**
-     * @return
-     */
     @Override
     public String getLabel() {
         return label;
     }
 
-    /**
-     * @return
-     */
     @Override
     public String getType() {
-        return "datetime-local";
+        return "number";
     }
 
-    /**
-     * @return
-     */
     @Override
     public String getName() {
         return name;
     }
 
-    /**
-     * @return
-     */
     @Override
     public String getPlaceholder() {
-        return placeholder;
+        return "";
     }
 
-    /**
-     * @return
-     */
     @Override
     public boolean getRequired() {
         return required;
     }
 
-    /**
-     * @return
-     */
     @Override
     public Object getValue() {
         return value;
@@ -101,6 +84,15 @@ public class DateTimeField extends FormField{
      */
     @Override
     public Map<String, Object> getModelData() {
-        return Map.of();
+        return Map.of(
+                "label", label,
+//                "placeholder", placeholder,
+                "name", name,
+                "value", value,
+                "required", required,
+                "type", getType(),
+                "validationRules", validationRules,
+                "validationErrors", validationErrors
+        );
     }
 }

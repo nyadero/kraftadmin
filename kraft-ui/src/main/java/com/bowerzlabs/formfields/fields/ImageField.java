@@ -1,26 +1,27 @@
-package com.bowerzlabs.formfields;
+package com.bowerzlabs.formfields.fields;
+
+import com.bowerzlabs.formfields.FormField;
 
 import java.util.Map;
 
-public class CheckboxField extends FormField{
+public class ImageField extends FormField {
     private String label;
-    private final Boolean value;
-    private String name;
+    private final String placeholder;
     private final boolean required;
+    private final Object value;
+    private String name;
     private final Map<String, String> validationErrors;
     private final Map<String, String> validationRules;
-    private final Boolean isRelation;
 
-    public CheckboxField(
-            String label, boolean value, String name, boolean required, Map<String, String> validationErrors, Map<String, String> validationRules, Boolean isRelation
-    ) {
-        this.label = label;
+    public ImageField(String label, String placeholder, boolean required, Object value, String name, Map<String, String> validationErrors, Map<String, String> validationRules) {
+        super();
+        this.label = formatLabel(label);
+        this.placeholder = placeholder;
+        this.required = required;
         this.value = value;
         this.name = name;
-        this.required = required;
         this.validationErrors = validationErrors;
         this.validationRules = validationRules;
-        this.isRelation = isRelation;
     }
 
     /**
@@ -36,7 +37,7 @@ public class CheckboxField extends FormField{
      */
     @Override
     public String getType() {
-        return "checkbox";
+        return "file";
     }
 
     /**
@@ -52,7 +53,7 @@ public class CheckboxField extends FormField{
      */
     @Override
     public String getPlaceholder() {
-        return "";
+        return placeholder;
     }
 
     /**
@@ -67,7 +68,7 @@ public class CheckboxField extends FormField{
      * @return
      */
     @Override
-    public Boolean getValue() {
+    public Object getValue() {
         return value;
     }
 
@@ -87,14 +88,6 @@ public class CheckboxField extends FormField{
         return Map.of();
     }
 
-    /**
-     * returns whether field is a relation in the database or not
-     */
-    @Override
-    public boolean isRelationship() {
-        return false;
-    }
-
     @Override
     public void setName(String s) {
         this.name = s;
@@ -106,21 +99,10 @@ public class CheckboxField extends FormField{
     }
 
     /**
-     * builds the input model data
+     * builds teh input model data
      */
     @Override
     public Map<String, Object> getModelData() {
-        return Map.of(
-                "label", label,
-                "name", name,
-                "value", value,
-                "required", required,
-                "type", getType(),
-                "isRelation", isRelation,
-                "validationRules", validationRules,
-                "validationErrors", validationErrors
-        );
+        return Map.of();
     }
-
-
 }

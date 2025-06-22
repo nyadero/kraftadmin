@@ -1,15 +1,18 @@
-package com.bowerzlabs.formfields;
+package com.bowerzlabs.formfields.fields;
+
+import com.bowerzlabs.formfields.FormField;
 
 import java.util.List;
 import java.util.Map;
 
-public class SelectField extends FormField{
+public class SelectField extends FormField {
     private String label;
     private String name;
     private final String placeholder;
     private final List<Object> options;
     private final Object value;
     private final boolean isRequired;
+    private String wrapperClass;
     private final Map<String, String> validationErrors;
     private final Map<String, String> validationRules;
 
@@ -23,6 +26,7 @@ public class SelectField extends FormField{
         this.isRequired = isRequired;
         this.validationErrors = validationErrors;
         this.validationRules = validationRules;
+//        wrapperClass = getWrapperClass();
     }
 
     /**
@@ -99,6 +103,10 @@ public class SelectField extends FormField{
         this.label = s;
     }
 
+    @Override
+    public String getWrapperClass() {
+        return super.getWrapperClass();
+    }
 
     /**
      * builds the input model data
@@ -114,35 +122,14 @@ public class SelectField extends FormField{
                 "type", getType(),
                 "validationRules", validationRules,
                 "validationErrors", validationErrors,
-                "options", options
+                "options", options,
+                "wrapperClass", wrapperClass
         );
     }
 
 
     public List<Object> getOptions() {
-        System.out.println("select field options " + options);
         return options;
-    }
-
-    public class Option {
-        private final String label;
-        private final String value;
-
-        public Option(String label, String value) {
-            this.label = label;
-            this.value = value;
-        }
-
-        // Constructor, getters, toString()
-
-
-        public String getLabel() {
-            return label;
-        }
-
-        public String getValue() {
-            return value;
-        }
     }
 
     @Override
@@ -154,8 +141,27 @@ public class SelectField extends FormField{
                 ", options=" + options +
                 ", value=" + value +
                 ", isRequired=" + isRequired +
+                ", wrapperClass='" + wrapperClass + '\'' +
                 ", validationErrors=" + validationErrors +
                 ", validationRules=" + validationRules +
                 '}';
+    }
+
+    public static class Option {
+        private final String label;
+        private final String value;
+
+        public Option(String label, String value) {
+            this.label = label;
+            this.value = value;
+        }
+
+        public String getLabel() {
+            return label;
+        }
+
+        public String getValue() {
+            return value;
+        }
     }
 }

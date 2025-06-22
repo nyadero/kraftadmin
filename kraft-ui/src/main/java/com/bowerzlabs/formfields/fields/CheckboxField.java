@@ -1,20 +1,21 @@
-package com.bowerzlabs.formfields;
+package com.bowerzlabs.formfields.fields;
 
-import java.util.List;
+import com.bowerzlabs.formfields.FormField;
+
 import java.util.Map;
 
-public class NumberField extends FormField{
+public class CheckboxField extends FormField {
     private String label;
-    private final Number value; // Supports int, long, float, double
+    private final Boolean value;
     private String name;
     private final boolean required;
-//    private final List<String> searchOperations;
     private final Map<String, String> validationErrors;
     private final Map<String, String> validationRules;
 
-    public NumberField(String label, Number value, String name, boolean required, Map<String, String> validationErrors, Map<String, String> validationRules) {
-        super();
-        this.label = formatLabel(label);
+    public CheckboxField(
+            String label, boolean value, String name, boolean required, Map<String, String> validationErrors, Map<String, String> validationRules
+    ) {
+        this.label = label;
         this.value = value;
         this.name = name;
         this.required = required;
@@ -22,33 +23,51 @@ public class NumberField extends FormField{
         this.validationRules = validationRules;
     }
 
+    /**
+     * @return
+     */
     @Override
     public String getLabel() {
         return label;
     }
 
+    /**
+     * @return
+     */
     @Override
     public String getType() {
-        return "number";
+        return "checkbox";
     }
 
+    /**
+     * @return
+     */
     @Override
     public String getName() {
         return name;
     }
 
+    /**
+     * @return
+     */
     @Override
     public String getPlaceholder() {
         return "";
     }
 
+    /**
+     * @return
+     */
     @Override
     public boolean getRequired() {
-        return required;
+        return false;
     }
 
+    /**
+     * @return
+     */
     @Override
-    public Object getValue() {
+    public Boolean getValue() {
         return value;
     }
 
@@ -68,6 +87,14 @@ public class NumberField extends FormField{
         return Map.of();
     }
 
+    /**
+     * returns whether field is a relation in the database or not
+     */
+    @Override
+    public boolean isRelationship() {
+        return false;
+    }
+
     @Override
     public void setName(String s) {
         this.name = s;
@@ -85,7 +112,6 @@ public class NumberField extends FormField{
     public Map<String, Object> getModelData() {
         return Map.of(
                 "label", label,
-//                "placeholder", placeholder,
                 "name", name,
                 "value", value,
                 "required", required,
@@ -94,4 +120,6 @@ public class NumberField extends FormField{
                 "validationErrors", validationErrors
         );
     }
+
+
 }

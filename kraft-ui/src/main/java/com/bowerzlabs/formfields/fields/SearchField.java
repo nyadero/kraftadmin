@@ -1,8 +1,10 @@
-package com.bowerzlabs.formfields;
+package com.bowerzlabs.formfields.fields;
+
+import com.bowerzlabs.formfields.FormField;
 
 import java.util.Map;
 
-public class SearchField extends FormField{
+public class SearchField extends FormField {
     private String name;
     private String label;
     public SearchField() {

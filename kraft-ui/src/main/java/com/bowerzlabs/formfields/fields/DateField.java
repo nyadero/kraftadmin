@@ -1,9 +1,11 @@
-package com.bowerzlabs.formfields;
+package com.bowerzlabs.formfields.fields;
+
+import com.bowerzlabs.formfields.FormField;
 
 import java.time.LocalDate;
 import java.util.Map;
 
-public class DateField extends FormField{
+public class DateField extends FormField {
     private String label;
     private final String placeholder;
     private final boolean required;

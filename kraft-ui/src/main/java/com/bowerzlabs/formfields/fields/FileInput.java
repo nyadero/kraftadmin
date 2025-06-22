@@ -1,8 +1,10 @@
-package com.bowerzlabs.formfields;
+package com.bowerzlabs.formfields.fields;
+
+import com.bowerzlabs.formfields.FormField;
 
 import java.util.Map;
 
-public class FileInput extends FormField{
+public class FileInput extends FormField {
     private String label;
     private final String placeholder;
     private final boolean required;

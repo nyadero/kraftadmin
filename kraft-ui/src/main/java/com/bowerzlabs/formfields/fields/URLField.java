@@ -1,8 +1,10 @@
-package com.bowerzlabs.formfields;
+package com.bowerzlabs.formfields.fields;
+
+import com.bowerzlabs.formfields.FormField;
 
 import java.util.Map;
 
-public class ColorField extends FormField{
+public class URLField extends FormField {
     private String label;
     private final String placeholder;
     private final boolean required;
@@ -11,19 +13,18 @@ public class ColorField extends FormField{
     private final Map<String, String> validationErrors;
     private final Map<String, String> validationRules;
 
-    public ColorField(String label, String placeholder, boolean required, String value, String name, Map<String, String> validationErrors, Map<String, String> validationRules) {
+    public URLField(String label, String placeholder, boolean required, String  value, String name, Map<String, String> validationRules, Map<String, String> validationErrors) {
         super();
-        this.label = label;
+        this.label = formatLabel(label);
         this.placeholder = placeholder;
         this.required = required;
         this.value = value;
         this.name = name;
-        this.validationErrors = validationErrors;
         this.validationRules = validationRules;
+        this.validationErrors = validationErrors;
     }
-
     /**
-     * @return 
+     * @return
      */
     @Override
     public String getLabel() {
@@ -31,15 +32,15 @@ public class ColorField extends FormField{
     }
 
     /**
-     * @return 
+     * @return
      */
     @Override
     public String getType() {
-        return "color";
+        return "url";
     }
 
     /**
-     * @return 
+     * @return
      */
     @Override
     public String getName() {
@@ -47,7 +48,7 @@ public class ColorField extends FormField{
     }
 
     /**
-     * @return 
+     * @return
      */
     @Override
     public String getPlaceholder() {
@@ -55,7 +56,7 @@ public class ColorField extends FormField{
     }
 
     /**
-     * @return 
+     * @return
      */
     @Override
     public boolean getRequired() {
@@ -63,7 +64,7 @@ public class ColorField extends FormField{
     }
 
     /**
-     * @return 
+     * @return
      */
     @Override
     public String getValue() {
@@ -71,19 +72,19 @@ public class ColorField extends FormField{
     }
 
     /**
-     * @return 
+     * @return
      */
     @Override
     public Map<String, String> getValidationErrors() {
-        return Map.of();
+        return validationErrors;
     }
 
     /**
-     * @return 
+     * @return
      */
     @Override
     public Map<String, String> getValidationRules() {
-        return Map.of();
+        return validationRules;
     }
 
     @Override
@@ -95,6 +96,33 @@ public class ColorField extends FormField{
     public void setLabel(String s) {
         this.label = s;
     }
+
+//
+//    /**
+//     * @param label
+//     * @param type
+//     * @param placeholder
+//     * @param name
+//     * @param value
+//     * @param required
+//     * @param validationErrors
+//     * @return
+//     */
+//    @Override
+//    public String toHtml(String label, String type, String placeholder, String name, Object value, boolean required, Map<String, String> validationErrors) {
+//        StringBuilder html = new StringBuilder();
+//
+//        html.append("<label>").append(label).append(": ")
+//                .append("<input type='").append(type).append("' name='").append(name).append("' value='")
+//                .append(value != null ? value : "").append("' placeholder='").append(placeholder).append("'")
+//                .append(required ? " required" : "").append("></label><br/>");
+//
+//        if (validationErrors != null && !validationErrors.isEmpty() && validationErrors.containsKey(name)) {
+//            html.append("<span style='color:red;'>").append(validationErrors.get(name)).append("</span><br/>");
+//        }
+//
+//        return html.toString();
+//    }
 
     /**
      * builds the input model data

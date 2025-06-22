@@ -1,5 +1,6 @@
-package com.bowerzlabs.formfields;
+package com.bowerzlabs.formfields.fields;
 
+import com.bowerzlabs.formfields.FormField;
 import com.bowerzlabs.utils.CountryCode;
 import com.bowerzlabs.utils.CountryCodesUtil;
 

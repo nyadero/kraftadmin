@@ -1,25 +1,27 @@
-package com.bowerzlabs.formfields;
+package com.bowerzlabs.formfields.fields;
+
+import com.bowerzlabs.formfields.FormField;
 
 import java.util.Map;
 
-public class EmailField extends FormField{
+public class ColorField extends FormField {
     private String label;
     private final String placeholder;
     private final boolean required;
     private final String value;
     private String name;
-    private Map<String, String> validationErrors;
-    private Map<String, String> validationRules;
+    private final Map<String, String> validationErrors;
+    private final Map<String, String> validationRules;
 
-    public EmailField(String label, String placeholder, boolean required, String value, String name, Map<String, String> validationRules, Map<String, String> validationErrors) {
+    public ColorField(String label, String placeholder, boolean required, String value, String name, Map<String, String> validationErrors, Map<String, String> validationRules) {
         super();
-        this.label = formatLabel(label);
+        this.label = label;
         this.placeholder = placeholder;
         this.required = required;
         this.value = value;
         this.name = name;
-        this.validationRules = validationRules;
         this.validationErrors = validationErrors;
+        this.validationRules = validationRules;
     }
 
     /**
@@ -35,7 +37,7 @@ public class EmailField extends FormField{
      */
     @Override
     public String getType() {
-        return "email";
+        return "color";
     }
 
     /**
@@ -97,10 +99,19 @@ public class EmailField extends FormField{
     }
 
     /**
-     * builds teh input model data
+     * builds the input model data
      */
     @Override
     public Map<String, Object> getModelData() {
-        return Map.of();
+        return Map.of(
+                "label", label,
+                "placeholder", placeholder,
+                "name", name,
+                "value", value,
+                "required", required,
+                "type", getType(),
+                "validationRules", validationRules,
+                "validationErrors", validationErrors
+        );
     }
 }
