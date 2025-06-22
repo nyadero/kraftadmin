@@ -3,7 +3,7 @@ package com.bowerzlabs.formfields.strategies;
 import com.bowerzlabs.annotations.FormInputType;
 import com.bowerzlabs.database.DbObjectSchema;
 import com.bowerzlabs.formfields.FormField;
-import com.bowerzlabs.formfields.ImageField;
+import com.bowerzlabs.formfields.fields.ImageField;
 import jakarta.persistence.metamodel.EntityType;
 
 import java.lang.reflect.Field;

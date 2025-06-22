@@ -1,8 +1,8 @@
 package com.bowerzlabs.formfields.strategies;
 
 import com.bowerzlabs.database.DbObjectSchema;
-import com.bowerzlabs.formfields.EmbeddedField;
 import com.bowerzlabs.formfields.FormField;
+import com.bowerzlabs.formfields.fields.EmbeddedField;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.metamodel.EntityType;

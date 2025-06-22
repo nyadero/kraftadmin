@@ -2,7 +2,7 @@ package com.bowerzlabs.formfields.strategies;
 
 import com.bowerzlabs.database.DbObjectSchema;
 import com.bowerzlabs.formfields.FormField;
-import com.bowerzlabs.formfields.SelectField;
+import com.bowerzlabs.formfields.fields.SelectField;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.metamodel.EntityType;
 

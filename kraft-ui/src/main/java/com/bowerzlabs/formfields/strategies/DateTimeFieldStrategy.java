@@ -2,8 +2,8 @@ package com.bowerzlabs.formfields.strategies;
 
 import com.bowerzlabs.annotations.FormInputType;
 import com.bowerzlabs.database.DbObjectSchema;
-import com.bowerzlabs.formfields.DateTimeField;
 import com.bowerzlabs.formfields.FormField;
+import com.bowerzlabs.formfields.fields.DateTimeField;
 import jakarta.persistence.metamodel.EntityType;
 
 import java.lang.reflect.Field;

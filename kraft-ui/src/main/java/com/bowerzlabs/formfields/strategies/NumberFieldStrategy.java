@@ -2,7 +2,7 @@ package com.bowerzlabs.formfields.strategies;
 
 import com.bowerzlabs.database.DbObjectSchema;
 import com.bowerzlabs.formfields.FormField;
-import com.bowerzlabs.formfields.NumberField;
+import com.bowerzlabs.formfields.fields.NumberField;
 import jakarta.persistence.metamodel.EntityType;
 
 import java.lang.reflect.Field;
