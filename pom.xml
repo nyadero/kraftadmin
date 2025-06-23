@@ -6,11 +6,11 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.4.4</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/>
 	</parent>
-	<groupId>com.github.nyadero.kraftadmin</groupId>
-	<artifactId>kraft</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<groupId>com.github.nyadero</groupId>
+	<artifactId>kraftadmin</artifactId>
+	<version>1.0.0</version>
 	<packaging>pom</packaging>
 	<name>kraft</name>
 	<description>Management,logging,monitoring and analytics library for springboot apps</description>

@@ -3,10 +3,16 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+<!--    <parent>-->
+<!--        <groupId>com.github.nyadero.kraftadmin</groupId>-->
+<!--        <artifactId>kraft</artifactId>-->
+<!--        <version>0.0.1-SNAPSHOT</version>-->
+<!--    </parent>-->
     <parent>
-        <groupId>com.github.nyadero.kraftadmin</groupId>
-        <artifactId>kraft</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <groupId>com.github.nyadero</groupId>
+        <artifactId>kraftadmin</artifactId>
+        <version>1.0.0</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>kraft-core</artifactId>
@@ -70,9 +76,9 @@
             <artifactId>jakarta.transaction-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.bowerzlabs</groupId>
+            <groupId>com.github.nyadero</groupId>
             <artifactId>kraft-data-jpa</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>1.0.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
