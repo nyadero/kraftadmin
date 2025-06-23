@@ -24,4 +24,3 @@ public class Motorbike extends Garage {
     @Enumerated(EnumType.STRING)
     private MotorbikeCategory motorbikeCategory;
 }
-

@@ -3,6 +3,10 @@
 @tailwind components;
 @tailwind utilities;
 
+ .hidden {
+        display: none;
+ }
+
 th, td {
     padding: 0.75rem;
     border: 1px solid #dee2e6;
@@ -14,12 +18,11 @@ th, td {
 }
 
 table {
-    table-layout: fixed;         /* ensures equal width columns */
     width: 100%;
      border-collapse: collapse;
-           margin-top: 1rem;
-           background: white;
-           box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+     margin-top: 1rem;
+     background: white;
+     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
         tr.selected {
@@ -95,3 +98,13 @@ table {
        font-size: 18px;
        user-select: none;
    }
+
+   .loader {
+       border-top-color: #3498db;
+       animation: spin 1s linear infinite;
+     }
+     @keyframes spin {
+       to {
+         transform: rotate(360deg);
+       }
+     }

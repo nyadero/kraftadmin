@@ -1,21 +1,22 @@
 package com.bowerzlabs.actions;
 
 import com.bowerzlabs.EntitiesScanner;
+import com.bowerzlabs.EntityMetaModel;
 import com.bowerzlabs.InputGenerator;
-import com.bowerzlabs.annotations.AdminController;
 import com.bowerzlabs.constants.FieldType;
 import com.bowerzlabs.constants.Status;
 import com.bowerzlabs.constants.UserActionType;
-import com.bowerzlabs.crud.CrudController;
 import com.bowerzlabs.database.DbObjectSchema;
 import com.bowerzlabs.dtos.FieldValue;
 import com.bowerzlabs.dtos.PageResponse;
-import com.bowerzlabs.dtos.TableRowDTO;
 import com.bowerzlabs.events.UIEvent;
 import com.bowerzlabs.events.UserActionEvent;
 import com.bowerzlabs.formfields.FormField;
 import com.bowerzlabs.models.kraftmodels.AdminUser;
 import com.bowerzlabs.service.CrudService;
+import com.bowerzlabs.utils.DataConverter;
+import com.bowerzlabs.utils.DisplayUtils;
+import com.bowerzlabs.utils.KraftUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -59,16 +60,15 @@ public class ActionsController {
             @RequestParam(name = "sort", required = false) List<String> sortParams,
             Model model
     ){
-        Class<?> entityInstance = entitiesScanner.getEntityByName(ENTITY_NAME);
+        EntityMetaModel clazz = entitiesScanner.getEntityByName(ENTITY_NAME);
         try {
-            DbObjectSchema schema = new DbObjectSchema(entitiesScanner.getEntityByName(ENTITY_NAME),null);
-            List<FormField> formFields = InputGenerator.generateFormInput(entityInstance, schema, "/admin/" + ENTITY_NAME + "/create", false, true, new HashMap<>());
+            DbObjectSchema schema = new DbObjectSchema(clazz,null);
+            List<FormField> formFields = InputGenerator.generateFormInput(clazz, schema, "/admin/" + ENTITY_NAME + "/create", false, true, new HashMap<>());
             List<Field> sortFields = schema.getSortableFields();
             List<Field> filterFields = schema.getFilterableFields();
             List<Field> searchFields = schema.getSearchableFields();
             List<Map<String, Object>> processedItems = new ArrayList<>();
             List<Map<String, FieldValue>> displayMap = new ArrayList<>();
-            List<TableRowDTO> rows = new ArrayList<>();
             Map<String, String> cleanedFilters = new HashMap<>();
             for (Map.Entry<String, String> entry : filters.entrySet()) {
                 if (entry.getKey().startsWith("filter.")) {
@@ -77,7 +77,7 @@ public class ActionsController {
                 }
             }
             filters = cleanedFilters;
-            Page<DbObjectSchema> pagedResult = crudService.findAll(ENTITY_NAME, page, size, filters, sortParams);
+            Page<DbObjectSchema> pagedResult = crudService.findAll(ENTITY_NAME, page, size, filters);
             log.info("pagedResult {}", pagedResult.getContent());
             List<String> searchableFieldNames = schema.getSearchableFields().stream().map(Field::getName).toList();
             List<String> sortableFieldNames = schema.getSortableFields().stream().map(Field::getName).toList();
@@ -112,12 +112,9 @@ public class ActionsController {
                         String fieldName = entry.getKey();
                         Object value = entry.getValue();
 
-                        FieldType type = getDataType(value);
-                        FieldValue fieldValue = new FieldValue();
-                        fieldValue.setFieldType(type);
-                        fieldValue.setValue(value);
+                        FieldValue displayField = DisplayUtils.resolveFieldValue(value);
 
-                        displayItem.put(fieldName, fieldValue);
+                        displayItem.put(fieldName, displayField);
                     }
 
                     displayMap.add(displayItem);
@@ -157,7 +154,7 @@ public class ActionsController {
 //            log.info("enum fields {}", enumFields);
             model.addAttribute("enumFields", enumFields);
             model.addAttribute("entityName", ENTITY_NAME);
-            model.addAttribute("primaryKey", primaryKey);
+            model.addAttribute("primaryKey", KraftUtils.formatLabel(primaryKey));
 //            model.addAttribute("size", size);
             model.addAttribute("currentPage", page);
             model.addAttribute("totalPages", pagedResult.getTotalPages());
@@ -171,7 +168,7 @@ public class ActionsController {
             model.addAttribute("formats", List.of("csv", "json", "xml"));
             model.addAttribute("sortOrder", sortOrder);
             model.addAttribute("fields", formFields);
-            applicationEventPublisher.publishEvent(new UserActionEvent(this, UserActionType.Read, (AdminUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal(), ENTITY_NAME));
+//            applicationEventPublisher.publishEvent(new UserActionEvent(this, UserActionType.Read, (AdminUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal(), firstItem));
             log.info("processedItems {}", displayMap);
             processedItems.forEach(item1 -> {
                 log.info("item1 key {} value {}", item1.keySet(), item1.values());
@@ -181,28 +178,10 @@ public class ActionsController {
             });
             log.info("display map entry set", displayMap);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
             model.addAttribute("error", "Error fetching data " + e.getMessage());
             applicationEventPublisher.publishEvent(new UIEvent(this, "ERROR FETCHING DATA", Status.Error));
         }
         return "actions/index";
     }
 
-    private FieldType getDataType(Object value) {
-        if (value == null) return FieldType.TEXT;
-
-//        String val = value.toString().toLowerCase();
-        String val = value.toString().trim().toLowerCase();
-
-
-        if (val.endsWith(".jpg") || val.endsWith(".jpeg") || val.endsWith(".png") || val.endsWith(".gif") || val.endsWith(".webp")) {
-            return FieldType.IMAGE;
-        } else if (val.endsWith(".pdf") || val.endsWith(".doc") || val.endsWith(".docx")) {
-            return FieldType.DOCUMENT;
-        } else if (val.startsWith("http")) {
-            return FieldType.LINK;
-        } else {
-            return FieldType.TEXT;
-        }
-    }
 }

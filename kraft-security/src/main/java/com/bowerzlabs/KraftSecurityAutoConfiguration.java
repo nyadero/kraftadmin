@@ -20,13 +20,13 @@ public class KraftSecurityAutoConfiguration {
 
     @PostConstruct
     public void init() {
-        log.info("🔧 Kraft security Initialized");
+        log.info("Kraft security Initialized");
     }
 
     @Bean
     public String helloKraftSecurity() {
-        System.out.println("🔧 Security enabled");
-        return "KraftrActive";
+        System.out.println("Security enabled");
+        return "KraftActive";
     }
 
 }

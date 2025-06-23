@@ -12,6 +12,15 @@
             View File
         </a>
 
+        <!-- Binary / File (downloadable) -->
+        <a th:if="${displayField?.fieldType?.name() == 'BINARY'}"
+           th:href="@{'/api/files/download/' + ${displayField.id}}"
+           class="text-blue-600 underline"
+           download>
+            Download File
+        </a>
+
+
         <!-- Color -->
         <div class="flex items-center gap-2 mt-1" th:if="${displayField?.fieldType?.name() == 'COLOR'}">
             <div class="w-6 h-6 rounded border shadow" th:style="'background-color:' + ${displayField.value}"></div>

@@ -1,24 +1,20 @@
 package com.bowerzlabs;
 
-import com.bowerzlabs.database.DbObjectSchema;
+import com.bowerzlabs.service.AnalyzeData;
 import com.bowerzlabs.service.CrudService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 //@AdminController
 @Controller
 @RequestMapping("/admin")
 public class KraftController {
+    private static final Logger log = LoggerFactory.getLogger(KraftController.class);
     private final ApplicationEventPublisher applicationEventPublisher;
     private final CrudService crudService;
 
@@ -27,29 +23,24 @@ public class KraftController {
         this.crudService = crudService;
     }
 
+
     // render dashboard
     @GetMapping("/dashboard")
     public String dashboard(Model model) throws Exception {
-            com.bowerzlabs.AnalyticsComponent analyticsComponent = new com.bowerzlabs.AnalyticsComponent("Test component", "Description");
-            new BarchartComponent(analyticsComponent);
-            Page<DbObjectSchema> data = crudService.findAll("AdminUserActions", 0, 20, new HashMap<>(), new ArrayList<>());
-            analyticsComponent.setData(Map.of("AdminUserActions", data.getTotalElements()));
-            analyticsComponent.setData(Map.of("Jan", 42424, "feb", 55656));
-            analyticsComponent.setData(Map.of("Jan", 42424, "feb", 886787, "march", 97866));
-            analyticsComponent.setData(Map.of("Jan", 42424, "oct", 89797, "dec", 89786));
-            return "dashboard";
+        model.addAttribute("components", AnalyzeData.getAnalyticsComponents());
+        return "dashboard";
     }
 
     @GetMapping("/test")
     public String test(){
-        System.out.println("🔥 /admin/test hit!");
+        System.out.println("/admin/test hit!");
         return "test";
     }
 
-    @ExceptionHandler(Exception.class)
-    public ModelAndView handleException(Exception ex) {
-        return new ModelAndView("error").addObject("exception", ex);
-    }
+//    @ExceptionHandler(Exception.class)
+//    public ModelAndView handleException(Exception ex) {
+//        return new ModelAndView("error").addObject("exception", ex);
+//    }
 
 
 }

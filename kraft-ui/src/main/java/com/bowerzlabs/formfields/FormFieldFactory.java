@@ -3,9 +3,11 @@ package com.bowerzlabs.formfields;
 import com.bowerzlabs.annotations.DisplayField;
 import com.bowerzlabs.annotations.FormInputType;
 import com.bowerzlabs.database.DbObjectSchema;
+import com.bowerzlabs.formfields.fields.*;
 import com.bowerzlabs.service.CrudService;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.*;
+import jakarta.persistence.metamodel.EntityType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,9 +27,10 @@ import static org.atteo.evo.inflector.English.plural;
 @Component
 public class FormFieldFactory {
     private static final Logger log = LoggerFactory.getLogger(FormFieldFactory.class);
-    private static CrudService staticCrudService;
+    public static CrudService staticCrudService;
 
     private final CrudService crudService;
+    private static final FieldFactory factory = new FieldFactory();
 
     @Autowired
     public FormFieldFactory(CrudService crudService) {
@@ -39,7 +42,11 @@ public class FormFieldFactory {
         staticCrudService = this.crudService;
     }
 
-    public static FormField createFormFieldsFromEntity(DbObjectSchema dbObjectSchema, Field field, String inputName, boolean isSearch) {
+    public static FormField generateFormField(DbObjectSchema dbObjectSchema, Field field, String inputName, boolean isSearch, List<EntityType<?>> subTypes) {
+        return factory.createField(field, dbObjectSchema, inputName, isSearch, subTypes);
+    }
+
+    public static FormField createFormFieldsFromEntity(DbObjectSchema dbObjectSchema, Field field, String inputName, boolean isSearch, List<EntityType<?>> subTypes) {
         String label = null;
         String placeholder = null;
         Map<String, String> validationRules = null;
@@ -51,15 +58,14 @@ public class FormFieldFactory {
             field.setAccessible(true);
 //            label = dbObjectSchema.getFieldLabels().get(field.getName());
             label = formatLabel(dbObjectSchema.getFieldLabels().get(field.getName()));
-            placeholder = "Enter " + field.getName();
+            placeholder = "Enter " + formatLabel(field.getName());
             // if entity is available use its field values else use values from fieldsWithData LinkedHashMap
             if (dbObjectSchema.getEntity() != null){
                 try {
                     Field declaredField = dbObjectSchema.getEntity().getClass().getDeclaredField(field.getName());
-                    log.info("declared field {}", declaredField);
                     declaredField.setAccessible(true);
                     value = declaredField.get(dbObjectSchema.getEntity());
-                    log.info("value {}", value);
+//                    log.info("value {}", value);
                 } catch (Exception e) {
                     log.info("exception {}", e.toString());
                 }
@@ -67,7 +73,6 @@ public class FormFieldFactory {
                 value = dbObjectSchema.getFieldsWithData().get(field.getName());
             }
 
-//            name = field.getName();
             List<Object> options = Collections.emptyList();
             String rule = dbObjectSchema.getValidationRules().get(field.getName());
             validationRules = rule != null ? Map.of(field.getName(), rule) : Map.of();
@@ -88,8 +93,10 @@ public class FormFieldFactory {
                 }
                 if (field.isAnnotationPresent(Lob.class)) {
                     return new TextAreaField(label, placeholder, required, (String) value, inputName, validationErrors, validationRules);
+                }else if (field.getType().equals(byte[].class)){
+                    return new ImageField(label,placeholder,required, value, inputName, validationErrors, validationRules);
                 }
-                return new TextField(label, placeholder, required, (String) value, inputName, validationRules, validationErrors);
+                 return new TextField(label, placeholder, required, (String) value, inputName, validationRules, validationErrors);
             }else if (field.isAnnotationPresent(FormInputType.class)) {
                 FormInputType inputType = field.getAnnotation(FormInputType.class);
                  return switch (inputType.value()) {
@@ -117,11 +124,13 @@ public class FormFieldFactory {
                      case TIME ->
                              new TimeField(label, placeholder, required, (LocalTime) value, inputName, validationErrors, validationRules);
                      case RANGE -> null;
+                     case CURRENCY ->
+                         new CurrencyField(label, placeholder, required, (String) value, inputName, validationErrors, validationRules);
                      case TEL ->
                              new TelephoneField(label, placeholder, required, (String) value, inputName, validationRules, validationErrors);
                      case URL ->
                              new URLField(label, placeholder, required, (String) value, inputName, validationRules, validationErrors);
-                     case RADIO -> new RadioField(label, placeholder, required, (String) value, inputName, new ArrayList<>(),  validationRules, validationErrors);
+                     case RADIO -> new RadioField(label, placeholder, required, (boolean) value, inputName, new ArrayList<>(),  validationRules, validationErrors);
                      default -> new TextField(label, placeholder, required, (String) value, inputName, validationRules, validationErrors);
                  };
             } else if (isNumeric(field.getType())) {
@@ -131,27 +140,27 @@ public class FormFieldFactory {
                 }
                 return numberField;
             } else if (field.getType() == boolean.class || field.getType() == Boolean.class) {
-                return new CheckboxField(label, "true".equalsIgnoreCase(String.valueOf(value)), inputName, required, validationErrors, validationRules, isRelationship);
-            } else if (field.isAnnotationPresent(ManyToOne.class) || field.isAnnotationPresent(OneToOne.class)) {
+                return new CheckboxField(label, "true".equalsIgnoreCase(String.valueOf(value)), inputName, required, validationErrors, validationRules);
+            } else if (field.isAnnotationPresent(ManyToOne.class) || field.isAnnotationPresent(OneToOne.class))
+            {
                 Class<?> relatedEntityClass = field.getType();
                  String entityName = resolveEntityName(relatedEntityClass);
                  List<DbObjectSchema> relatedEntities = staticCrudService.getAll(relatedEntityClass.getSimpleName());
-                log.info("related entities {}", relatedEntities);
+//                log.info("related entities {}", relatedEntities);
                 Map<Object, Object> optionsMap = new HashMap<>();
                  String primaryKey = "";
                 for (DbObjectSchema related : relatedEntities) {
-                    log.info("related {}", related);
+//                    log.info("related {}", related);
                     Object key;
                     Object value1;
-
                     try {
                         if (field.isAnnotationPresent(DisplayField.class)){
                             DisplayField displayField = field.getAnnotation(DisplayField.class);
-                            log.info("displayField {}", displayField);
+//                            log.info("displayField {}", displayField);
                             String displayFieldName = displayField.value();
                             Field field1 = relatedEntityClass.getDeclaredField(displayFieldName);
                             Field idField = relatedEntityClass.getDeclaredField(related.getPrimaryKey());
-                            log.info("field1 {}", field1);
+//                            log.info("field1 {}", field1);
                             field1.setAccessible(true);
                             idField.setAccessible(true);
                             key = field1.get(related.getEntity());
@@ -159,7 +168,7 @@ public class FormFieldFactory {
                             optionsMap.put(key, value1);
                         }else{
                             Field idField = relatedEntityClass.getDeclaredField(related.getPrimaryKey());
-                            log.info("idfield1 {}", idField);
+//                            log.info("idfield1 {}", idField);
                             idField.setAccessible(true);
                             key = idField.get(related.getEntity());
                             value1 = idField.get(related.getEntity());
@@ -168,16 +177,17 @@ public class FormFieldFactory {
 
                         primaryKey = related.getPrimaryKey();
 
-                        log.info("key {}, value {} ", key, value1);
-                        log.info("optionsMap {}", optionsMap);
-                        log.info("form_name {}", optionsMap);
+//                        log.info("key {}, value {} ", key, value1);
+//                        log.info("optionsMap {}", optionsMap);
+//                        log.info("form_name {}", optionsMap);
                         
                     } catch (Exception e) {
                         log.error("Error extracting options from related entity", e);
                     }
                 }
                 return new SearchableSelectField(label, inputName, "Type " + inputName + " " + inputName + " to search", optionsMap, value, required, validationErrors, validationRules);
-             } else if (field.isAnnotationPresent(Enumerated.class)) {
+             }
+             else if (field.isAnnotationPresent(Enumerated.class)) {
                 // Dynamically get enum values
                 Class<?> enumType = field.getType();
                 if (enumType.isEnum()) {
@@ -196,12 +206,12 @@ public class FormFieldFactory {
                  return new FileInput(label, placeholder, required, value, inputName, validationErrors, validationRules);
             } else if (field.isAnnotationPresent(Embedded.class) || field.getType().isAnnotationPresent(Embeddable.class)) {
                 String embeddedFieldName = field.getType().getDeclaredConstructor().newInstance().getClass().getSimpleName().toLowerCase();
-                log.info("embeddedInstance3 {}", embeddedFieldName);
+//                log.info("embeddedInstance3 {}", embeddedFieldName);
                 List<FormField> embeddedFields = new ArrayList<>();
                  // Loop through embedded fields and generate form fields
                  for (Field embeddedField : field.getType().getDeclaredFields()) {
                      embeddedField.setAccessible(true);
-                     FormField subField = createFormFieldsFromEntity(dbObjectSchema, embeddedField, "", isSearch);
+                     FormField subField = createFormFieldsFromEntity(dbObjectSchema, embeddedField, "", isSearch, subTypes);
                      if (subField != null) {
                          String name1 = embeddedFieldName.concat(".").concat(subField.getPlaceholder().replace("Enter ", ""));
                          subField.setName(name1);
@@ -209,7 +219,8 @@ public class FormFieldFactory {
                          embeddedFields.add(subField);
                      }
                  }
-                log.info("embeddedFields ${} ", embeddedFields);
+
+//                log.info("embeddedFields ${} ", embeddedFields);
                 return new EmbeddedField(field.getName(), embeddedFields, validationErrors, validationRules);
             }
              // Handle Array and Collection (List, Set) Fields
@@ -222,8 +233,7 @@ public class FormFieldFactory {
                     // Convert collection to list
                     return new TextField(label, placeholder, required, value, inputName, validationRules, validationErrors);
 //                }
-            }
-            else {
+            } else {
                 return new TextField(label, placeholder, required, value, inputName, validationRules, validationErrors);
             }
         } catch (Exception e) {
@@ -268,7 +278,7 @@ public class FormFieldFactory {
 
 //Get the validation string for the field (e.g. "required|email|max:255")
 // Check if "required" is one of the rules (case-insensitive is optional)
-    private static boolean extractRequiredValidation(Map<String, String> validationRules, Field field) {
+    public static boolean extractRequiredValidation(Map<String, String> validationRules, Field field) {
         String key = field.getName().toLowerCase();
 
         if (!validationRules.containsKey(key)) return false;
@@ -284,10 +294,9 @@ public class FormFieldFactory {
                 .map(String::trim)
                 .anyMatch(rule -> rule.equalsIgnoreCase("required"));
 
-        log.info("Field '{}' is required: {}", key, required);
+//        log.info("Field '{}' is required: {}", key, required);
         return required;
     }
-
 
     // Convert an array to a List<Object>
     private static List<Object> arrayToList(Object array) {
@@ -332,11 +341,26 @@ public class FormFieldFactory {
         return result;
     }
 
-    private static boolean isNumeric(Class<?> type) {
+    static boolean isNumeric(Class<?> type) {
         return type == int.class || type == Integer.class ||
                 type == long.class || type == Long.class ||
                 type == float.class || type == Float.class ||
                 type == double.class || type == Double.class;
+    }
+
+
+    public static Object extractValue(Field field, DbObjectSchema schema) {
+        try {
+            if (schema.getEntity() != null) {
+                Field entityField = schema.getEntity().getClass().getDeclaredField(field.getName());
+                entityField.setAccessible(true);
+                return entityField.get(schema.getEntity());
+            } else {
+                return schema.getFieldsWithData().get(field.getName());
+            }
+        } catch (Exception e) {
+            return null;
+        }
     }
 
 

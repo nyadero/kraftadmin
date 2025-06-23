@@ -130,24 +130,27 @@
 
 package com.bowerzlabs.utils;
 
+import com.bowerzlabs.EntityMetaModel;
 import com.bowerzlabs.annotations.KraftAdminResource;
 import com.bowerzlabs.models.kraftmodels.ResourceMetadata;
 import com.bowerzlabs.models.kraftmodels.ResourceName;
 
 import jakarta.persistence.*;
+import jakarta.persistence.metamodel.EntityType;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.*;
 
 public class ResourceGrouper {
 
-    public static Map<String, List<ResourceMetadata>> groupResources(List<Class<?>> entityClasses) {
+    public static Map<String, List<ResourceMetadata>> groupResources(List<EntityMetaModel> entityClasses) {
         Map<String, List<ResourceMetadata>> grouped = new LinkedHashMap<>();
         Map<Class<?>, Integer> referenceCount = new HashMap<>();
 
         // Count how many times each class is referenced in relationships
-        for (Class<?> source : entityClasses) {
-            for (Field field : source.getDeclaredFields()) {
+        for (EntityMetaModel source : entityClasses) {
+            for (Field field : source.getEntityClass().getJavaType().getDeclaredFields()) {
                 Class<?> targetType = getRelationTargetType(field);
                 if (targetType != null && entityClasses.contains(targetType)) {
                     referenceCount.put(targetType, referenceCount.getOrDefault(targetType, 0) + 1);
@@ -155,14 +158,14 @@ public class ResourceGrouper {
             }
         }
 
-        for (Class<?> entityClass : entityClasses) {
-            String name = entityClass.getSimpleName();
+        for (EntityMetaModel entityClass : entityClasses) {
+            String name = entityClass.getEntityClass().getJavaType().getSimpleName();
             String group = name;
-            String icon = "default-icon"; // You can set a smarter default
+            String icon = "default-icon";
             boolean editable = false;
 
-            if (entityClass.isAnnotationPresent(KraftAdminResource.class)) {
-                KraftAdminResource res = entityClass.getAnnotation(KraftAdminResource.class);
+            if (entityClass.getEntityClass().getJavaType().isAnnotationPresent(KraftAdminResource.class)) {
+                KraftAdminResource res = entityClass.getEntityClass().getJavaType().getAnnotation(KraftAdminResource.class);
                 name = res.name().isEmpty() ? name : res.name();
                 icon = res.icon().isEmpty() ? icon : res.icon();
                 editable = res.editable();
@@ -173,17 +176,17 @@ public class ResourceGrouper {
             }
 
             // If no explicit group, use the most common related entity
-            if (group.equals(entityClass.getSimpleName())) {
-                Optional<Map.Entry<Class<?>, Integer>> mostReferenced = referenceCount.entrySet()
-                        .stream()
-                        .filter(entry -> entry.getKey() != entityClass)
-                        .max(Map.Entry.comparingByValue());
-
-                group = mostReferenced.map(entry -> entry.getKey().getSimpleName()).orElse(group);
-            }
+//            if (group.equals(entityClass.getJavaType().getSimpleName())) {
+//                Optional<Map.Entry<EntityType<?>, Integer>> mostReferenced = referenceCount.entrySet()
+//                        .stream()
+//                        .filter(entry -> entry.getKey() != entityClass)
+//                        .max(Map.Entry.comparingByValue());
+//
+//                group = mostReferenced.map(entry -> entry.getKey().getJavaType().getSimpleName()).orElse(group);
+//            }
 
             ResourceMetadata metadata = new ResourceMetadata(
-                    new ResourceName(name, entityClass.getSimpleName()),
+                    new ResourceName(name, entityClass.getEntityClass().getJavaType().getSimpleName()),
                     group,
                     icon,
                     editable

@@ -10,6 +10,56 @@
 <body>
 <th:block layout:fragment="content">
     actions page
+    <span th:text="${primaryKey}"></span>
+        <span th:text="${actions}"></span>
+        <div th:replace="~{components/datatable :: entityTable(
+    ${entityName},
+    ${fieldNames},
+    ${sortableFieldNames},
+    ${sortBy},
+    ${sortOrder},
+    ${displayItems},
+    ${primaryKey},
+    ${totalElements},
+    ${currentParams},
+    ${enumFields}
+)}">
+        </div>
+
+        <!--        bulk actions component -->
+        <div class="w-max mx-auto items-center justify-center hidden" id="bulkActions">
+            <div th:replace="~{components/bulk-action :: bulkActions(entityName=${entityName})}"></div>
+        </div>
+
+
+        <div th:if="${totalElements != null and totalElements > 0}">
+            <!--     pagination -->
+            <div th:replace="~{components/pagination :: pagination(${entityName}, ${currentPage}, ${totalPages}, ${size}, ${search})}"></div>
+        </div>
+
+        <!--        delete -->
+        <div id="deleteModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center;">
+            <div style="background:white; padding:20px; border-radius:8px; text-align:center; max-width:300px;">
+                <p>Are you sure you want to delete this item?</p>
+                <form id="deleteForm" method="get">
+                    <input type="hidden" name="_method" value="delete"/>
+                    <button type="submit">Yes, Delete</button>
+                    <button type="button" onclick="closeDeleteModal()">Cancel</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- No items message -->
+        <section th:if="${totalElements == 0}">
+            <div th:replace="~{components/no-data :: nodata-container(|No ${entityName} found at the moment|)}"></div>
+        </section>
+
+        <!--   item filter container     -->
+        <div style="display: none; justify-content: center; align-items: center; height: fit-content; width:100%; position:absolute;" id="searchModal">
+            <div th:replace="~{fragments/components/filter-modal :: filter-container}"></div>
+        </div>
+
+        </div>
 </th:block>
 </body>
 </html>

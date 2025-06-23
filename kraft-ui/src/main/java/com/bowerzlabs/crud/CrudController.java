@@ -1,17 +1,15 @@
 package com.bowerzlabs.crud;
 
 import com.bowerzlabs.EntitiesScanner;
+import com.bowerzlabs.EntityMetaModel;
 import com.bowerzlabs.InputGenerator;
-import com.bowerzlabs.constants.BulkAction;
-import com.bowerzlabs.constants.FieldType;
-import com.bowerzlabs.constants.Status;
-import com.bowerzlabs.constants.UserActionType;
+import com.bowerzlabs.constants.*;
 import com.bowerzlabs.data.DataExporter;
 import com.bowerzlabs.data.DataExporterRegistry;
 import com.bowerzlabs.database.DbObjectSchema;
 import com.bowerzlabs.dtos.FieldValue;
 import com.bowerzlabs.dtos.PageResponse;
-import com.bowerzlabs.dtos.TableRowDTO;
+import com.bowerzlabs.dtos.Subject;
 import com.bowerzlabs.events.UIEvent;
 import com.bowerzlabs.events.UserActionEvent;
 import com.bowerzlabs.files.LocalMultipartFileStorage;
@@ -21,6 +19,8 @@ import com.bowerzlabs.formfields.FormField;
 import com.bowerzlabs.models.kraftmodels.AdminUser;
 import com.bowerzlabs.service.CrudService;
 import com.bowerzlabs.service.FileStorageService;
+import com.bowerzlabs.utils.DisplayUtils;
+import com.bowerzlabs.utils.KraftUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -30,6 +30,7 @@ import org.springframework.http.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -70,12 +71,10 @@ public class CrudController {
             Model model
     ){
         try {
-            Class<?> entityInstance = entitiesScanner.getEntityByName(entityName);
-            System.out.println("entityInstance " + entityInstance.getSimpleName());
+            EntityMetaModel clazz = entitiesScanner.getEntityByName(entityName);
             Map<String, String> validationErrors = (Map<String, String>) model.getAttribute("validationErrors");
-            log.info("Validation errors in renderCreateForm {} and formData {}", validationErrors, model.getAttribute("formValues"));
-            DbObjectSchema dbObjectSchema = new DbObjectSchema(entityInstance,null);
-            List<FormField> formFields = InputGenerator.generateFormInput(entityInstance, dbObjectSchema, "/admin/crud/" + entityName + "/create", false, false, validationErrors);
+            DbObjectSchema dbObjectSchema = new DbObjectSchema(clazz,null);
+            List<FormField> formFields = InputGenerator.generateFormInput(clazz, dbObjectSchema, "/admin/crud/" + entityName + "/create", false, false, validationErrors);
             log.info("formFields {}", formFields);
             model.addAttribute("actionUrl", "/admin/crud/" + entityName + "/create");
             model.addAttribute("fields", formFields);
@@ -84,12 +83,11 @@ public class CrudController {
 //            model.addAttribute("validationErrors", !validationErrors.isEmpty() ? validationErrors : new HashMap<>());
             model.addAttribute("validationErrors", validationErrors);
         } catch (Exception e) {
-//            throw new RuntimeException("Could not instantiate entity", e);
             model.addAttribute("error", "Error rendering form " + e.getMessage());
         }
         return "crud/form";
     }
-    
+
     // add item to database
     @PostMapping("/{entityName}/create")
     public String saveItem(
@@ -98,24 +96,26 @@ public class CrudController {
             @RequestParam(required = false) Map<String, MultipartFile> fileInputs,
             RedirectAttributes redirectAttributes
     ) {
-        Object savedEntity = null;
         try {
-            Class<?> entityInstance = entitiesScanner.getEntityByName(entityName);
+            EntityMetaModel entityInstance = entitiesScanner.getEntityByName(entityName);
+
             DbObjectSchema dbObjectSchema = new DbObjectSchema(entityInstance, null);
+            DbObjectSchema savedEntity = null;
 
-            System.out.println("📌 Received form values: " + formValues);
-            System.out.println("📦 Received files: " + fileInputs);
 
-            // 1. Validate input
+            System.out.println("Received form values: " + formValues);
+            System.out.println("Received files: " + fileInputs);
+
+            //  Validate input
             Map<String, String> validationErrors = dbObjectSchema.validateFormValues(formValues);
-            log.info("add data validation errors {}", validationErrors);
+//            log.info("add data validation errors {}", validationErrors);
             if (!validationErrors.isEmpty()) {
                 redirectAttributes.addFlashAttribute("validationErrors", validationErrors);
                 redirectAttributes.addFlashAttribute("formValues", formValues);
                 return "redirect:/admin/crud/" + entityName + "/create";
             }
 
-            // 2. Upload files
+            //  Upload files
             if (fileInputs != null && !fileInputs.isEmpty()) {
                 for (Map.Entry<String, MultipartFile> entry : fileInputs.entrySet()) {
                     String field = entry.getKey();
@@ -137,24 +137,24 @@ public class CrudController {
                         }
                         String uploadedFileName = null;
                         formValues.put(field, uploadedFile); // Add it as if it was submitted in the form
-                        System.out.println("📁 File uploaded for field " + field + ": " + uploadedFile);
+                        System.out.println("File uploaded for field " + field + ": " + uploadedFile);
                     }
                 }
             }
 
-            // 3. Save entity with formValues (now includes file names)
-            savedEntity = crudService.save(entityName, formValues, null);
+            Object entity = crudService.save(entityName, formValues, null);
+            savedEntity = new DbObjectSchema(entityInstance, entity);
             applicationEventPublisher.publishEvent(new UIEvent(this, savedEntity.getClass().getSimpleName() + " saved successfully", Status.Success));
+            Subject subject = new Subject(dbObjectSchema.getEntityName(), List.of(dbObjectSchema.getIdValue().toString()));
             applicationEventPublisher.publishEvent(new UserActionEvent(this, UserActionType.Create,
-                    (AdminUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal(), entityName));
+                    (AdminUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal(), subject));
 
         } catch (Exception e) {
-            e.printStackTrace();
             redirectAttributes.addFlashAttribute("errorMessage", "Failed to save entity: " + e.getMessage());
             applicationEventPublisher.publishEvent(new UIEvent(this, "Failed to save entity", Status.Error));
         }
 
-        return "redirect:/admin/" + entityName;
+        return "redirect:/admin/crud/" + entityName;
     }
 
     // get entity by ID dynamically
@@ -168,7 +168,8 @@ public class CrudController {
             Optional<DbObjectSchema> item =  crudService.findById(entityName, id);
             assert item.isPresent();
             model.addAttribute("item", item.get().getAllFieldsWithData());
-            applicationEventPublisher.publishEvent(new UserActionEvent(this, UserActionType.Read, (AdminUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal(), entityName));
+            Subject subject = new Subject(item.get().getEntityName(), List.of(item.get().getIdValue().toString()));
+            applicationEventPublisher.publishEvent(new UserActionEvent(this, UserActionType.Read, (AdminUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal(), subject));
         } catch (Exception e) {
             model.addAttribute("error", "Error fetching entity " + e.getMessage());
         }
@@ -181,32 +182,31 @@ public class CrudController {
             @PathVariable("entityName") String entityName,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam Map<String, String> filters,
-            @RequestParam(name = "sort", required = false) List<String> sortParams,
+//            @RequestParam Map<String, String> filters,
+            @RequestParam Map<String, String> allParams1,
+            //            @RequestParam(name = "filter", required = false) List<String> sortParams,
             Model model
     ) {
-        Class<?> entityInstance = entitiesScanner.getEntityByName(entityName);
+        EntityMetaModel entityInstance = entitiesScanner.getEntityByName(entityName);
         try {
-            DbObjectSchema schema = new DbObjectSchema(entitiesScanner.getEntityByName(entityName),null);
-            List<FormField> formFields = InputGenerator.generateFormInput(entityInstance, schema, "/admin/crud/" + entityName + "/create", false, true, new HashMap<>());
-            List<Field> sortFields = schema.getSortableFields();
+            DbObjectSchema schema = new DbObjectSchema(entityInstance,null);
+//            List<FormField> formFields = InputGenerator.generateFormInput(entityInstance, schema, "/admin/crud/" + entityName + "/create", false, true, new HashMap<>());
             List<Field> filterFields = schema.getFilterableFields();
             List<Field> searchFields = schema.getSearchableFields();
             List<Map<String, Object>> processedItems = new ArrayList<>();
             List<Map<String, FieldValue>> displayMap = new ArrayList<>();
-            List<TableRowDTO> rows = new ArrayList<>();
-            Map<String, String> cleanedFilters = new HashMap<>();
-            for (Map.Entry<String, String> entry : filters.entrySet()) {
+            List<PerformableAction> performableActions = new ArrayList<>();
+            List<String> idValues = new ArrayList<>();
+
+            Map<String, String> filters = new HashMap<>();
+            for (Map.Entry<String, String> entry : allParams1.entrySet()) {
                 if (entry.getKey().startsWith("filter.")) {
                     String fieldKey = entry.getKey().substring("filter.".length());
-                    cleanedFilters.put(fieldKey, entry.getValue());
+                    filters.put(fieldKey, entry.getValue());
                 }
             }
-            filters = cleanedFilters;
-            Page<DbObjectSchema> pagedResult = crudService.findAll(entityName, page, size, filters, sortParams);
-            log.info("pagedResult {}", pagedResult.getContent());
-            List<String> searchableFieldNames = schema.getSearchableFields().stream().map(Field::getName).toList();
-            List<String> sortableFieldNames = schema.getSortableFields().stream().map(Field::getName).toList();
+            Page<DbObjectSchema> pagedResult = crudService.findAll(entityName, page, size, filters);
+            List<String> sortableFieldNames = schema.getSortableFields().stream().map(field -> KraftUtils.formatLabel(field.getName())).toList();
             List<String> filterFieldNames = schema.getFilterableFields().stream().map(Field::getName).toList();
             List<String> filterableFieldNames = filterFields.stream()
                     .map(Field::getName) // This gets just "gender", "action", etc.
@@ -216,43 +216,45 @@ public class CrudController {
 
             String primaryKey = "";
             DbObjectSchema firstItem = null;
-            String sortBy = filters.getOrDefault("sortBy", "defaultField");
+            String sortBy = filters.getOrDefault("sortBy", "id");
             String sortOrder = filters.getOrDefault("sortOrder", "asc");
             model.addAttribute("sortBy", sortBy);
             model.addAttribute("sortOrder", sortOrder);
-//            log.info("schema {}", schema);
-            log.info("sortfieldnames {}", sortableFieldNames);
-            log.info("filterFieldnames {}", filterFieldNames);
-            log.info("searchfieldname {}", searchableFieldNames);
+
+            Map<String, String> displayToFieldMap = new HashMap<>();
+            for (Field field : schema.getSortableFields()) {
+                String rawField = field.getName();
+                displayToFieldMap.put(KraftUtils.formatLabel(rawField), rawField);
+            }
+            model.addAttribute("displayToFieldMap", displayToFieldMap);
+            List<String> displayFieldNames = displayToFieldMap.keySet().stream().toList();
+            model.addAttribute("fieldNames", displayFieldNames);
+            model.addAttribute("formats", DataFormat.values());
 
             if (!pagedResult.getContent().isEmpty()) {
                 firstItem = pagedResult.getContent().get(0);
                 List<String> fieldNames = new ArrayList<>(firstItem.getFieldsWithData().keySet());
                 primaryKey = firstItem.getPrimaryKey();
+                performableActions = firstItem.getPerformableActions();
                 for (DbObjectSchema item : pagedResult.getContent()) {
                     processedItems.add(item.getFieldsWithData());
                     Map<String, Object> rawFields = item.getFieldsWithData();
                     Map<String, FieldValue> displayItem = new LinkedHashMap<>();
-
                     for (Map.Entry<String, Object> entry : rawFields.entrySet()) {
                         String fieldName = entry.getKey();
                         Object value = entry.getValue();
+                        FieldValue displayField = DisplayUtils.resolveFieldValue(value);
+                        displayItem.put(fieldName, displayField);
 
-                        FieldType type = getDataType(value);
-                        FieldValue fieldValue = new FieldValue();
-                        fieldValue.setFieldType(type);
-                        fieldValue.setValue(value);
-
-                        displayItem.put(fieldName, fieldValue);
                     }
-
+                    idValues.add(item.getIdValue().toString());
                     displayMap.add(displayItem);
                 }
 
                 model.addAttribute("items", processedItems);  // Processed data
                 model.addAttribute("displayItems", displayMap);
                 model.addAttribute("fieldNames", fieldNames);
-                log.info("Primary key in controller {}", primaryKey);
+                model.addAttribute("actions", performableActions);
             }
             // Dynamically add enum values for each enum field
             Map<String, List<String>> enumFields = new HashMap<>();
@@ -278,88 +280,27 @@ public class CrudController {
                     .collect(Collectors.joining("&"));
 
             model.addAttribute("queryString", "&" + queryString);
-
             model.addAttribute("currentParams", allParams); // for hidden inputs
-//            log.info("enum fields {}", enumFields);
             model.addAttribute("enumFields", enumFields);
             model.addAttribute("entityName", entityName);
-            model.addAttribute("primaryKey", primaryKey);
-//            model.addAttribute("size", size);
+            model.addAttribute("primaryKey", KraftUtils.formatLabel(primaryKey));
             model.addAttribute("currentPage", page);
             model.addAttribute("totalPages", pagedResult.getTotalPages());
             model.addAttribute("totalElements", pagedResult.getTotalElements());
-//            model.addAttribute("size", pagedResult.getContent().size());
             model.addAttribute("pagination", new PageResponse(pagedResult.getContent(), pagedResult.getNumber(), pagedResult.getTotalElements(), pagedResult.getTotalPages()));
             model.addAttribute("searchableFieldNames", searchFields);
             model.addAttribute("sortableFieldNames", sortableFieldNames);
             model.addAttribute("filterableFieldNames", filterFieldNames);
             model.addAttribute("sortBy", sortBy);
-            model.addAttribute("formats", List.of("csv", "json", "xml"));
             model.addAttribute("sortOrder", sortOrder);
-            model.addAttribute("fields", formFields);
-            applicationEventPublisher.publishEvent(new UserActionEvent(this, UserActionType.Read, (AdminUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal(), entityName));
-            log.info("processedItems {}", displayMap);
-            processedItems.forEach(item1 -> {
-                log.info("item1 key {} value {}", item1.keySet(), item1.values());
-                item1.values().forEach(value1 -> {
-//                    log.info("data type of value1 {}", getDataType(value1));
-                });
-            });
-            log.info("display map entry set", displayMap);
+//            model.addAttribute("fields", formFields);
+            Subject subject = new Subject(schema.getEntityName(), idValues);
+            log.info("filters {}, sortablefields {}, displayItems {}", filters, sortableFieldNames, displayMap);
+            applicationEventPublisher.publishEvent(new UserActionEvent(this, UserActionType.Read, (AdminUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal(), subject));
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            model.addAttribute("error", "Error fetching data " + e.getMessage());
             applicationEventPublisher.publishEvent(new UIEvent(this, "ERROR FETCHING DATA", Status.Error));
         }
         return "crud/list";
-    }
-
-    private FieldType getDataType(Object value) {
-        if (value == null) return FieldType.TEXT;
-
-//        String val = value.toString().toLowerCase();
-        String val = value.toString().trim().toLowerCase();
-
-
-        if (val.endsWith(".jpg") || val.endsWith(".jpeg") || val.endsWith(".png") || val.endsWith(".gif") || val.endsWith(".webp")) {
-            return FieldType.IMAGE;
-        } else if (val.endsWith(".pdf") || val.endsWith(".doc") || val.endsWith(".docx")) {
-            return FieldType.DOCUMENT;
-        } else if (val.startsWith("http")) {
-            return FieldType.LINK;
-        } else if (isColorValue(val)) {
-            return FieldType.COLOR;
-        }else {
-            return FieldType.TEXT;
-        }
-    }
-
-    private boolean isColorValue(String val) {
-        return isHexColor(val) || isRgbOrHsl(val) || isNamedColor(val);
-    }
-
-//    private boolean isHexColor(String val) {
-//        return val.matches("^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$");
-//    }
-
-    private boolean isHexColor(String val) {
-        return val.matches("(?i)^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$");
-    }
-
-
-    private boolean isRgbOrHsl(String val) {
-        return val.matches("^(rgb|rgba|hsl|hsla)\\s*\\(.*\\)$");
-    }
-
-    private boolean isNamedColor(String val) {
-        // Simple check for common CSS color names
-        Set<String> cssColors = Set.of(
-                "black", "white", "red", "green", "blue", "yellow", "pink", "cyan", "magenta",
-                "orange", "purple", "gray", "brown", "lime", "navy", "teal", "maroon", "olive",
-                "silver", "gold", "beige", "coral", "crimson", "indigo", "ivory", "khaki", "lavender",
-                "plum", "salmon", "tan", "turquoise", "violet", "wheat"
-        );
-        return cssColors.contains(val);
     }
 
     // render update item page
@@ -370,23 +311,17 @@ public class CrudController {
             Model model
     ) {
         try {
-            Class<?> entityClass = entitiesScanner.getEntityByName(entityName);
+            EntityMetaModel clazz = entitiesScanner.getEntityByName(entityName);
             Optional<DbObjectSchema> item = crudService.findById(entityName, id);
             Map<String, String> validationErrors = (Map<String, String>) model.getAttribute("validationErrors");
-
             if (item.isPresent()) {
-                log.info("item in controller ${}", item);
-                Object entityInstance = item.get().getEntity(); // Get the actual entity instance
-                System.out.println("Item " + item.get().getFieldsWithData());
-                List<FormField> formFields = InputGenerator.generateFormInput(entityClass, item.get(), "/admin/crud/" + entityName + "/edit", true, false, validationErrors);
+                List<FormField> formFields = InputGenerator.generateFormInput(clazz, item.get(), "/admin/crud/" + entityName + "/edit", true, false, validationErrors);
                 model.addAttribute("fields", formFields);
                 model.addAttribute("entityName", entityName);
-            } else {
-                throw new RuntimeException("Entity with ID " + id + " not found.");
             }
         } catch (Exception e) {
-            System.err.println("Error fetching entity for editing: " + e.getMessage());
-            model.addAttribute("error", "Error fetching entity " + e.getMessage());
+            applicationEventPublisher.publishEvent(new UIEvent(this, e.getMessage(), Status.Error));
+            return "redirect:/admin/crud/" + entityName;
         }
 
         return "crud/form";
@@ -398,10 +333,9 @@ public class CrudController {
             @PathVariable("entityName") String entityName,
             @PathVariable("id") String id,
             @RequestParam Map<String, String> formValues,
-            RedirectAttributes redirectAttributes,
-            Model model
+            RedirectAttributes redirectAttributes
     ) {
-        Class<?> entityInstance = entitiesScanner.getEntityByName(entityName);
+        EntityMetaModel entityInstance = entitiesScanner.getEntityByName(entityName);
         try {
             Optional<DbObjectSchema> item = crudService.findById(entityName, id);
             if (item.isPresent()) {
@@ -415,59 +349,53 @@ public class CrudController {
                 }
                 // Save the updated entity
                 Object savedEntity = crudService.save(entityName, formValues, item.get().getEntity());
-                System.out.println("✅ Entity updated successfully: " + savedEntity);
-                applicationEventPublisher.publishEvent(new UIEvent(this, "Data updated successfully", Status.Success));
-//                applicationEventPublisher.publishEvent(new UserActionEvent(this, UserActionEvent.UserActionType.Update, (AdminUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal(), entityName));
-            } else {
-                System.err.println("Entity not found for ID: " + id);
-                applicationEventPublisher.publishEvent(new UIEvent(this, "Data not found", Status.Error));
+                applicationEventPublisher.publishEvent(new UIEvent(this, entityName + " updated successfully", Status.Success));
+                Subject subject = new Subject(item.get().getEntityName(), List.of(item.get().getIdValue().toString()));
+                applicationEventPublisher.publishEvent(new UserActionEvent(this, UserActionType.Update, (AdminUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal(), subject));
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            model.addAttribute("error", "Error updating entity " + e.getMessage());
-            applicationEventPublisher.publishEvent(new UIEvent(this, "Error updating data", Status.Error));
+            applicationEventPublisher.publishEvent(new UIEvent(this, "Error updating " + entityName, Status.Error));
         }
 
-        return "redirect:/admin/" + entityName;
+        return "redirect:/admin/crud/" + entityName;
     }
-
 
     // delete item from db
     @GetMapping("/{entityName}/delete/{id}")
     public String deleteItem(
             @PathVariable("entityName") String entityName,
-            @PathVariable("id") String id,
-            Model model
+            @PathVariable("id") String id
     ) {
         try {
             Optional<DbObjectSchema> item = crudService.findById(entityName, id);
             if (item.isPresent()){
                 crudService.deleteById(entityName, id);
-                applicationEventPublisher.publishEvent(new UserActionEvent(this, UserActionType.Delete, (AdminUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal(), entityName));
-            }else{
-                System.err.println("deleted entity: ");
+                Subject subject = new Subject(item.get().getEntityName(), List.of(item.get().getIdValue().toString()));
+                applicationEventPublisher.publishEvent(new UserActionEvent(this, UserActionType.Delete, (AdminUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal(), subject));
+                applicationEventPublisher.publishEvent(new UIEvent(this, entityName + " deleted successfully", Status.Error));
             }
         } catch (Exception e) {
-            model.addAttribute("error", "Error deleting entity " + e.getMessage());
+            applicationEventPublisher.publishEvent(new UIEvent(this, "error deleting "+entityName, Status.Error));
         }
-        return "redirect:/admin/" + entityName;
+        return "redirect:/admin/crud/" + entityName;
     }
 
     // bulk operations
     @GetMapping("/{entityName}/bulk-action")
-    public String bulkOperations(
+    public Object bulkOperations(
             @PathVariable("entityName") String entityName,
-            @RequestParam(name = "action") BulkAction bulkAction,
+            @RequestParam(name = "action") String bulkAction,
             @RequestParam(name= "selectedIds") List<String> selectedIds,
             @RequestParam(name = "format", defaultValue = "JSON") String format,
             RedirectAttributes redirectAttributes,
             Model model
-    ){
+    ) throws Exception {
         log.info("action {} ids {}", bulkAction, selectedIds);
-        switch (bulkAction){
+        switch (BulkAction.valueOf(bulkAction)){
             case Delete -> {
                 crudService.bulkDelete(entityName, selectedIds);
                 redirectAttributes.addFlashAttribute("success", "Items deleted successfully.");
+//                return "redirect:/admin/crud/" + entityName;
             }
             case Export -> {
                 crudService.exportData(entityName, selectedIds, format);
@@ -483,30 +411,33 @@ public class CrudController {
                 redirectAttributes.addFlashAttribute("error", "Unknown bulk action.");
             }
         }
-        return "redirect:/admin/" + entityName;
+        return "redirect:/admin/crud/" + entityName;
     }
 
     /**
      * export entity data in defined format
-      */
+     */
     @GetMapping("/{entityName}/export")
-    public ResponseEntity<byte[]> exportEntityData(
+    public Object exportEntityData(
             @RequestParam(defaultValue = "json") String format,
             @PathVariable("entityName") String entityName
-    ){
+    ) {
+        byte[] content = null;
+        HttpHeaders headers = null;
         try {
-            List<Map<String, Object>> data = crudService.findAll(entityName, 0, 100, new HashMap<>(), new ArrayList<>()).getContent().stream().map(DbObjectSchema::getAllFieldsWithData).toList();
+            List<Map<String, Object>> data = crudService.getAll(entityName).stream().map(DbObjectSchema::getAllFieldsWithData).toList();
             DataExporter exporter = dataExporterRegistry.getExporter(format);
-            byte[] content = exporter.export(data);
-
-            HttpHeaders headers = new HttpHeaders();
+            content = exporter.export(data);
+            headers = new HttpHeaders();
             headers.setContentType(MediaType.parseMediaType(exporter.getContentType()));
             headers.setContentDisposition(ContentDisposition.attachment()
                     .filename(entityName + exporter.getFileExtension()).build());
-            return new ResponseEntity<>(content, headers, HttpStatus.OK);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            log.info("exception {}", e.toString());
+            applicationEventPublisher.publishEvent(new UIEvent(this, e.getMessage(), Status.Error));
+            return "redirect:/admin/crud/" + entityName;
         }
+        return new ResponseEntity<>(content, headers, HttpStatus.OK);
     }
 
     /**
@@ -514,8 +445,13 @@ public class CrudController {
       */
     @GetMapping("/download/{filename}")
     public ResponseEntity<Resource> download(@PathVariable String filename) {
-//        Resource file = fileStorageService.download(filename);
         Resource file = null;
+        try {
+            file = fileStorageService.download(filename);
+        } catch (Exception e) {
+            applicationEventPublisher.publishEvent(new UIEvent(this, e.getMessage(), Status.Error));
+            log.info("error {}", e.toString());
+        }
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
                 .body(file);

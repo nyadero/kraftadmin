@@ -10,6 +10,8 @@ import com.bowerzlabs.data.DataExporterRegistry;
 import com.bowerzlabs.database.DbObjectSchema;
 import com.bowerzlabs.dtos.AnalyticsData;
 import com.bowerzlabs.dtos.PeriodFilter;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
 import jakarta.persistence.criteria.*;
 import jakarta.transaction.Transactional;
@@ -62,10 +64,11 @@ public class CrudService {
                     ? actualClass.getDeclaredConstructor().newInstance()
                     : existing;
 
-//  Use actualMetaModel here, not the original parent model
+            //  Use actualMetaModel here, not the original parent model
             for (Map.Entry<String, String> entry : formValues.entrySet()) {
                 EntityValueAccessor.setFieldValue(actualMetaModel.getEntityClass(), entity, entry.getKey(), entry.getValue(), entityManager);
             }
+
             return entityManager.merge(entity);
         } catch (Exception e) {
             log.info("error {}", e.toString());
@@ -88,13 +91,13 @@ public class CrudService {
     }
 
     // find all data, can sort, search and filter
-    public Page<DbObjectSchema> findAll(String entityName, int page, int size, Map<String, String> filters, List<String> sortParams) throws Exception {
+    public Page<DbObjectSchema> findAll(String entityName, int page, int size, Map<String, String> filters) throws Exception {
         try {
             EntityMetaModel clazz = entityScanner.getEntityByName(entityName);
 
             CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 
-            CriteriaQuery<Object> query = DynamicQueryBuilder.buildQuery(cb, clazz.getEntityClass().getJavaType(), filters, filters.get("search"), sortParams);
+            CriteriaQuery<Object> query = DynamicQueryBuilder.buildQuery(cb, clazz.getEntityClass().getJavaType(), filters, filters.get("search"));
             TypedQuery<Object> typedQuery = entityManager.createQuery(query);
             typedQuery.setFirstResult(page * size);
             typedQuery.setMaxResults(size);
@@ -209,12 +212,7 @@ public class CrudService {
             // Support both 24hr and 12hr (AM/PM) formats
             DateTimeFormatter formatter = value.toString().contains("am") || value.toString().toLowerCase().contains("pm") ? DateTimeFormatter.ofPattern("hh:mm a") : DateTimeFormatter.ofPattern("HH:mm");
             return LocalTime.parse((CharSequence) value, formatter);
-        }
-//    else if (fieldType == LocalDateTime.class) {
-//        LocalDateTime dateTime = LocalDateTime.parse(value.toString());
-//        return dateTime.format(DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm:ss"));
-//    }
-        else if (fieldType == LocalDate.class) {
+        } else if (fieldType == LocalDate.class) {
             if (value instanceof LocalDate) {
                 return value; // Already a LocalDate
             } else if (value instanceof String) {
@@ -297,7 +295,7 @@ public class CrudService {
     private Field findPrimaryKeyField(Class<?> entityClass) {
         for (Field field : entityClass.getDeclaredFields()) {
             // find both jpa and mongo id
-            if (field.isAnnotationPresent(Id.class) || field.isAnnotationPresent(Id.class)) {
+            if (field.isAnnotationPresent(Id.class)) {
                 field.setAccessible(true);
                 return field;
             }
@@ -517,7 +515,7 @@ public class CrudService {
 //
 //        return analyticsData;
 //    }
-    public AnalyticsData loadAnalyticsData(EntityMetaModel entityMetaModel, PeriodFilter filter) {
+    public AnalyticsData loadAnalyticsData(EntityMetaModel entityMetaModel, PeriodFilter filter) throws JsonProcessingException {
         AnalyticsData analyticsData = new AnalyticsData();
         LocalDateTime start = filter.getTime();
         LocalDateTime now = LocalDateTime.now();
@@ -590,7 +588,7 @@ public class CrudService {
             labels.add(label);
     }
 
-        analyticsData.setLabels(labels);
+        analyticsData.setLabels(Collections.singletonList(new ObjectMapper().writeValueAsString(labels)));
         analyticsData.setValues(values);
         analyticsData.setTotal(values.stream().mapToLong(Long::longValue).sum());
         analyticsData.setStartDate(start);

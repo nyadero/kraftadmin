@@ -10,10 +10,10 @@
 
 <th:block layout:fragment="content">
     <form th:action="${actionUrl}" method='post' enctype='multipart/form-data'>
-        <div th:each="field : ${fields}">
-            <label th:for="${field.name}" th:text="${field.label}" class="capitalize text-lg"></label>
+        <div th:each="field : ${fields}" th:class="${field.wrapperClass}" th:if="${field != null}">
+            <label th:for="${field.name}" class="capitalize text-lg mb-1" th:text="${field.label} + ${field.required ? ' *' : ''}"></label>
             <div th:switch="${field.type}">
-                <div th:case="'text'" class="mb-2">
+                <div th:case="'text'" class="">
                     <div th:replace="~{fragments/inputs/inputs :: textInput(${field})}"></div>
                     <div>
                          <span th:if="${validationErrors != null and validationErrors.containsKey(field.name)}"
@@ -32,6 +32,7 @@
                          </span>
                     </div>
                 </div>
+
                 <div th:case="'checkbox'">
                     <div th:replace="~{fragments/inputs/inputs :: checkboxInput(${field})}"></div>
                     <div>
@@ -169,6 +170,16 @@
                 </div>
                 <div th:case="'embedded'">
                     <div th:replace="~{fragments/inputs/inputs :: embeddedInput(${field})}"></div>
+                    <div>
+                         <span th:if="${validationErrors != null and validationErrors.containsKey(field.name)}"
+                               th:text="${validationErrors[field.name]}"
+                               style="color:red;">
+                         </span>
+                    </div>
+                </div>
+
+                <div th:case="'currency'">
+                    <div th:replace="~{fragments/inputs/inputs :: currencyInput(${field})}"></div>
                     <div>
                          <span th:if="${validationErrors != null and validationErrors.containsKey(field.name)}"
                                th:text="${validationErrors[field.name]}"

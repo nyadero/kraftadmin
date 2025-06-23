@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.bowerzlabs</groupId>
+        <groupId>com.github.nyadero.kraftadmin</groupId>
         <artifactId>kraft</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
@@ -13,30 +13,64 @@
     <description>Spring Boot Starter for Kraft Admin</description>
 
     <dependencies>
-        <!-- This brings in your actual library -->
-        <dependency>
-            <groupId>com.bowerzlabs</groupId>
-            <artifactId>kraft-admin</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.bowerzlabs</groupId>-->
+<!--            <artifactId>kraft-admin</artifactId>-->
+<!--            <version>0.0.1-SNAPSHOT</version>-->
+<!--        </dependency>-->
 
-        <!-- Required for auto-configurations -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-autoconfigure</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.boot</groupId>-->
+<!--            <artifactId>spring-boot-autoconfigure</artifactId>-->
+<!--        </dependency>-->
 
-        <!-- Optional: so it can be used in Spring Boot apps -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
-    </dependencies>
 
-<!--    <properties>-->
-<!--        <maven.compiler.source>21</maven.compiler.source>-->
-<!--        <maven.compiler.target>21</maven.compiler.target>-->
-<!--        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>-->
-<!--    </properties>-->
+        <!-- Spring Context (needed for conditions, configs) -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+
+        <!-- Optional: Log when Admina is initialized -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-logging</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.nyadero.kraftadmin</groupId>
+            <artifactId>kraft-core</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.nyadero.kraftadmin</groupId>
+            <artifactId>kraft-security</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.nyadero.kraftadmin</groupId>
+            <artifactId>kraft-data-jpa</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.nyadero.kraftadmin</groupId>
+            <artifactId>kraft-ui</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.nyadero.kraftadmin</groupId>
+            <artifactId>kraft-monitoring</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+    </dependencies>
 
 </project>

@@ -1,22 +1,18 @@
 package com.bowerzlabs.settings;
 
 import com.bowerzlabs.EntitiesScanner;
-import com.bowerzlabs.annotations.AdminController;
-import com.bowerzlabs.formfields.CheckboxField;
+import com.bowerzlabs.EntityMetaModel;
+import com.bowerzlabs.formfields.fields.CheckboxField;
 import com.bowerzlabs.models.kraftmodels.AdminUser;
 import com.bowerzlabs.models.kraftmodels.DisplayFieldsPreference;
 import com.bowerzlabs.repository.kraftrepos.KraftAdminUsersRepository;
 import com.bowerzlabs.repository.kraftrepos.KraftDisplayedFieldPreferenceRepository;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.lang.reflect.Field;
@@ -50,7 +46,9 @@ public class KraftSettingsController {
             Model model
     ) {
 
-        Class<?> entityClass = entitiesScanner.getEntityByName(entityName);
+//        EntityType<?> entityClass = entitiesScanner.getEntityByName(entityName);
+        EntityMetaModel entityClass = entitiesScanner.getEntityByName(entityName);
+
         DisplayFieldsPreference displayedFieldsPreference = kraftDisplayedFieldPreferenceRepository
                 .findById(entityName).orElse(new DisplayFieldsPreference());
         List<String> selectedFields = displayedFieldsPreference.getFields() != null
@@ -58,10 +56,10 @@ public class KraftSettingsController {
                 : new ArrayList<>();
 
         List<CheckboxField> checkboxFields = new ArrayList<>();
-        for (Field field : entityClass.getDeclaredFields()) {
+        for (Field field : entityClass.getEntityClass().getJavaType().getDeclaredFields()) {
             field.setAccessible(true);
             boolean isChecked = selectedFields.contains(field.getName());
-            checkboxFields.add(new CheckboxField(field.getName(), isChecked, field.getName(), true, new HashMap<>(), new HashMap<>(), false));
+            checkboxFields.add(new CheckboxField(field.getName(), isChecked, field.getName(), true, new HashMap<>(), new HashMap<>()));
         }
 
         model.addAttribute("checkboxFields", checkboxFields);
@@ -80,10 +78,12 @@ public class KraftSettingsController {
             RedirectAttributes redirectAttributes
     ) {
         try {
-            Class<?> entityClass = entitiesScanner.getEntityByName(entityName);
+//            EntityType<?> entityClass = entitiesScanner.getEntityByName(entityName);
+            EntityMetaModel entityClass = entitiesScanner.getEntityByName(entityName);
+
             List<String> selectedFields = new ArrayList<>();
 
-            for (Field field : entityClass.getDeclaredFields()) {
+            for (Field field : entityClass.getEntityClass().getJavaType().getDeclaredFields()) {
                 if (request.getParameter(field.getName()) != null) {
                     selectedFields.add(field.getName());
                 }
@@ -112,5 +112,7 @@ public class KraftSettingsController {
         adminUser.ifPresent(user -> model.addAttribute("adminUser", user));
         return "settings/index";
     }
+
+
 
 }

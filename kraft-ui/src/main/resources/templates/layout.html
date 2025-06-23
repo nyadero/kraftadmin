@@ -5,16 +5,23 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title th:text="${title} ?: 'Kraft Admin'">Kraft Admin</title>
-
   <link th:href="@{/css/app.css}" th:rel="stylesheet">
-  <!-- Select2 and Choices.js -->
-  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- Quill CSS -->
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+  <!-- Quill JS -->
+  <script src="https://cdn.quilljs.com/1.3.6/quill.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+
+  <!-- Select2 CSS & JS -->
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-  <link href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
-  <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
-  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" />
+
+  <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+
 </head>
 
 <body class="bg-slate-300">
@@ -34,8 +41,11 @@
     </div>
 
     <!-- Main Content -->
-    <main class="flex-1 p-4">
-      <h3 class="text-lg underline Italic"></h3>
+    <main class="flex-1 p-4 overflow-y-hidden">
+      <h3 class="ws-data">Hello from websocket</h3>
+      <div id="loader" class="fixed inset-0 flex items-center justify-center bg-white z-50">
+        <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-32 w-32"></div>
+      </div>
       <div th:replace="~{components/snackbar :: toast-container}"></div>
       <th:block layout:fragment="content"></th:block>
     </main>
@@ -50,6 +60,8 @@
 <script defer th:src="@{/js/wysiwyg.js}"></script>
 <script defer th:src="@{/js/form-utils.js}"></script>
 <script defer th:src="@{/js/dropdown.js}"></script>
+<script defer th:src="@{/js/websocket.js}"></script>
+<script defer th:src="@{/js/analytics.js}"></script>
 
 </body>
 </html>

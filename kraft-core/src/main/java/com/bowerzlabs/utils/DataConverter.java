@@ -11,7 +11,9 @@ import java.util.*;
 
 @Slf4j
 public class DataConverter {
-    // format field value for display
+    /**
+     *     format field value for display
+      */
     private static String formatForDisplay(Class<?> fieldType, Object value) {
         if (value == null) return "";
 
@@ -32,14 +34,16 @@ public class DataConverter {
         } else if (Collection.class.isAssignableFrom(fieldType)) {
             return String.join(", ", ((Collection<?>) value).stream().map(Object::toString).toList());
         } else if (fieldType.isEnum()) {
-            return value.toString(); // You could prettify this if needed
+            return value.toString();
         }
 
         return value.toString(); // Default fallback
     }
 
 
-    // converts field value to its equivalent field type
+    /**
+     converts field value to its equivalent field type
+     */
     private static Object convertValue(Class<?> fieldType, Object value) throws NoSuchFieldException, IllegalAccessException {
         List<String> enumValues;
 
@@ -94,7 +98,9 @@ public class DataConverter {
         return value.toString().trim(); // Default: String
     }
 
-    // id is passed as a string, so we need to parse it to field's class
+    /**
+     *     id is passed as a string, so we need to parse it to field's class
+      */
     private static Object convertId(String id, Class<?> entityClass) throws NoSuchFieldException {
         Field idField = findPrimaryKeyField(entityClass);
         if (idField == null) {
@@ -103,15 +109,6 @@ public class DataConverter {
 
         Class<?> idType = idField.getType();
 
-        if (idType == Long.class || idType == long.class) {
-            return Long.parseLong(id);
-        } else if (idType == UUID.class) {
-            return UUID.fromString(id);
-        } else if (idType == Integer.class || idType == int.class) {
-            return Integer.parseInt(id);
-        } else if (idType == String.class) {
-            return id;
-        }
         if (idType == String.class) return id;
         if (idType == Long.class || idType == long.class) return Long.parseLong(id);
         if (idType == Integer.class || idType == int.class) return Integer.parseInt(id);
@@ -121,13 +118,13 @@ public class DataConverter {
     }
 
 
-
-
-    // find the primary id by checking Id annotation on JPA entities
+    /**
+     *     find the primary id by checking Id annotation on JPA entities
+     */
     private static Field findPrimaryKeyField(Class<?> entityClass) {
         for (Field field : entityClass.getDeclaredFields()) {
             // find both jpa and mongo id
-            if (field.isAnnotationPresent(Id.class) || field.isAnnotationPresent(Id.class)) {
+            if (field.isAnnotationPresent(Id.class)) {
                 field.setAccessible(true);
                 return field;
             }

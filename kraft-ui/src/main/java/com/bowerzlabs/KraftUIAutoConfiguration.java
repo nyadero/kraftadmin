@@ -20,13 +20,13 @@ public class KraftUIAutoConfiguration {
 
     @PostConstruct
     public void init() {
-        log.info("✅ Kraft UI Auto Configuration Loaded!");
+        log.info("Kraft UI Auto Configuration Loaded!");
     }
 
     @Bean
     public String helloKraftUi() {
-        System.out.println("🔧 Kraft UI enabled");
-        return "KraftrActive";
+        System.out.println("Kraft UI enabled");
+        return "KraftActive";
     }
 
 }

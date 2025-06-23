@@ -1,21 +1,37 @@
-<!-- resources/templates/analytics/fragments/bar-chart.html -->
-<div th:fragment="chart(title, labels, values)" xmlns:th="http://www.w3.org/1999/xhtml">
-    <h2 th:text="${title}"></h2>
-    <canvas th:attr="id=${title.replaceAll(' ', '')}"></canvas>
-    <script th:inline="javascript">
-        /*<![CDATA[*/
-        const ctx = document.getElementById([[${title.replaceAll(' ', '')}]]).getContext('2d');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: [[${labels}]],
-                datasets: [{
-                    label: '[[${title}]]',
-                    data: [[${values}]],
-                    backgroundColor: 'rgba(75, 192, 192, 0.6)'
-                }]
-            }
-        });
-        /*]]>*/
-    </script>
+<div th:fragment="chart(chartComponent)" xmlns:th="http://www.w3.org/1999/xhtml">
+    <div class="p-2 bg-white rounded shadow min-w-60">
+        <div class="flex items-center justify-between" id="${chartComponent.title}">
+            <div>
+                <h3 th:text="${chartComponent.title}"></h3>
+                <div class="flex items-center gap-4">
+                    <h4 th:text="${chartComponent.data.total}"></h4>
+                    <span th:text="${chartComponent.data.percentageChange} + '%'"></span>
+                </div>
+            </div>
+
+            <div>
+                <select>
+                    <option value="${chartComponent.data.periodFilter.period}" th:text="${chartComponent.data.periodFilter.period}"></option>
+                </select>
+            </div>
+        </div>
+
+        <h2 th:class="${chartComponent.data.previousTotal}"></h2>
+
+        <div class="change">
+                <span th:class="${chartComponent.data.percentageChange > 0.00 ? 'text-blue-500' : 'text-red-200'}">
+                    <span th:text="${chartComponent.data.percentageChange + '%'}"></span>
+                </span>
+        </div>
+<!--        <canvas th:attr="-->
+<!--            id=${chartComponent.title.replaceAll(' ', '')},-->
+<!--            data-chart-title=${chartComponent.title.replaceAll(' ', '')},-->
+<!--            data-chart-labels=${chartComponent.data.labels},-->
+<!--            data-chart-values=${chartComponent.data.values}"-->
+<!--                height="50">-->
+<!--        </canvas>-->
+
+        <canvas id="revenueChart" height="100"></canvas>
+    </div>
 </div>
+

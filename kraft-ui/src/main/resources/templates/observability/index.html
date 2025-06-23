@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <head>
+        <meta charset="UTF-8">
+        <title>Observability and Monitoring</title>
+        <style>
+            body { font-family: Arial, sans-serif; }
+            .status-up { color: green; }
+            .status-down { color: red; }
+            .component { margin-bottom: 20px; }
+        </style>
+    </head>
+<body>
+<th:block layout:fragment="content">
+
+    <h1>Application Health</h1>
+    <div th:class="${health.status == 'UP' ? 'status-up' : 'status-down'}">
+        Overall Status: <span th:text="${health}"></span>
+    </div>
+    <div th:each="component : ${health.components}">
+        <div class="component">
+            <h2 th:text="${component.key}"></h2>
+            <div th:class="${component.value.status == 'UP' ? 'status-up' : 'status-down'}">
+                Status: <span th:text="${component.value.status}"></span>
+            </div>
+            <div th:if="${component.value.details}">
+                <h3>Details:</h3>
+                <ul>
+                    <li th:each="detail : ${component.value.details}">
+                        <strong th:text="${detail.key}"></strong>: <span th:text="${detail.value}"></span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <h3 class="mb-2">You will be to monitor and observe your application from here</h3>
+
+    <div th:replace="~{components/coming-soon :: coming-soon-container}"></div>
+
+</th:block>
+</body>
+</html>

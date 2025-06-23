@@ -1,20 +1,23 @@
 package com.bowerzlabs.database;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import com.bowerzlabs.EntityMetaModel;
 import com.bowerzlabs.annotations.*;
 import com.bowerzlabs.config.SpringContextHolder;
+import com.bowerzlabs.constants.PerformableAction;
 import com.bowerzlabs.models.kraftmodels.DisplayFieldsPreference;
 import com.bowerzlabs.repository.kraftrepos.KraftDisplayedFieldPreferenceRepository;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
-import jakarta.validation.constraints.*;
+import com.bowerzlabs.utils.DisplayUtils;
+import com.bowerzlabs.utils.KraftUtils;
+import com.bowerzlabs.validation.ValidationUtils;
+import jakarta.persistence.*;
+import jakarta.persistence.metamodel.EntityType;
 import org.hibernate.annotations.CreationTimestamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,10 +27,11 @@ import static org.atteo.evo.inflector.English.plural;
 
 public class DbObjectSchema {
     private static final Logger log = LoggerFactory.getLogger(DbObjectSchema.class);
+    public static final int MAX_FIELDS = 6;
     /**
      * Name of the entity/table
      */
-    private final String entityName;
+    private String entityName = "Unknown";
     /**
      * Name of the primary key field
      */
@@ -60,7 +64,14 @@ public class DbObjectSchema {
      * this returns all the fields with their data
      */
     private final Map<String, Object> allFieldsWithData = new LinkedHashMap<>();
-    private final Object entity;
+    /**
+     * the current entity we are using to build the dbobject schema
+     */
+    private Object entity;
+    /**
+     * contains a list of all the actions that can be performed on an entity ie, create, delete and update
+     */
+    private final List<PerformableAction> performableActions = new ArrayList<>();
     /**
      * Map of validations errors, key is the field
      */
@@ -93,173 +104,156 @@ public class DbObjectSchema {
      * field map
      */
     Map<String, Field> fieldMap = new HashMap<>();
+    private final Field idField;
+
 
     // DisplayFieldsPreferenceRepository
     KraftDisplayedFieldPreferenceRepository prefRepo =
             SpringContextHolder.getBean(KraftDisplayedFieldPreferenceRepository.class);
 
-    public DbObjectSchema(Class<?> entityClass, Object entity) {
+    public DbObjectSchema(EntityMetaModel entityClass, Object entity) {
+        // fetch the display preferences for this entity
+        Optional<DisplayFieldsPreference> pref = prefRepo.findById(plural(entityClass.getEntityClass().getName()));
+
         try {
-            if (!entityClass.isAnnotationPresent(Entity.class)) {
-                throw new IllegalArgumentException("Provided class is not an entity: " + entityClass.getName());
+            if (!entityClass.getEntityClass().getJavaType().isAnnotationPresent(Entity.class)) {
+                throw new IllegalArgumentException("Provided class is not an entity: " + entityClass.getEntityClass().getJavaType().getName());
             }
 
+            // determine performable actions for the entity
+           performableActions.addAll(determineActionsForEntity(entityClass.getEntityClass().getJavaType()));
+
             // all fields declared in an entity class
-            allFields = List.of(entityClass.getDeclaredFields());
+//            allFields = List.of(entityClass.getDeclaredFields());
+            allFields = getAllFields(entityClass);
+//            log.info("allFields {}", allFields.stream().map(Field::getName).toList());
+
 
             // a hashmap
             fieldMap = new HashMap<>();
 
             // assign entityName to the class/entity's name
-            this.entityName = entityClass.getSimpleName();
+            this.entityName = entityClass.getEntityClass().getJavaType().getSimpleName();
 
             // assign entity to the entity received via constructor argument
             this.entity = entity;
 
-            // fetch the display preferences for this entity
-            Optional<DisplayFieldsPreference> pref = prefRepo.findById(plural(entityName));
-            log.info("pref {}", pref);
-            pref.ifPresent(displayedFieldsPreference -> log.info("pref {}", displayedFieldsPreference));
+                // loop over entity declared fields
+                for (Field field : allFields) {
+                    field.setAccessible(true);
 
-            if (pref.isPresent()) {
-                List<String> fields = pref.get().getFields();
-                log.info("fields {}", fields);
-            }
-
-            // loop over entity declared fields
-            for (Field field : entityClass.getDeclaredFields()) {
-                field.setAccessible(true);
-
-                // Register searchable, sortable, filterable
-                if (field.isAnnotationPresent(Searchable.class)) {
-                    searchableFields.add(field);
-                }
-
-                if (field.isAnnotationPresent(Sortable.class) || isNumeric(field.getType()) || isDataType(field.getType())) {
-                    sortableFields.add(field);
-                }
-
-                if (field.isAnnotationPresent(Filterable.class) || field.isAnnotationPresent(Enumerated.class)) {
-                    filterableFields.add(field);
-                }
-
-                if (field.isAnnotationPresent(FormInputType.class) || field.isAnnotationPresent(DisplayImage.class)){
-                    FormInputType formInputType = field.getAnnotation(FormInputType.class);
-                    DisplayImage displayImage = field.getAnnotation(DisplayImage.class);
-                    if (formInputType.value().equals(FormInputType.Type.FILE) || formInputType.value().equals(FormInputType.Type.IMAGE)){
-                        fileFields.add(field);
+                    // Register searchable, sortable, filterable
+                    if (field.isAnnotationPresent(Searchable.class)) {
+                        searchableFields.add(field);
                     }
-                    if (displayImage != null){
-                        fileFields.add(field);
+                    
+                    if (field.isAnnotationPresent(Sortable.class) || isNumeric(field.getType()) || isDateType(field.getType())) {
+                        sortableFields.add(field);
                     }
-                }
 
-                validationRules.put(field.getName(), extractValidationRules(field));
-                fieldLabels.put(field.getName(), extractFieldLabel(field));
-                customDisplayFields = new ArrayList<>();
-            }
+                    if (field.isAnnotationPresent(Filterable.class) || field.isAnnotationPresent(Enumerated.class)) {
+                        filterableFields.add(field);
+                    }
 
-            for (Field f : allFields) {
-//                f.setAccessible(true);
-//                if (f.isAnnotationPresent(DisplayField.class)) {
-//                    DisplayField displayField = f.getAnnotation(DisplayField.class);
-//                    String displayFieldName = displayField.value();
-////                    log.info("value {}", f.get(displayFieldName));
-////                    Optional<Field> field1 = Arrays.stream(f.getType().getDeclaredFields()).filter(field -> field.getName().equalsIgnoreCase(displayFieldName)).findFirst();
-////                    field1.ifPresent(field -> fieldMap.put(f.getName(), field));
-//                    log.info("displayfieldfield1 {}", (Object) Arrays.stream(f.getType().getDeclaredFields()).filter(field -> field.getName().equalsIgnoreCase(displayFieldName)).findFirst().orElse(null));
-////                f.setAccessible(true);
-//                    fieldMap.put(f.getName(), Arrays.stream(f.getType().getDeclaredFields()).filter(field -> field.getName().equalsIgnoreCase(displayFieldName)).findFirst().orElse(null));
-
-//                } else fieldMap.put(f.getName(), f);
-
-                try {
-                    f.setAccessible(true); // Allow access to private fields
-                    if (f.isAnnotationPresent(DisplayField.class)) {
-                        DisplayField displayField = f.getAnnotation(DisplayField.class);
-                        String displayFieldName = displayField.value();
-
-                        // Try to get the nested field by name (from the type of f)
-                        Field nestedField = null;
-                        try {
-                            nestedField = f.getType().getDeclaredField(displayFieldName);
-                            nestedField.setAccessible(true);
-                        } catch (NoSuchFieldException e) {
-                            log.warn("⚠️ Field '{}' not found in type '{}'", displayFieldName, f.getType().getSimpleName());
+                    if (field.isAnnotationPresent(FormInputType.class) || field.isAnnotationPresent(DisplayImage.class)){
+                        FormInputType formInputType = field.getAnnotation(FormInputType.class);
+                        DisplayImage displayImage = field.getAnnotation(DisplayImage.class);
+                        if (formInputType.value().equals(FormInputType.Type.FILE) || formInputType.value().equals(FormInputType.Type.IMAGE)){
+                            fileFields.add(field);
                         }
+                        if (displayImage != null){
+                            fileFields.add(field);
+                        }
+                    }
 
-                        // Put either the nested field (if found) or the outer field itself
-                        if (nestedField != null) {
-                            fieldMap.put(f.getName(), nestedField);
+                    validationRules.put(field.getName(), ValidationUtils.extractValidationRules(field));
+                    fieldLabels.put(field.getName(), extractFieldLabel(field));
+                    customDisplayFields = new ArrayList<>();
+                }
+
+                for (Field f : allFields) {
+                    try {
+                        f.setAccessible(true); // Allow access to private fields
+                        if (f.isAnnotationPresent(DisplayField.class)) {
+                            DisplayField displayField = f.getAnnotation(DisplayField.class);
+                            String displayFieldName = displayField.value();
+
+                            // Try to get the nested field by name (from the type of f)
+                            Field nestedField = null;
+                            try {
+                                nestedField = f.getType().getDeclaredField(displayFieldName);
+                                nestedField.setAccessible(true);
+                            } catch (NoSuchFieldException e) {
+                                log.warn("Field '{}' not found in type '{}'", displayFieldName, f.getType().getSimpleName());
+                            }
+
+                            // Put either the nested field (if found) or the outer field itself
+                            if (nestedField != null) {
+                                fieldMap.put(f.getName(), nestedField);
+                            } else {
+                                fieldMap.put(f.getName(), f);
+                            }
                         } else {
                             fieldMap.put(f.getName(), f);
                         }
-                    } else {
-                        fieldMap.put(f.getName(), f);
-                    }
-                } catch (Exception e) {
-                    log.error("❌ Error processing field '{}': {}", f.getName(), e.getMessage(), e);
-                    fieldMap.put(f.getName(), f); // Fallback to the original field
-                }
-            }
-
-            log.info("allFields {}", allFields);
-            log.info("fieldsMap {}", fieldMap);
-
-            // update allFieldsWithData map
-            for (Field field: allFields){
-                allFieldsWithData.put(field.getName(), getFieldValue(entity, field));
-            }
-
-            // Always show ID first
-            Field idField = allFields.stream().filter(f -> f.isAnnotationPresent(Id.class)).findFirst().orElse(null);
-//        log.info("idField {}", idField);
-            if (idField != null) {
-                idField.setAccessible(true);
-                fieldsWithData.put(idField.getName(), getFieldValue(entity, idField));
-                displayFields.add(idField);
-                primaryKey = idField.getName();
-            }
-
-            // Use preferred fields if available
-            if (pref.isPresent() && !pref.get().getFields().isEmpty()) {
-                // Limit to 10 fields max
-                int count = 0;
-                for (String fieldName : pref.get().getFields()) {
-                    if (fieldMap.containsKey(fieldName) &&
-                            !fieldName.equals("id") &&
-                            !fieldName.equals("createdAt")) {
-                        Field f = fieldMap.get(fieldName);
-                        f.setAccessible(true);
-                        fieldsWithData.put(fieldName, getFieldValue(entity, f));
-                        displayFields.add(f);
-                        count++;
-                        if (count >= 10) break; // stop after 10 fields
+                    } catch (Exception e) {
+                        log.error(" Error processing field '{}': {}", f.getName(), e.getMessage(), e);
+                        fieldMap.put(f.getName(), f); // Fallback to the original field
                     }
                 }
-            } else {
-                // Use fallback fields if no custom fields defined
-                allFields.stream()
-                        .filter(f -> !f.isAnnotationPresent(Id.class) && !f.getName().equals("createdAt"))
-                        .limit(10)
-                        .forEach(f -> {
+
+                // update allFieldsWithData map
+                for (Field field: allFields){
+//                if (getFieldValue(entity, field).toString().toLowerCase().contains("password")) continue;
+                    allFieldsWithData.put(field.getName(), getFieldValue(entity, field));
+                }
+
+                // Always show ID first
+                idField = allFields.stream().filter(f -> f.isAnnotationPresent(Id.class)).findFirst().orElse(null);
+                // log.info("idField {}", idField);
+                if (idField != null) {
+                    idField.setAccessible(true);
+                    fieldsWithData.put(KraftUtils.formatLabel(idField.getName()), getIdFieldValue(entity, idField));
+                    displayFields.add(idField);
+                    primaryKey = idField.getName();
+                }
+
+                // Use preferred fields if available
+                if (pref.isPresent() && !pref.get().getFields().isEmpty()) {
+                    // Limit to 6 fields max
+                    int count = 0;
+                    for (String fieldName : pref.get().getFields()) {
+                        if (fieldMap.containsKey(fieldName) &&
+                                !fieldName.equals("id") &&
+                                !fieldName.equals("createdAt") && !fieldName.contains("password")) {
+                            Field f = fieldMap.get(fieldName);
                             f.setAccessible(true);
-                            fieldsWithData.put(f.getName(), getFieldValue(entity, f));
+                            fieldsWithData.put(KraftUtils.formatLabel(fieldName), getFieldValue(entity, f));
                             displayFields.add(f);
-                        });
-            }
+                            count++;
+                            if (count >= MAX_FIELDS) break; // stop after 6 fields
+                        }
+                    }
+                } else {
+                    // Use fallback fields if no custom fields defined
+                    allFields.stream()
+                            .filter(f -> !f.isAnnotationPresent(Id.class) && !f.getName().equals("createdAt") && !f.getName().contains("password"))
+                            .limit(MAX_FIELDS)
+                            .forEach(f -> {
+                                f.setAccessible(true);
+                                fieldsWithData.put(KraftUtils.formatLabel(f.getName()), getFieldValue(entity, f));
+                                displayFields.add(f);
+                            });
+                }
 
-            // Add createdAt last
-            Field createdAtField = allFields.stream().filter(f -> f.getName().equals("createdAt") || f.isAnnotationPresent(CreatedDate.class) || f.isAnnotationPresent(CreationTimestamp.class)).findFirst()
-                    .orElse(null);
-            log.info("createdField {}", createdAtField);
-            if (createdAtField != null) {
-                createdAtField.setAccessible(true);
-                fieldsWithData.put("createdAt", getFieldValue(entity, createdAtField));
-                displayFields.add(createdAtField);
-            }
-
-            log.info("fieldsWithData {}", fieldsWithData);
+                // Add createdAt last
+                Field createdAtField = allFields.stream().filter(f -> f.getName().equals("createdAt") || f.isAnnotationPresent(CreatedDate.class) || f.isAnnotationPresent(CreationTimestamp.class)).findFirst()
+                        .orElse(null);
+                if (createdAtField != null) {
+                    createdAtField.setAccessible(true);
+                    fieldsWithData.put(KraftUtils.formatLabel("createdAt"), getFieldValue(entity, createdAtField));
+                    displayFields.add(createdAtField);
+                }
         } catch (Exception e) {
             log.info(e.toString());
             throw new RuntimeException(e);
@@ -267,7 +261,9 @@ public class DbObjectSchema {
 
     }
 
-    private boolean isDataType(Class<?> type) {
+
+
+    private boolean isDateType(Class<?> type) {
         return type == Date.class || type == LocalDate.class || type == LocalDateTime.class || type == LocalTime.class;
     }
 
@@ -277,100 +273,6 @@ public class DbObjectSchema {
                 type == float.class || type == Float.class ||
                 type == double.class || type == Double.class;
     }
-
-
-    private String extractValidationRules(Field field) {
-        StringBuilder rules = new StringBuilder();
-
-        // Required
-        if (field.isAnnotationPresent(NotNull.class) || field.isAnnotationPresent(NotBlank.class) || field.isAnnotationPresent(NotEmpty.class)) {
-            rules.append("required|");
-        }
-
-        // Size (for strings, collections)
-        if (field.isAnnotationPresent(Size.class)) {
-            Size size = field.getAnnotation(Size.class);
-            rules.append("size(min:").append(size.min()).append(",max:").append(size.max()).append(")|");
-        }
-
-        // Min / Max (integer types)
-        if (field.isAnnotationPresent(Min.class)) {
-            Min min = field.getAnnotation(Min.class);
-            rules.append("min:").append(min.value()).append("|");
-        }
-        if (field.isAnnotationPresent(Max.class)) {
-            Max max = field.getAnnotation(Max.class);
-            rules.append("max:").append(max.value()).append("|");
-        }
-
-        // Decimal Min / Max
-        if (field.isAnnotationPresent(DecimalMin.class)) {
-            DecimalMin min = field.getAnnotation(DecimalMin.class);
-            rules.append("decimalMin:").append(min.value()).append("|");
-        }
-        if (field.isAnnotationPresent(DecimalMax.class)) {
-            DecimalMax max = field.getAnnotation(DecimalMax.class);
-            rules.append("decimalMax:").append(max.value()).append("|");
-        }
-
-        // Positive / Negative
-        if (field.isAnnotationPresent(Positive.class)) rules.append("positive|");
-        if (field.isAnnotationPresent(PositiveOrZero.class)) rules.append("positiveOrZero|");
-        if (field.isAnnotationPresent(Negative.class)) rules.append("negative|");
-        if (field.isAnnotationPresent(NegativeOrZero.class)) rules.append("negativeOrZero|");
-
-        // Email
-        if (field.isAnnotationPresent(Email.class)) {
-            rules.append("email|");
-        }
-
-        // Digits
-        if (field.isAnnotationPresent(Digits.class)) {
-            Digits digits = field.getAnnotation(Digits.class);
-            rules.append("digits(integer:").append(digits.integer())
-                    .append(",fraction:").append(digits.fraction()).append(")|");
-        }
-
-        // AssertTrue / AssertFalse
-        if (field.isAnnotationPresent(AssertTrue.class)) rules.append("mustBeTrue|");
-        if (field.isAnnotationPresent(AssertFalse.class)) rules.append("mustBeFalse|");
-
-        // Past / Future
-        if (field.isAnnotationPresent(Past.class)) rules.append("past|");
-        if (field.isAnnotationPresent(Future.class)) rules.append("future|");
-
-        // Regex
-        if (field.isAnnotationPresent(Pattern.class)) {
-            Pattern pattern = field.getAnnotation(Pattern.class);
-            rules.append("regex:").append(pattern.regexp()).append("|");
-        }
-
-        // Column nullable
-        if (field.isAnnotationPresent(Column.class)) {
-            Column column = field.getAnnotation(Column.class);
-            if (!column.nullable()) rules.append("required|");
-        }
-
-        // Form input type-based validation
-        if (field.isAnnotationPresent(FormInputType.class)) {
-            FormInputType formInputType = field.getAnnotation(FormInputType.class);
-            switch (formInputType.value()) {
-                case TEXT, TEXTAREA, WYSIWYG -> rules.append("string|");
-                case NUMBER, RANGE -> rules.append("numeric|");
-                case COLOR -> rules.append("hexColor|");
-                case CHECKBOX, RADIO -> rules.append("boolean|");
-                case EMAIL -> rules.append("email|");
-                case PASSWORD -> rules.append("minLength:8|mustContainUppercase|mustContainSpecialChar|");
-                case FILE, IMAGE -> rules.append("file|");
-                case DATE, DATETIME, TIME -> rules.append("date|");
-                case TEL -> rules.append("tel|");
-                case URL -> rules.append("url|");
-            }
-        }
-
-        return rules.toString().replaceAll("\\|$", ""); // Remove trailing "|"
-    }
-
 
     private String extractFieldLabel(Field field) {
         String name = field.getName();
@@ -427,25 +329,36 @@ public class DbObjectSchema {
                     List<String> displayValues = new ArrayList<>();
                     for (Object item : collection) {
                         Object nestedValue = getNestedValue(item, path);
-                        displayValues.add(formatForDisplay(nestedValue != null ? nestedValue.getClass() : String.class, nestedValue));
+                        displayValues.add(DisplayUtils.formatForDisplay(nestedValue != null ? nestedValue.getClass() : String.class, nestedValue));
                     }
                     return String.join(", ", displayValues); // Return as a single string for view
                 }
 
                 Object nestedValue = getNestedValue(value, path);
-                return formatForDisplay(nestedValue != null ? nestedValue.getClass() : String.class, nestedValue);
+                return DisplayUtils.formatForDisplay(nestedValue != null ? nestedValue.getClass() : String.class, nestedValue);
             }
 
             // Fallback formatting for non-nested fields
-            return formatForDisplay(field.getType(), value);
+            return DisplayUtils.formatForDisplay(field.getType(), value);
 
         } catch (Exception e) {
-            throw new RuntimeException("Error getting field value", e);
+            log.info("exception {}", e.toString());
+            return null;
+//            throw new RuntimeException("Error getting field value", e);
         }
     }
 
-
-
+    public Object getIdFieldValue(Object entity, Field idField) {
+        if (entity == null || idField == null) return null;
+        idField.setAccessible(true);
+        try {
+            return idField.get(entity);
+        } catch (IllegalAccessException e) {
+//            throw new RuntimeException(e);
+            log.info("error {}", e.toString());
+        }
+        return null;
+    }
 
     public String getEntityName() {
         return entityName;
@@ -503,60 +416,14 @@ public class DbObjectSchema {
         return allFields;
     }
 
+    public List<PerformableAction> getPerformableActions() {
+        return performableActions;
+    }
+
+    // validate form values
     public Map<String, String> validateFormValues(Map<String, String> formValues) {
-        log.info("Form values in validateFormValues: {}", formValues);
-
-        for (Map.Entry<String, String> entry : validationRules.entrySet()) {
-            String fieldName = entry.getKey();
-            String rules = entry.getValue();
-            String fieldValue = formValues.getOrDefault(fieldName, "").trim();
-
-//            log.info("Validating field: {}, value: {}, rule: {}", fieldName, fieldValue, rules);
-
-            // Required validation
-            if (rules.contains("required") && fieldValue.isEmpty()) {
-                validationErrors.put(fieldName, fieldLabels.get(fieldName) + " is required.");
-            }
-
-            // Size validation
-            if (rules.contains("size")) {
-                int min = extractSizeValue(rules, "min");
-                int max = extractSizeValue(rules, "max");
-                log.info("Extracted size for {}: min={}, max={}", fieldName, min, max);
-                if (fieldValue.length() < min || fieldValue.length() > max) {
-                    validationErrors.put(fieldName, fieldLabels.get(fieldName) + " must be between " + min + " and " + max + " characters.");
-                }
-            }
-
-            // Regex validation
-            if (rules.contains("regex")) {
-                String regex = extractRegex(rules);
-                log.info("Extracted regex for {}: {}", fieldName, regex);
-                if (!fieldValue.matches(regex)) {
-                    validationErrors.put(fieldName, fieldLabels.get(fieldName) + " format is invalid.");
-                }
-            }
-        }
-        return validationErrors;
-    }
-
-    // Helper methods to extract size constraints
-    private int extractSizeValue(String rules, String type) {
-        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("size\\(.*?" + type + ": (\\d+).*?\\)");
-        java.util.regex.Matcher matcher = pattern.matcher(rules);
-
-        if (matcher.find()) {
-            return Integer.parseInt(matcher.group(1));
-        }
-
-        return (type.equals("min")) ? 0 : Integer.MAX_VALUE; // Defaults
-    }
-
-    private String extractRegex(String rules) {
-        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("regex: ([^|]+)");
-        java.util.regex.Matcher matcher = pattern.matcher(rules);
-
-        return matcher.find() ? matcher.group(1).trim() : "";
+//        log.info("Form values in validateFormValues: {}", formValues);
+        return ValidationUtils.validateValues(validationRules, formValues, fieldLabels);
     }
 
     private Object getNestedValue(Object obj, String path) throws Exception {
@@ -576,33 +443,55 @@ public class DbObjectSchema {
         return current;
     }
 
-    // format field value for display
-    private String formatForDisplay(Class<?> fieldType, Object value) {
-        if (value == null) return "";
+    public List<PerformableAction> determineActionsForEntity(Class<?> entityClass) {
+        List<PerformableAction> actions = new ArrayList<>();
 
-        if (fieldType == LocalDateTime.class) {
-            return ((LocalDateTime) value).format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss a"));
-        } else if (fieldType == LocalTime.class) {
-            return ((LocalTime) value).format(DateTimeFormatter.ofPattern("hh:mm a"));
-        } else if (fieldType == LocalDate.class) {
-            return ((LocalDate) value).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        } else if (fieldType == ZonedDateTime.class) {
-            ZonedDateTime zdt = (ZonedDateTime) value;
-            return zdt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss a z"));
-        } else if (fieldType == OffsetDateTime.class) {
-            OffsetDateTime odt = (OffsetDateTime) value;
-            return odt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss a O"));
-        } else if (fieldType == Date.class) {
-            return new SimpleDateFormat("yyyy-MM-dd hh:mm:ss a").format((Date) value);
-        } else if (Collection.class.isAssignableFrom(fieldType)) {
-            return String.join(", ", ((Collection<?>) value).stream().map(Object::toString).toList());
-        } else if (fieldType.isEnum()) {
-            return value.toString(); // You could prettify this if needed
+        boolean isAbstract = Modifier.isAbstract(entityClass.getModifiers());
+        boolean isEmbeddable = entityClass.isAnnotationPresent(Embeddable.class);
+        boolean isMappedSuperclass = entityClass.isAnnotationPresent(MappedSuperclass.class);
+        boolean isInheritanceParent = entityClass.isAnnotationPresent(Inheritance.class);
+        boolean isEntity = entityClass.isAnnotationPresent(Entity.class);
+        boolean isConcreteSubclass = isEntity && !isAbstract && !isInheritanceParent;
+
+        if (!isEntity || isMappedSuperclass || isEmbeddable) {
+            // Cannot be managed independently
+            return actions;
         }
 
-        return value.toString(); // Default fallback
+        if (isInheritanceParent) {
+            // Parent in an inheritance hierarchy
+            actions.add(PerformableAction.VIEW);
+            actions.add(PerformableAction.DELETE); // e.g., delete cascade
+        } else if (isConcreteSubclass) {
+            // Child class of an inheritance strategy
+            actions.addAll(List.of(PerformableAction.CREATE, PerformableAction.EDIT, PerformableAction.VIEW));
+        } else {
+            // Normal entity (not part of inheritance)
+            actions.addAll(List.of(PerformableAction.CREATE, PerformableAction.EDIT, PerformableAction.DELETE, PerformableAction.VIEW));
+        }
+
+        // Common extensions
+        if (!isAbstract) {
+            actions.add(PerformableAction.EXPORT);
+            actions.add(PerformableAction.IMPORT);
+        }
+
+        return actions;
     }
 
+    public static List<Field> getAllFields(EntityMetaModel type) {
+        // add fields for parent/non-concrete entity classes
+        List<Field> fields = new ArrayList<>(Arrays.asList(type.getEntityClass().getJavaType().getDeclaredFields()));
+        // add fields for subtype entities
+        for (EntityType<?> entityType: type.getSubTypes()){
+            fields.addAll(Arrays.asList(entityType.getJavaType().getDeclaredFields()));
+        }
+        return fields;
+    }
+
+    public Object getIdValue() {
+        return allFieldsWithData.get(idField.getName());
+    }
 
     @Override
     public String toString() {

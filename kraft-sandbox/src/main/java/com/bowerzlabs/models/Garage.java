@@ -19,7 +19,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Entity(name = "garages")
 @Inheritance(strategy = InheritanceType.JOINED)
-//@MappedSuperclass
 public class Garage{
 
     @Id
@@ -52,6 +51,7 @@ public class Garage{
     @Enumerated(EnumType.STRING)
     private TransmissionType transmissionType;
 
+    @Column(insertable=false, updatable=false)
     @Enumerated(EnumType.STRING)
     private GarageCategory category;
 
@@ -80,6 +80,5 @@ public class Garage{
     @UpdateTimestamp
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
-
 
 }

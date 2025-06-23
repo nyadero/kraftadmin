@@ -1,33 +1,52 @@
 <div th:fragment="account-settings-container(adminUser)" xmlns:th="http://www.w3.org/1999/xhtml">
     Account settings
 
-    <form action="" method="post">
+    <form th:action="@{/admin/administrators/update-admin}" method="post" enctype="multipart/form-data">
 <!--        name-->
-        <div class="w-full">
+        <div class="w-full mt-2">
             <label class="mb-3">Name</label>
-            <input type="text" name="name" placeholder="name" th:value="${adminUser.name}" class="w-full p-2 rounded shadow">
+            <input type="text" name="name" placeholder="name" th:value="${adminUser.name}" class="w-full p-2 rounded shadow bg-white">
         </div>
 
 <!--        email-->
-        <div class="w-full">
+        <div class="w-full mt-2">
             <label>Email</label>
-            <input type="text" name="username" placeholder="name" th:value="${adminUser.username}" class="w-full p-2 rounded shadow">
+            <input type="text" name="username" placeholder="email" th:value="${adminUser.username}" class="w-full p-2 rounded shadow bg-white">
+        </div>
+
+<!--        role-->
+        <div class="w-full mt-2">
+        <label>Role:</label>
+        <select name="role">
+            <option value="ADMIN">ADMIN</option>
+            <option value="MODERATOR">MODERATOR</option>
+        </select>
         </div>
 
 <!--        password-->
-        <div class="w-full">
+        <div class="w-full mt-2">
             <label>Password</label>
-            <input type="text" name="name" placeholder="name" th:value="${adminUser.password}" class="w-full p-2 rounded shadow">
+            <label>
+                <input type="password" name="password" placeholder="Current password" class="w-full p-2 rounded shadow bg-white">
+            </label>
+        </div>
+
+        <!--        password-->
+        <div class="w-full mt-2">
+            <label>New Password</label>
+            <label>
+                <input type="password" name="newPassword" placeholder="New password" class="w-full p-2 rounded shadow bg-white">
+            </label>
         </div>
 
 <!--        avatar-->
-        <div class="w-full">
+        <div class="w-full mt-2">
             <label>Avatar</label>
-            <input type="file" name="name" placeholder="name">
+            <input type="file" name="avatar" placeholder="name" accept="image/*">
         </div>
 
         <div>
-            <button type="submit" class="bg-blue-500 p-2 my-4 rounded shadow-md w-full">Update Account Details</button>
+            <button type="submit" class="bg-blue-500 p-2 my-4 rounded shadow-md w-full text-white">Update Account Details</button>
         </div>
     </form>
 </div>

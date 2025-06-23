@@ -1,10 +1,24 @@
 document.addEventListener("DOMContentLoaded", function () {
+ const loader = document.getElementById('loader');
+ if (loader) loader.style.display = 'none';
+
+
   /** ---------------- Sidebar Toggle ---------------- **/
-  const menuIcon = document.getElementById("menu-toggle");
-  menuIcon?.addEventListener("click", function () {
-    console.log("Toggling sidebar");
-    document.getElementById("sidebar")?.classList.toggle("d-none");
-  });
+//  const menuIcon = document.getElementById("menu-toggle");
+//  menuIcon?.addEventListener("click", function () {
+//    console.log("Toggling sidebar");
+//    document.getElementById("sidebar")?.classList.toggle("d-none");
+//  });
+
+  const menuToggle = document.getElementById('menu-toggle');
+      const sidebar = document.getElementById('sidebar');
+
+      if (menuToggle && sidebar) {
+          menuToggle.addEventListener('click', () => {
+              sidebar.classList.toggle('-translate-x-full'); // hide
+              sidebar.classList.toggle('translate-x-0');     // show
+          });
+      }
 
   /** ---------------- Tab Navigation ---------------- **/
   const buttons = document.querySelectorAll(".tab-button");
@@ -64,4 +78,66 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
   */
+
+//document.querySelectorAll("charts").forEach(canvas => {
+
+  const ctx = document.getElementById("revenueChart");
+
+  new Chart(ctx, {
+      type: 'line',
+      data: {
+          labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+          datasets: [{
+              label: 'Revenue',
+              data: [1200, 1300, 1400, 1800, 2100, 2000, 2300],
+              borderColor: "#00b894",
+              fill: false
+          }]
+      },
+      options: {
+          responsive: true,
+          plugins: { legend: { display: false } }
+      }
+  });
+
+//});
+
+
+
+//document.querySelectorAll('canvas[data-chart-title]').forEach(canvas => {
+//    const ctx = canvas.getContext('2d');
+//    const chartTitle = canvas.dataset.chartTitle;
+//
+//    try {
+////        const labels = canvas.dataset.chartLabels;
+//        const values = canvas.dataset.chartValues;
+//         const labels = JSON.parse(canvas.dataset.labels);
+////                const values = JSON.parse(canvas.dataset.values);
+//
+//        new Chart(ctx, {
+//            type: 'line',
+//            data: {
+//                labels: labels,
+//                datasets: [{
+//                    label: chartTitle,
+//                    data: values,
+//                    borderColor: "#00b894",
+//                    fill: false
+//                }]
+//            },
+//            options: {
+//                responsive: true,
+//                plugins: {
+//                    legend: { display: false }
+//                }
+//            }
+//        });
+//    } catch (err) {
+//        console.error("Invalid JSON for chart data:", err);
+//    }
+//});
+
+
+
+
 });

@@ -1,14 +1,20 @@
 package com.bowerzlabs.events;
 
 
+import com.bowerzlabs.EntityUtil;
+import com.bowerzlabs.dtos.Subject;
 import com.bowerzlabs.models.kraftmodels.AdminUserAction;
 import com.bowerzlabs.repository.kraftrepos.KraftUserActionRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
+@Slf4j
 public class UserActionEventListener implements ApplicationListener<UserActionEvent> {
     private final KraftUserActionRepository kraftUserActionRepository;
 
@@ -25,7 +31,8 @@ public class UserActionEventListener implements ApplicationListener<UserActionEv
         AdminUserAction userAction = new AdminUserAction();
         userAction.setAdminUser(event.getAdminUser());
         userAction.setAction(event.getUserActionType());
-        userAction.setTable(event.getEntity());
+//        log.info("id Values {}", event.getEntity().getPrimaryKey());
+        userAction.setSubject(event.getSubject());
         kraftUserActionRepository.save(userAction);
     }
 

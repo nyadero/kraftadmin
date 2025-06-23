@@ -1,0 +1,15 @@
+<div th:fragment="chart(component, type)" style="overflow-x: auto;"
+     xmlns:th="http://www.w3.org/1999/xhtml" th:inline="javascript">
+
+    <h3 th:text="${component.title}"></h3>
+
+    <canvas style="min-width: 800px;"
+            th:id="${component.title.replaceAll(' ', '')}"
+            th:attr="data-type='line',
+                 data-title=${component.title.replaceAll(' ', '')},
+                 data-labels=${component.data.labels},
+                 data-values=${component.data.values}"
+            height="250"
+    width="800">
+    </canvas>
+</div>

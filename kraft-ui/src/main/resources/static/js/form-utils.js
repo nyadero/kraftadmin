@@ -159,3 +159,22 @@ function filterSelectOptions(selectId) {
     // Update input with selected country code
     input.value = newCode + cleaned;
   }
+
+  function validateFile(event, input) {
+      const file = input.files[0];
+      if (!file) return;
+
+      const forbiddenExtensions = ['.exe', '.bat', '.sh', '.cmd', '.msi', '.com'];
+      const fileName = file.name.toLowerCase();
+
+      const isExecutable = forbiddenExtensions.some(ext => fileName.endsWith(ext));
+
+      if (isExecutable) {
+          alert("Executable files are not allowed.");
+          input.value = ''; // Clear the input
+          return;
+      }
+
+      // Optionally preview or upload the file
+      previewFile(event, input);
+  }

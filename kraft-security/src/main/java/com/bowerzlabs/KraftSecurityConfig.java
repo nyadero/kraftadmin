@@ -19,9 +19,9 @@ import java.util.List;
 @Order(1)
 public class KraftSecurityConfig {
 
-    private final KraftrAuthProvider kraftAuthProvider;
+    private final KraftAuthProvider kraftAuthProvider;
 
-    public KraftSecurityConfig(KraftrAuthProvider kraftAuthProvider) {
+    public KraftSecurityConfig(KraftAuthProvider kraftAuthProvider) {
         this.kraftAuthProvider = kraftAuthProvider;
     }
 

@@ -20,20 +20,26 @@ public class Talent {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false)
-    @Size(min = 3, message = "Name should not be less than 3 characters long")
+    @Size(min = 3, max = 256, message = "Name should not be less than 3 characters long")
     private String name;
     @Enumerated(EnumType.STRING)
     private Gender gender;
     private List<String> hobbies;
     private LocalDate dob;
     @Column(length = 3000)
+    @FormInputType(value = FormInputType.Type.TEXTAREA)
     private String about;
     private Boolean isHirable;
     private Integer age;
+//    @FormInputType(FormInputType.Type.CURRENCY)
     private Double salary;
     private LocalTime timeAvailable;
     @Embedded
+    @DisplayField("address")
     private Contact contact;
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    private byte[] introVideo;
     @FormInputType(FormInputType.Type.COLOR)
     private String favColor;
     @FormInputType(FormInputType.Type.IMAGE)

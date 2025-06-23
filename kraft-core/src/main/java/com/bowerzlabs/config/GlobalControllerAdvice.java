@@ -1,12 +1,14 @@
 package com.bowerzlabs.config;
 
 import com.bowerzlabs.EntitiesScanner;
+import com.bowerzlabs.EntityMetaModel;
 import com.bowerzlabs.annotations.KraftAdminResource;
 import com.bowerzlabs.models.kraftmodels.AdminUser;
 import com.bowerzlabs.models.kraftmodels.ResourceMetadata;
 import com.bowerzlabs.models.kraftmodels.ResourceName;
 import com.bowerzlabs.utils.ResourceGrouper;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.metamodel.EntityType;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,21 +44,23 @@ public class GlobalControllerAdvice {
     public void addGlobalAttributes(Model model, @AuthenticationPrincipal AdminUser adminUser) {
 //        log.info("entities1 {}", entitiesScanner.getAllEntityClasses());
 
-        List<Class<?>> entityClasses = entitiesScanner.getAllEntityClasses();
+//        List<Class<?>> entityClasses = entitiesScanner.getAllEntityClasses();
+        List<EntityMetaModel> entityClasses = entitiesScanner.getAllEntityClasses();
+
 
         List<ResourceMetadata> entities = entityClasses
                 .stream()
                 .map(entity -> {
-                    if (entity.isAnnotationPresent(KraftAdminResource.class)) {
-                        KraftAdminResource kraftAdminResource = entity.getAnnotation(KraftAdminResource.class);
+                    if (entity.getEntityClass().getJavaType().isAnnotationPresent(KraftAdminResource.class)) {
+                        KraftAdminResource kraftAdminResource = entity.getEntityClass().getJavaType().getAnnotation(KraftAdminResource.class);
                         return new ResourceMetadata(
-                                new ResourceName(kraftAdminResource.name(), plural(entity.getSimpleName())),
+                                new ResourceName(kraftAdminResource.name(), plural(entity.getEntityClass().getJavaType().getSimpleName())),
                                 kraftAdminResource.group(),
                                 kraftAdminResource.icon(),
                                 kraftAdminResource.editable()
                         );
                     }
-                    return new ResourceMetadata(new ResourceName(plural(entity.getSimpleName()), plural(entity.getSimpleName())));
+                    return new ResourceMetadata(new ResourceName(plural(entity.getEntityClass().getJavaType().getSimpleName()), plural(entity.getEntityClass().getJavaType().getSimpleName())));
                 })
                 .collect(Collectors.toList());
 
@@ -64,7 +68,7 @@ public class GlobalControllerAdvice {
         Map<String, List<ResourceMetadata>> grouped = ResourceGrouper.groupResources(entitiesScanner.getAllEntityClasses());
 
 //        grouped.forEach((group, resources) -> {
-//            System.out.println("🔹 Group: " + group);
+//            System.out.println(" Group: " + group);
 //            for (ResourceMetadata res : resources) {
 //                System.out.println("   - " + res);
 //            }

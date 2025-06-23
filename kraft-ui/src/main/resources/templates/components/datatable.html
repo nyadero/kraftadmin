@@ -5,43 +5,46 @@
 <th:block th:fragment="entityTable(entityName, fieldNames, sortableFieldNames, sortBy, sortOrder, displayItems, primaryKey, totalElements, currentParams, enumFields)">
 
     <!-- Header Section -->
-    <div style="display:flex; justify-content:space-between; align-items:center">
+    <div style="display:flex; justify-content:space-between; align-items:center" class="gap-5">
         <h1 th:text="${totalElements} + ' ' + ${entityName}"></h1>
+
+        <div class="flex-1">
+            <form th:action="@{'/admin/crud/' + ${entityName}}" method="get">
+                <input type="search" name="filter.search" id="" class="w-full p-2 bg-white">
+            </form>
+        </div>
 
         <div class="flex items-center gap-5">
             <a th:href="@{/admin/crud/{entityName}/create(entityName=${entityName})}" class="bg-blue-500 p-2 rounded text-white">Create New</a>
 
-            <div>
-                <span>Export as:</span>
-                <a th:href="@{/admin/crud/{entityName}/export?format=CSV(entityName=${entityName})}">CSV</a> |
-                <a th:href="@{/admin/crud/{entityName}/export(format='json')(entityName=${entityName})}">JSON</a> |
-                <a th:href="@{/admin/crud/{entityName}/export(format='xml')(entityName=${entityName})}">XML</a>
-            </div>
-
             <select onchange="if(this.value) window.location.href=this.value">
                 <option disabled selected>Select Export Format</option>
-                <option th:value="@{/admin/crud/{entityName}/export(format='csv')(entityName=${entityName})}">CSV</option>
-                <option th:value="@{/admin/crud/{entityName}/export(format='json')(entityName=${entityName})}">JSON</option>
-                <option th:value="@{/admin/crud/{entityName}/export(format='xml')(entityName=${entityName})}">XML</option>
+                <option th:each="format : ${formats}" th:value="@{/admin/crud/{entityName}/export?format={format}(entityName=${entityName}, format=${format})}" th:text="${format}"></option>
             </select>
 
-            <a th:href="@{/admin/settings/{entityName}/customize-entity-view(entityName=${entityName})}">
+            <a th:href="@{/admin/settings/{entityName}/customize-entity-view(entityName=${entityName})}" class="bg-blue-500 p-2">
                 Customize display
             </a>
         </div>
     </div>
 
+    <div th:each="queryParam : ${currentParams.entrySet()}">
+        <input type="hidden"
+               th:if="${not (#strings.startsWith(queryParam.key, 'filter.') and #strings.isEmpty(queryParam.value))}"
+               th:name="${queryParam.key}"
+               th:value="${queryParam.value}" />
+    </div>
 
     <!-- Filter Section -->
     <div class="my-4">
-        <form method="get" th:action="@{'/admin/crud/' + ${entityName}}" class="flex items-center gap-5 flex-wrap">
-            <div th:each="queryParam : ${currentParams.entrySet()}">
-                <input type="hidden"
-                       th:if="${not (#strings.startsWith(queryParam.key, 'filter.') and enumFields.containsKey(queryParam.key.substring(7)) and #strings.isEmpty(queryParam.value))}"
-                       th:name="${queryParam.key}"
-                       th:value="${queryParam.value}" />
-            </div>
+        <div th:each="queryParam : ${currentParams.entrySet()}">
+            <input type="hidden"
+                   th:if="${not (#strings.startsWith(queryParam.key, 'filter.') and enumFields.containsKey(queryParam.key.substring(7)) and #strings.isEmpty(queryParam.value))}"
+                   th:name="${queryParam.key}"
+                   th:value="${queryParam.value}" />
+        </div>
 
+        <form method="get" th:action="@{'/admin/crud/' + ${entityName}}" class="flex items-bottom gap-5 flex-wrap">
             <div th:each="entry : ${enumFields}">
                 <label th:for="${entry.key}" class="block font-semibold text-gray-700 mb-3 capitalize"
                        th:text="${entry.key}">Field</label>
@@ -60,7 +63,13 @@
                 </select>
             </div>
 
-            <button type="submit" class="bg-blue-400 p-2 rounded shadow">Apply Filters</button>
+            <div class="h-full">
+                <div class="font-semibold text-gray-700 py-4 capitalize"></div>
+                <div class="mt-1">
+                    <button type="submit" class="bg-blue-400 p-2 rounded shadow">Apply Filters</button>
+                    <button type="submit" class="bg-blue-400 p-2 rounded shadow">Clear Filters</button>
+                </div>
+            </div>
         </form>
     </div>
 
@@ -69,25 +78,49 @@
     <!-- Table Section -->
     <table border="1">
         <thead>
-        <tr>
-            <th><input type="checkbox" id="selectAll"/></th>
-            <th:block th:if="${not #lists.isEmpty(fieldNames)}">
-                <th th:each="field : ${fieldNames}"
-                    th:with="isSortable=${sortableFieldNames.contains(field)},
-                             isActive=${sortBy == field},
-                             newSortOrder=${isActive} ? (${sortOrder} == 'asc' ? 'desc' : 'asc') : 'asc'">
-                    <a th:if="${isSortable}"
-                       th:href="@{/admin/crud/{entityName}(entityName=${entityName}, filter.sortBy=${field}, filter.sortOrder=${newSortOrder})}"
-                       style="text-decoration: none; color: inherit;">
-                        <span th:text="${field}"></span>
-                        <span th:if="${isActive}" style="margin-left: 5px; color: #444;" th:text="${sortOrder == 'asc' ? '↑' : '↓'}"></span>
-                        <span th:if="${!isActive}" style="margin-left: 5px; color: #ccc;">⇅</span>
-                    </a>
-                    <span th:if="${!isSortable}" th:text="${field}"></span>
-                </th>
-            </th:block>
-            <th>Actions</th>
-        </tr>
+<tr>
+    <th><input type="checkbox" id="selectAll"/></th>
+    <th:block th:if="${not #lists.isEmpty(fieldNames)}">
+        <th th:each="field : ${fieldNames}"
+            th:with="isSortable=${sortableFieldNames.contains(field)},
+                     isActive=${sortBy == field},
+                     newSortOrder=${isActive} ? (${sortOrder} == 'asc' ? 'desc' : 'asc') : 'asc'">
+            <a th:if="${isSortable}"
+               th:href="@{/admin/crud/{entityName}(entityName=${entityName}, filter.sortBy=${field}, filter.sortOrder=${newSortOrder})}"
+               style="text-decoration: none; color: inherit;">
+                <span th:text="${field}"></span>
+
+                <!-- Show current direction if active -->
+                <span th:if="${isActive}" style="margin-left: 5px; color: blue;"
+                      th:text="${sortOrder == 'asc' ? '↑' : '↓'}"></span>
+
+                <!-- Show default neutral icon if not active -->
+                <span th:if="${!isActive}" style="margin-left: 5px; color: gray;">⇅</span>
+            </a>
+
+            <!-- Not sortable, just plain field -->
+            <span th:if="${!isSortable}" th:text="${field}"></span>
+        </th>
+    </th:block>
+<!--    <th:block th:if="${not #lists.isEmpty(fieldNames)}">-->
+<!--        <th th:each="label : ${fieldNames}"-->
+<!--            th:with="rawField=${displayToFieldMap[label]},-->
+<!--                 isSortable=${sortableFieldNames.contains(rawField)},-->
+<!--                 isActive=${sortBy == rawField},-->
+<!--                 newSortOrder=${isActive} ? (${sortOrder} == 'asc' ? 'desc' : 'asc') : 'asc'">-->
+<!--            <a th:if="${isSortable}"-->
+<!--               th:href="@{/admin/crud/{entityName}(entityName=${entityName}, filter.sortBy=${rawField}, filter.sortOrder=${newSortOrder})}"-->
+<!--               style="text-decoration: none; color: inherit;">-->
+<!--                <span th:text="${label}"></span>-->
+<!--                <span th:if="${isActive}" style="margin-left: 5px; color: blue;" th:text="${sortOrder == 'asc' ? '↑' : '↓'}"></span>-->
+<!--                <span th:if="${!isActive}" style="margin-left: 5px; color: red;">⇅</span>-->
+<!--            </a>-->
+<!--            <span th:if="${!isSortable}" th:text="${label}"></span>-->
+<!--        </th>-->
+<!--    </th:block>-->
+
+    <th>Actions</th>
+</tr>
         </thead>
         <tbody>
         <tr th:each="displayItem : ${displayItems}">
@@ -97,6 +130,7 @@
             </td>
             <td th:each="field : ${fieldNames}">
                 <div th:with="displayField=${displayItem.get(field)}">
+<!--                    <span th:text="${displayField?.fieldType?.name()}"></span>-->
                     <div th:replace="~{fragments/displays/display-field :: render(${displayField})}"></div>
                 </div>
             </td>

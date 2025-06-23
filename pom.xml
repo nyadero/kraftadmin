@@ -8,7 +8,7 @@
 		<version>3.4.4</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.bowerzlabs</groupId>
+	<groupId>com.github.nyadero.kraftadmin</groupId>
 	<artifactId>kraft</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
@@ -24,15 +24,14 @@
 	<modules>
 		<module>kraft-core</module>
 		<module>kraft-sandbox</module>
-		<module>kraft-docs</module>
 		<module>kraft-data-jpa</module>
 		<module>kraft-data-mongo</module>
 		<module>kraft-admin</module>
         <module>kraft-ui</module>
         <module>kraft-security</module>
         <module>kraft-starter</module>
-        <module>kraft-analytics</module>
-    </modules>
+		<module>kraft-monitoring</module>
+	</modules>
 	<scm>
 		<connection/>
 		<developerConnection/>
@@ -60,6 +59,28 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
 			<scope>runtime</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.tika</groupId>
+			<artifactId>tika-core</artifactId>
+			<version>2.9.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-registry-prometheus</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-core</artifactId>
 		</dependency>
 
 	</dependencies>

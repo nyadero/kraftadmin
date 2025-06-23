@@ -1,5 +1,5 @@
-<div th:fragment="sidebar-container" xmlns:th="http://www.w3.org/1999/xhtml">
-    <div class="h-screen w-80 bg-white overflow-y-auto sticky top-0 left-0 border-l-2 border-l-black">
+<div th:fragment="sidebar-container" xmlns:th="http://www.w3.org/1999/xhtml" >
+    <div id="sidebar" class="h-screen w-80 bg-white overflow-y-auto sticky top-0 left-0 border-l-2 border-l-black transition-transform duration-300 transform translate-x-0">
         <!-- Title -->
         <div class="py-5 px-4 flex items-center">
             <h3 class="text-lg font-bold" th:text="${title}">Library System</h3>
@@ -91,13 +91,6 @@
 
                 <li>
                     <a class="block w-full px-4 py-2 border border-blue-500 rounded hover:bg-blue-500 transition"
-                       th:href="@{/admin/roles}">
-                        📚 Roles and Permissions
-                    </a>
-                </li>
-
-                <li>
-                    <a class="block w-full px-4 py-2 border border-blue-500 rounded hover:bg-blue-500 transition"
                        th:href="@{/admin/administrators}">
                         👤 Users
                     </a>
@@ -108,6 +101,13 @@
         <!-- Footer -->
         <div class="absolute bottom-0 w-full px-4 py-3 bg-white border-t">
             <ul class="flex flex-col space-y-2">
+                <li>
+                    <a class="block w-full px-4 py-2 border border-blue-500 rounded hover:bg-blue-500 transition"
+                       th:href="@{/admin/roles}">
+                        Feedback
+                    </a>
+                </li>
+
                 <li>
                     <a class="block w-full text-left px-4 py-2 border border-blue-500 rounded hover:bg-blue-500 transition"
                        th:href="@{/admin/settings}">

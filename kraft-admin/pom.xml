@@ -4,17 +4,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.bowerzlabs</groupId>
+        <groupId>com.github.nyadero.kraftadmin</groupId>
         <artifactId>kraft</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
-
-<!--    <parent>-->
-<!--        <groupId>org.springframework.boot</groupId>-->
-<!--        <artifactId>spring-boot-starter-parent</artifactId>-->
-<!--        <version>3.4.3</version>-->
-<!--        <relativePath/> &lt;!&ndash; lookup parent from repository &ndash;&gt;-->
-<!--    </parent>-->
 
     <artifactId>kraft-admin</artifactId>
 
@@ -27,63 +20,82 @@
 
 
     <dependencies>
-        <!-- Spring Boot Auto-Config -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-autoconfigure</artifactId>
-        </dependency>
-
-        <!-- Spring Context (needed for conditions, configs) -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-        </dependency>
-
-        <!-- Optional: Log when Admina is initialized -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-logging</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.bowerzlabs</groupId>
-            <artifactId>kraft-core</artifactId>
+            <groupId>com.github.nyadero.kraftadmin</groupId>
+            <artifactId>kraft-starter</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+<!--        &lt;!&ndash; Spring Boot Auto-Config &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.boot</groupId>-->
+<!--            <artifactId>spring-boot-autoconfigure</artifactId>-->
+<!--        </dependency>-->
 
-        <dependency>
-            <groupId>com.bowerzlabs</groupId>
-            <artifactId>kraft-security</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
+<!--        &lt;!&ndash; Spring Context (needed for conditions, configs) &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>org.springframework</groupId>-->
+<!--            <artifactId>spring-context</artifactId>-->
+<!--        </dependency>-->
 
-        <dependency>
-            <groupId>com.bowerzlabs</groupId>
-            <artifactId>kraft-data-jpa</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
+<!--        &lt;!&ndash; Optional: Log when Admina is initialized &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.boot</groupId>-->
+<!--            <artifactId>spring-boot-starter-logging</artifactId>-->
+<!--        </dependency>-->
 
-        <dependency>
-            <groupId>com.bowerzlabs</groupId>
-            <artifactId>kraft-ui</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.bowerzlabs</groupId>-->
+<!--            <artifactId>kraft-core</artifactId>-->
+<!--            <version>0.0.1-SNAPSHOT</version>-->
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>com.bowerzlabs</groupId>-->
+<!--            <artifactId>kraft-security</artifactId>-->
+<!--            <version>0.0.1-SNAPSHOT</version>-->
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>com.bowerzlabs</groupId>-->
+<!--            <artifactId>kraft-analytics</artifactId>-->
+<!--            <version>0.0.1-SNAPSHOT</version>-->
+<!--        </dependency>-->
+
+
+<!--        <dependency>-->
+<!--            <groupId>com.bowerzlabs</groupId>-->
+<!--            <artifactId>kraft-data-jpa</artifactId>-->
+<!--            <version>0.0.1-SNAPSHOT</version>-->
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>com.bowerzlabs</groupId>-->
+<!--            <artifactId>kraft-ui</artifactId>-->
+<!--            <version>0.0.1-SNAPSHOT</version>-->
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>com.bowerzlabs</groupId>-->
+<!--            <artifactId>kraft-monitoring</artifactId>-->
+<!--            <version>0.0.1-SNAPSHOT</version>-->
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.boot</groupId>-->
+<!--            <artifactId>spring-boot-autoconfigure</artifactId>-->
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.boot</groupId>-->
+<!--            <artifactId>spring-boot-starter</artifactId>-->
+<!--        </dependency>-->
 
     </dependencies>
 
     <build>
         <resources>
-<!--            <kraftAdminResource>-->
-<!--                <directory>src/main/resources</directory>-->
-<!--                <filtering>false</filtering>-->
-<!--            </kraftAdminResource>-->
         </resources>
         <plugins>
-            <!-- Makes sure auto-config is picked up -->
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-resources-plugin</artifactId>-->
-<!--            </plugin>-->
         </plugins>
     </build>
 

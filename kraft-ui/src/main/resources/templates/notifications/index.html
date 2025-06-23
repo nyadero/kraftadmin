@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <head>
+        <meta charset="UTF-8">
+        <title>Notifications</title>
+    </head>
+<body>
+<th:block layout:fragment="content">
+    <h3 class="mb-2">You will be able to view and read your notifications from here</h3>
+
+    <div th:replace="~{components/coming-soon :: coming-soon-container}"></div>
+
+</th:block>
+</body>
+</html>

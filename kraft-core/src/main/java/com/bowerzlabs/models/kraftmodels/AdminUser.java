@@ -11,7 +11,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -20,7 +22,7 @@ import java.util.List;
 @Table(name = "kraft_admin_users")
 //@KraftAdminResource(name = "Administrators", group = "Admin", icon = "", editable = false)
 @InternalAdminResource
-public class AdminUser implements UserDetails {
+public class AdminUser implements UserDetails, Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,9 +43,11 @@ public class AdminUser implements UserDetails {
     private String password;
 
     @Enumerated(EnumType.STRING)
-    private Role role; // Role-based access control (RBAC)
+    private Role role;
 
-    private String avatar;
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    private byte[] avatar;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -59,7 +63,7 @@ public class AdminUser implements UserDetails {
         this.role = role;
     }
 
-    public AdminUser(String name, String email, String password, String avatar) {
+    public AdminUser(String name, String email, String password, byte[] avatar) {
         this.name = name;
         this.username = email;
         this.password = password;
@@ -170,6 +174,14 @@ public class AdminUser implements UserDetails {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public byte[] getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(byte[] avatar) {
+        this.avatar = avatar;
     }
 
     @Override

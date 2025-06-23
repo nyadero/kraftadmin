@@ -4,11 +4,13 @@ public class CountryCode {
     private String name;
     private String code;
     private String dialCode;
+    private String currencyCode;
 
-    public CountryCode(String name, String code, String telPrefix) {
+    public CountryCode(String name, String code, String telPrefix, String currencyCode) {
         this.name = name;
         this.code = code;
         this.dialCode = telPrefix;
+        this.currencyCode = currencyCode;
     }
 
     public String getName() {
@@ -35,12 +37,21 @@ public class CountryCode {
         this.dialCode = dialCode;
     }
 
+    public String getCurrencyCode() {
+        return currencyCode;
+    }
+
+    public void setCurrencyCode(String currencyCode) {
+        this.currencyCode = currencyCode;
+    }
+
     @Override
     public String toString() {
         return "CountryCode{" +
                 "name='" + name + '\'' +
                 ", code='" + code + '\'' +
-                ", telPrefix='" + dialCode + '\'' +
+                ", dialCode='" + dialCode + '\'' +
+                ", currencyCode='" + currencyCode + '\'' +
                 '}';
     }
 }

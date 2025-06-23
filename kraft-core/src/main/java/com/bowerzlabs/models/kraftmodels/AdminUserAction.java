@@ -3,6 +3,7 @@ package com.bowerzlabs.models.kraftmodels;
 import com.bowerzlabs.annotations.DisplayField;
 import com.bowerzlabs.annotations.InternalAdminResource;
 import com.bowerzlabs.constants.UserActionType;
+import com.bowerzlabs.dtos.Subject;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -37,10 +38,12 @@ public class AdminUserAction {
     private AdminUser adminUser;
 
     /*
-     * The table name of the Entity class this operation occurred on.
+     * The table name of the Entity class and the id of the item this operation occurred on.
      */
-    @Column(name = "table_name", nullable = false)
-    private String table;
+    @Column(name = "subject", nullable = false)
+    @Embedded
+//    @DisplayField("dataId")
+    private Subject subject;
 
     /*
      * The time at which the operation was perfomed
@@ -76,12 +79,12 @@ public class AdminUserAction {
         this.adminUser = adminUser;
     }
 
-    public String getTable() {
-        return table;
+    public Subject getSubject() {
+        return subject;
     }
 
-    public void setTable(String table) {
-        this.table = table;
+    public void setSubject(Subject subject) {
+        this.subject = subject;
     }
 
     public LocalDateTime getCreatedAt() {

@@ -33,7 +33,7 @@ build/
 .vscode/
 
 ### uploads directory ###
-uploads/
+uploads/**
 
 ### node modules ###
-/kraft-ui/node_modules/
+/kraft-ui/node_modules/**

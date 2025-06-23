@@ -1,0 +1,74 @@
+<div th:fragment="lineChart" class="analytics-card"  style="height: 350px;" xmlns:th="http://www.w3.org/1999/xhtml">
+<h3 th:text="${title}" xmlns:th="http://www.w3.org/1999/xhtml">Chart Title</h3>
+<canvas th:attr="id=${title.replaceAll(' ', '')}" style="height: 300px;"></canvas>
+<!--<script th:inline="javascript">-->
+<!--    /*<![CDATA[*/-->
+<!--    const ctxLine = document.getElementById([[${title.replaceAll(' ', '')}]]).getContext('2d');-->
+<!--    new Chart(ctxLine, {-->
+<!--        type: 'line',-->
+<!--        data: {-->
+<!--            labels: [[${labels}]],-->
+<!--            datasets: [{-->
+<!--                label: '[[${title}]]',-->
+<!--                data: [[${values}]],-->
+<!--                fill: false,-->
+<!--                borderColor: 'rgba(54, 162, 235, 1)',-->
+<!--                tension: 0.4-->
+<!--            }]-->
+<!--        },-->
+<!--        options: {-->
+<!--            responsive: true,-->
+<!--            maintainAspectRatio: true-->
+<!--        }-->
+<!--    });-->
+<!--    /*]]>*/-->
+<!--</script>-->
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const chartId = [[${title.replaceAll(' ', '')}]];
+        const ctxLine = document.getElementById(chartId).getContext('2d');
+
+        let chart = new Chart(ctxLine, {
+            type: 'line',
+            data: {
+                labels: [[${labels}]],
+                datasets: [{
+                    label: '[[${title}]]',
+                    data: [[${values}]],
+                    fill: false,
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true
+            }
+        });
+
+        // Setup WebSocket connection
+        const socket = new SockJS('/ws'); // should match your server's endpoint
+        const stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function (frame) {
+            console.log("Connected: " + frame);
+
+            stompClient.subscribe('/topic/analytics/', function (message) {
+                const payload = JSON.parse(message.body);
+
+                // Make sure this chart is the right one for this payload
+                if (payload.title && payload.title.replaceAll(' ', '') === chartId) {
+                    const newLabels = payload.labels || [];
+                    const newValues = payload.values || [];
+
+                    chart.data.labels = newLabels;
+                    chart.data.datasets[0].data = newValues;
+                    chart.update();
+                }
+            });
+        });
+        /*]]>*/
+    </script>
+
+</div>
