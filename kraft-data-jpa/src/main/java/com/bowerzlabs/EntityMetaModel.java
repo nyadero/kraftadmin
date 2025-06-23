@@ -63,7 +63,7 @@ public class EntityMetaModel {
 //    public EntityMetaModel getSubType(String name) {
 //        for (EntityType<?> sub : this.getSubTypes()) {
 //            if (sub.getJavaType().getSimpleName().equalsIgnoreCase(name)) {
-//                return new EntityMetaModel(sub);
+//                return new EntityMetaModel(sub, Collections.emptyList());
 //            }
 //        }
 //        return this; // fallback to parent

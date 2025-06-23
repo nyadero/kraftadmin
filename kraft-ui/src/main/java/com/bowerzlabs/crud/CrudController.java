@@ -30,7 +30,6 @@ import org.springframework.http.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -164,10 +163,22 @@ public class CrudController {
             @PathVariable("id") String id,
             Model model
     ) {
+        List<Map<String, FieldValue>> displayMap = new ArrayList<>();
         try {
             Optional<DbObjectSchema> item =  crudService.findById(entityName, id);
             assert item.isPresent();
-            model.addAttribute("item", item.get().getAllFieldsWithData());
+            Map<String, Object> rawFields = item.get().getAllFieldsWithData();
+            Map<String, FieldValue> displayItem = new LinkedHashMap<>();
+            for (Map.Entry<String, Object> entry : rawFields.entrySet()) {
+                String fieldName = entry.getKey();
+                Object value = entry.getValue();
+                FieldValue displayField = DisplayUtils.resolveFieldValue(value);
+                displayItem.put(fieldName, displayField);
+
+            }
+            displayMap.add(displayItem);
+            model.addAttribute("fieldNames", item.get().getDisplayFields().stream().map(Field::getName).toList());
+            model.addAttribute("item", displayMap);
             Subject subject = new Subject(item.get().getEntityName(), List.of(item.get().getIdValue().toString()));
             applicationEventPublisher.publishEvent(new UserActionEvent(this, UserActionType.Read, (AdminUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal(), subject));
         } catch (Exception e) {
@@ -182,9 +193,7 @@ public class CrudController {
             @PathVariable("entityName") String entityName,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-//            @RequestParam Map<String, String> filters,
             @RequestParam Map<String, String> allParams1,
-            //            @RequestParam(name = "filter", required = false) List<String> sortParams,
             Model model
     ) {
         EntityMetaModel entityInstance = entitiesScanner.getEntityByName(entityName);
