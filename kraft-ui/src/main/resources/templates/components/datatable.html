@@ -102,23 +102,6 @@
             <span th:if="${!isSortable}" th:text="${field}"></span>
         </th>
     </th:block>
-<!--    <th:block th:if="${not #lists.isEmpty(fieldNames)}">-->
-<!--        <th th:each="label : ${fieldNames}"-->
-<!--            th:with="rawField=${displayToFieldMap[label]},-->
-<!--                 isSortable=${sortableFieldNames.contains(rawField)},-->
-<!--                 isActive=${sortBy == rawField},-->
-<!--                 newSortOrder=${isActive} ? (${sortOrder} == 'asc' ? 'desc' : 'asc') : 'asc'">-->
-<!--            <a th:if="${isSortable}"-->
-<!--               th:href="@{/admin/crud/{entityName}(entityName=${entityName}, filter.sortBy=${rawField}, filter.sortOrder=${newSortOrder})}"-->
-<!--               style="text-decoration: none; color: inherit;">-->
-<!--                <span th:text="${label}"></span>-->
-<!--                <span th:if="${isActive}" style="margin-left: 5px; color: blue;" th:text="${sortOrder == 'asc' ? '↑' : '↓'}"></span>-->
-<!--                <span th:if="${!isActive}" style="margin-left: 5px; color: red;">⇅</span>-->
-<!--            </a>-->
-<!--            <span th:if="${!isSortable}" th:text="${label}"></span>-->
-<!--        </th>-->
-<!--    </th:block>-->
-
     <th>Actions</th>
 </tr>
         </thead>
