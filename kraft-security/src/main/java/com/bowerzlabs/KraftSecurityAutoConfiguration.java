@@ -9,12 +9,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
-@Component
-@ConditionalOnProperty(
-        name = "kraft.kraft-security.enabled",
-        havingValue = "true",
-        matchIfMissing = true
-)
+//@Component
+//@ConditionalOnProperty(
+//        name = "kraft.kraft-security.enabled",
+//        havingValue = "true",
+//        matchIfMissing = true
+//)
+@Configuration
 public class KraftSecurityAutoConfiguration {
     private static final Logger log = LoggerFactory.getLogger(KraftSecurityAutoConfiguration.class);
 

@@ -26,9 +26,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.bowerzlabs</groupId>
+            <groupId>com.github.nyadero</groupId>
             <artifactId>kraft-admin</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>1.0.0</version>
         </dependency>
 
         <dependency>

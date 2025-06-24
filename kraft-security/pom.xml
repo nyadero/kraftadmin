@@ -3,11 +3,6 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-<!--    <parent>-->
-<!--        <groupId>com.github.nyadero.kraftadmin</groupId>-->
-<!--        <artifactId>kraft</artifactId>-->
-<!--        <version>0.0.1-SNAPSHOT</version>-->
-<!--    </parent>-->
     <parent>
         <groupId>com.github.nyadero</groupId>
         <artifactId>kraftadmin</artifactId>
@@ -28,10 +23,9 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.bowerzlabs</groupId>
+            <groupId>com.github.nyadero</groupId>
             <artifactId>kraft-core</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
+            <version>1.0.0</version>
         </dependency>
     </dependencies>
 

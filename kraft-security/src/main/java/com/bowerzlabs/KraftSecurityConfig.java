@@ -34,7 +34,6 @@ public class KraftSecurityConfig {
                         .requestMatchers("/toast-events").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
                         .requestMatchers("/admin/auth/**", "/admin/test/**", "/admin/css/**", "/admin/js/**").permitAll()
-                        .requestMatchers("/admin/upload-avatar").authenticated() // Allow only authenticated users to upload avatars
                         .requestMatchers("/admin/**").hasAnyRole("ADMIN", "MANAGER", "SUPER_ADMIN")
                 )
                 .formLogin(login -> login
@@ -44,8 +43,8 @@ public class KraftSecurityConfig {
                         .failureUrl("/admin/auth/login?error=true")
                         .permitAll()
                 )
-//                .authenticationProvider(kraftrAuthProvider)
-                .authenticationManager(new ProviderManager(List.of(kraftAuthProvider)))
+                .authenticationProvider(kraftAuthProvider)
+//                .authenticationManager(new ProviderManager(List.of(kraftAuthProvider)))
                 .logout(logout -> logout
                         .logoutUrl("/admin/auth/logout")
                         .logoutSuccessUrl("/admin/auth/login?logout")

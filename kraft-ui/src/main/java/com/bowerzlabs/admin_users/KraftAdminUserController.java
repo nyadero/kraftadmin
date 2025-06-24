@@ -184,7 +184,7 @@ public class KraftAdminUserController {
 //                    log.info("data type of value1 {}", getDataType(value1));
                 });
             });
-            log.info("display map entry set", displayMap);
+            log.info("display map entry set {}", displayMap);
         } catch (Exception e) {
             model.addAttribute("error", "Error fetching data " + e.getMessage());
             applicationEventPublisher.publishEvent(new UIEvent(this, "ERROR FETCHING DATA", Status.Error));

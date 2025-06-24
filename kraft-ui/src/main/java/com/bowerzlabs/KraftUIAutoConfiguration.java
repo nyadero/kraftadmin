@@ -9,12 +9,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-//@ConditionalOnProperty(
-//        name = "kraft.kraft-ui.enabled",
-//        havingValue = "true",
-//        matchIfMissing = true
-//)
-
 public class KraftUIAutoConfiguration {
     private static final Logger log = LoggerFactory.getLogger(KraftUIAutoConfiguration.class);
 

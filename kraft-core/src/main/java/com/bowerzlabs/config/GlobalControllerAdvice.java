@@ -8,7 +8,6 @@ import com.bowerzlabs.models.kraftmodels.ResourceMetadata;
 import com.bowerzlabs.models.kraftmodels.ResourceName;
 import com.bowerzlabs.utils.ResourceGrouper;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.metamodel.EntityType;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

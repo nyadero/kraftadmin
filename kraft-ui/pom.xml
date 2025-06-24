@@ -38,12 +38,6 @@
             <artifactId>spring-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.bowerzlabs</groupId>
-            <artifactId>kraft-core</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>jakarta.persistence</groupId>
             <artifactId>jakarta.persistence-api</artifactId>
         </dependency>
@@ -54,16 +48,17 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-commons</artifactId>
+            <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.bowerzlabs</groupId>
+            <groupId>com.github.nyadero</groupId>
             <artifactId>kraft-data-jpa</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.tomcat.embed</groupId>
@@ -72,12 +67,7 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-crypto</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.bowerzlabs</groupId>
-            <artifactId>kraft-analytics</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -93,6 +83,10 @@
             <groupId>com.github.nyadero</groupId>
             <artifactId>kraft-core</artifactId>
             <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-actuator</artifactId>
         </dependency>
     </dependencies>
 </project>

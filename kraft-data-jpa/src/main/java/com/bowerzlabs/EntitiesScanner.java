@@ -73,6 +73,7 @@ public class EntitiesScanner {
                     String entityName = javaType.getSimpleName();
                     String pluralized = plural(entityName);
 
+
                     // Direct match with name or plural
                     if (name.equalsIgnoreCase(entityName) || name.equalsIgnoreCase(pluralized)) {
                         return true;
