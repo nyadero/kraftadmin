@@ -33,7 +33,7 @@ spring:
 kraft:
   kraft-admin:
     enabled: true
-  title: Kraft Sandbox11
+  title: Kraft Sandbox
   storage:
     provider: local
     upload-dir: ${user.dir}/uploads

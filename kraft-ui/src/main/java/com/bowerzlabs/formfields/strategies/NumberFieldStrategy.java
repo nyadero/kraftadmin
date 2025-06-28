@@ -27,7 +27,6 @@ public class NumberFieldStrategy implements FormFieldStrategy {
     @Override
     public FormField createField(Field field, DbObjectSchema dbObjectSchema, String inputName, boolean isSearch, List<EntityType<?>> subTypes) {
         String label = FormField.formatLabel(field.getName());
-        String placeholder = "Enter " + label;
         Object value = extractValue(field, dbObjectSchema);
 
         boolean required = extractRequiredValidation(dbObjectSchema.getValidationRules(), field);

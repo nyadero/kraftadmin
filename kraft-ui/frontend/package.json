@@ -1,0 +1,24 @@
+{
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build:css": "tailwindcss -i ./src/css/styles.css -o ../src/main/resources/static/css/app.css --minify",
+    "dev:css": "tailwindcss -i ./src/css/styles.css -o ../src/main/resources/static/css/app.css --watch",
+    "build": "npm run build:css && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "tailwindcss": "^4.1.11",
+    "vite": "^7.0.0"
+  },
+  "dependencies": {
+    "@stomp/stompjs": "^7.1.1",
+    "chartjs": "^0.3.24",
+    "quill": "^2.0.3",
+    "sockjs-client": "^1.6.1",
+    "tom-select": "^2.4.3"
+  }
+}

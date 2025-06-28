@@ -1,12 +1,5 @@
 package com.bowerzlabs.database;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.text.SimpleDateFormat;
-import java.time.*;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-
 import com.bowerzlabs.EntityMetaModel;
 import com.bowerzlabs.annotations.*;
 import com.bowerzlabs.config.SpringContextHolder;
@@ -22,6 +15,13 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.annotation.CreatedDate;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.*;
 
 import static org.atteo.evo.inflector.English.plural;
 
@@ -67,7 +67,7 @@ public class DbObjectSchema {
     /**
      * the current entity we are using to build the dbobject schema
      */
-    private Object entity;
+    private final Object entity;
     /**
      * contains a list of all the actions that can be performed on an entity ie, create, delete and update
      */
@@ -324,8 +324,7 @@ public class DbObjectSchema {
                 DisplayField displayField = field.getAnnotation(DisplayField.class);
                 String path = displayField.value(); // e.g., "name" or "profile.name"
 
-                if (value instanceof Collection<?>) {
-                    Collection<?> collection = (Collection<?>) value;
+                if (value instanceof Collection<?> collection) {
                     List<String> displayValues = new ArrayList<>();
                     for (Object item : collection) {
                         Object nestedValue = getNestedValue(item, path);

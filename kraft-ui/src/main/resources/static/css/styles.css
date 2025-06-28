@@ -3,6 +3,19 @@
 @tailwind components;
 @tailwind utilities;
 
+@import 'tom-select/dist/css/tom-select.css';
+@import 'quill/dist/quill.snow.css';
+
+
+.debug {
+  @apply bg-red-500 text-white p-4;
+}
+
+
+.test-classes {
+  @apply bg-red-500 text-white p-4;
+}
+
  .hidden {
         display: none;
  }
@@ -12,9 +25,9 @@ th, td {
     border: 1px solid #dee2e6;
     text-align: left;
     word-wrap: break-word;
-    word-break: break-word;      /* breaks long words */
-    white-space: normal;         /* allows wrapping */
-    max-width: 200px;            /* you can tweak this value */
+    word-break: break-word;
+    white-space: normal;
+    max-width: 200px;
 }
 
 table {

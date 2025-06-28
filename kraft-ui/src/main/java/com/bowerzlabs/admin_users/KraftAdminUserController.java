@@ -15,15 +15,12 @@ import com.bowerzlabs.repository.kraftrepos.KraftAdminUsersRepository;
 import com.bowerzlabs.service.CrudService;
 import com.bowerzlabs.utils.DisplayUtils;
 import com.bowerzlabs.utils.KraftUtils;
-import jdk.jfr.ContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -159,15 +156,12 @@ public class KraftAdminUserController {
             model.addAttribute("queryString", "&" + queryString);
 
             model.addAttribute("currentParams", allParams); // for hidden inputs
-//            log.info("enum fields {}", enumFields);
             model.addAttribute("enumFields", enumFields);
             model.addAttribute("entityName", ENTITY_NAME);
             model.addAttribute("primaryKey", KraftUtils.formatLabel(primaryKey));
-//            model.addAttribute("size", size);
             model.addAttribute("currentPage", page);
             model.addAttribute("totalPages", pagedResult.getTotalPages());
             model.addAttribute("totalElements", pagedResult.getTotalElements());
-//            model.addAttribute("size", pagedResult.getContent().size());
             model.addAttribute("pagination", new PageResponse(pagedResult.getContent(), pagedResult.getNumber(), pagedResult.getTotalElements(), pagedResult.getTotalPages()));
             model.addAttribute("searchableFieldNames", searchFields);
             model.addAttribute("sortableFieldNames", sortableFieldNames);

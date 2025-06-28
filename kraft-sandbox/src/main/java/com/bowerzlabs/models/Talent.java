@@ -1,8 +1,8 @@
 package com.bowerzlabs.models;
 
 import com.bowerzlabs.annotations.DisplayField;
-import com.bowerzlabs.enums.Gender;
 import com.bowerzlabs.annotations.FormInputType;
+import com.bowerzlabs.enums.Gender;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import org.hibernate.annotations.CreationTimestamp;
@@ -14,7 +14,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 @Entity
-@Table(name = "talents")
+//@Table(name = "talents")
 public class Talent {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -242,5 +242,29 @@ public class Talent {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Contact getContact() {
+        return contact;
+    }
+
+    public void setContact(Contact contact) {
+        this.contact = contact;
+    }
+
+    public byte[] getIntroVideo() {
+        return introVideo;
+    }
+
+    public void setIntroVideo(byte[] introVideo) {
+        this.introVideo = introVideo;
+    }
+
+    public List<Project> getProjects() {
+        return projects;
+    }
+
+    public void setProjects(List<Project> projects) {
+        this.projects = projects;
     }
 }

@@ -1,3 +1,8 @@
+import TomSelect from 'tom-select';
+//import 'tom-select/dist/css/tom-select.css';
+
+console.log("form-utils js")
+
 document.addEventListener("DOMContentLoaded", function () {
     // Single select
            document.querySelectorAll('.tom-select').forEach(el => {
@@ -93,7 +98,7 @@ function confirmDeleteSingle(id, entityName) {
   }
 }
 
-function filterSelectOptions(selectId) {
+function filterSelectOptions1(selectId) {
   console.log("Searching " + selectId);
 
   const input = document.getElementById(selectId + '-search');

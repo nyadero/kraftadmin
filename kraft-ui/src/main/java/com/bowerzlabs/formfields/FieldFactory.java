@@ -38,11 +38,12 @@ public class FieldFactory {
                 new CheckboxFieldStrategy(),
                 new RadioFieldStrategy(),
                 new MultiSelectFieldStrategy(),
-                new TagInputFieldStrategy()
+                new TagInputFieldStrategy(),
+                new CurrencyInputStrategy()
         );
     }
 
-    
+
     public FormField createField(Field field, DbObjectSchema dbObjectSchema, String inputName, boolean isSearch, List<EntityType<?>> subTypes) {
         try {
             for (FormFieldStrategy strategy : strategies) {
@@ -51,11 +52,14 @@ public class FieldFactory {
                 }
             }
         } catch (Exception e) {
-            log.info("exception {}", e.toString());
-            throw new UnsupportedOperationException("No FormFieldStrategy found for field: " + field.getName());
+            log.error("Error generating form field for '{}': {}", field.getName(), e.getMessage(), e);
+            return new TextField(
+                    field.getName(), "Enter " + field.getName(), false, "", field.getName(), Map.of(), Map.of()
+            );
+//            throw new UnsupportedOperationException("No FormFieldStrategy found for field: " + field.getName());
         }
         return new TextField(
-                "", "", false, "", "", Map.of(),Map.of()
+                field.getName(), "Enter " + field.getName(), false, "", field.getName(), Map.of(), Map.of()
         );
     }
 }

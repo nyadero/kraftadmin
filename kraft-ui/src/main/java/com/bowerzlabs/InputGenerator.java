@@ -4,7 +4,10 @@ import com.bowerzlabs.database.DbObjectSchema;
 import com.bowerzlabs.formfields.FormField;
 import com.bowerzlabs.formfields.FormFieldFactory;
 import com.bowerzlabs.formfields.fields.SelectField;
-import jakarta.persistence.*;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Transient;
 import jakarta.persistence.metamodel.EntityType;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -13,7 +16,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class InputGenerator {
@@ -61,8 +66,8 @@ public class InputGenerator {
                 formFields.add(0, subtypeSelect); // add it to the top
             }
 
-
             for (Field field : clazz.getEntityClass().getJavaType().getDeclaredFields()){
+                field.setAccessible(true);
                 if (field.isSynthetic() || shouldExcludeField(field, isCreating)) continue;
 
                 String fieldName = (prefix.isEmpty() ? "" : prefix + ".") + field.getName();
@@ -83,6 +88,7 @@ public class InputGenerator {
                 String subtypeName = subClass.getSimpleName();
 
                 for (Field subField : subClass.getDeclaredFields()) {
+                    subField.setAccessible(true);
                     if (subField.isSynthetic() || shouldExcludeField(subField, isCreating)) continue;
 
                     String fieldName = (prefix.isEmpty() ? "" : prefix + ".") + subField.getName();
@@ -99,7 +105,6 @@ public class InputGenerator {
                     }
                 }
             }
-
 
             return formFields;
         } catch (RuntimeException e) {
@@ -143,9 +148,7 @@ public class InputGenerator {
                 field.isAnnotationPresent(CreatedDate.class) ||
                 field.isAnnotationPresent(UpdateTimestamp.class)) return true;
 
-        if (field.isAnnotationPresent(Transient.class)) return true;
-
-        return false;
+        return field.isAnnotationPresent(Transient.class);
     }
 
     /**

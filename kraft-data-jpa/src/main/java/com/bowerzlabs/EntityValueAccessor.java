@@ -1,9 +1,13 @@
 package com.bowerzlabs;
 
-import jakarta.persistence.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.metamodel.EntityType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -33,6 +37,7 @@ public class EntityValueAccessor {
 
             if (i == parts.length - 1) {
                 Class<?> fieldType = field.getType();
+                log.info("fieldType {} ", field.getName());
 
                 if (field.isAnnotationPresent(ManyToOne.class) || field.isAnnotationPresent(OneToOne.class)) {
                     Class<?> relatedClass = fieldType;
@@ -53,6 +58,10 @@ public class EntityValueAccessor {
 
                     field.set(target, relatedEntity);
                 } else {
+                    if (field.getName().contains("password")) {
+                        field.set(target, new BCryptPasswordEncoder(6).encode(value));
+                        log.info("fieldType is password {} {} {} {}", field.getName().contains("password"), value, new BCryptPasswordEncoder(6).encode(value), target);
+                    }
                     Object convertedValue = convertValue(fieldType, value);
                     field.set(target, convertedValue);
                 }
@@ -72,7 +81,7 @@ public class EntityValueAccessor {
                 }
             }
         }} catch (Exception e) {
-            log.info("exception {}", e.toString());
+            log.info("exception {}", (Object) e.getStackTrace());
             throw new RuntimeException(e);
         }
     }

@@ -1,13 +1,17 @@
 package com.bowerzlabs;
 
 import com.bowerzlabs.annotations.InternalAdminResource;
+import jakarta.persistence.Entity;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.Table;
 import jakarta.persistence.metamodel.EntityType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.atteo.evo.inflector.English.plural;
@@ -141,15 +145,18 @@ public class EntitiesScanner {
                .toList();
     }
 
-
-
     public static String resolveEntityName(Class<?> clazz) {
-        jakarta.persistence.Table entityAnnotation = clazz.getAnnotation(jakarta.persistence.Table.class);
-        if (entityAnnotation != null && !entityAnnotation.name().isBlank()) {
-            log.info("entity table name value {}", entityAnnotation.name());
-            return entityAnnotation.name();
+        Table tableAnnotation = clazz.getAnnotation(Table.class);
+        Entity entityAnnotation = clazz.getAnnotation(Entity.class);
+        if (tableAnnotation != null && !tableAnnotation.name().isBlank()) {
+            log.info("table name value {}", tableAnnotation.name());
+            return tableAnnotation.name();
         }
-        return clazz.getSimpleName(); // default
+//        else if (entityAnnotation != null && !entityAnnotation.name().isBlank()) {
+//            log.info("entity name value {}", entityAnnotation.name());
+//            return entityAnnotation.name();
+//        }
+        return clazz.getSimpleName();
     }
 
 

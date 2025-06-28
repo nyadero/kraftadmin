@@ -78,13 +78,6 @@
 			<artifactId>micrometer-core</artifactId>
 		</dependency>
 
-		<dependency>
-			<groupId>com.github.nyadero</groupId>
-			<artifactId>kraft-admin</artifactId>
-			<version>main-SNAPSHOT</version>
-		</dependency>
-
-
 	</dependencies>
 
 	<repositories>

@@ -125,7 +125,7 @@ public class ValidationUtils {
         for (Map.Entry<String, String> entry : validationRules.entrySet()) {
             String fieldName = entry.getKey();
             String rules = entry.getValue();
-            String fieldValue = formValues.getOrDefault(fieldName, "").trim();
+            String fieldValue = String.valueOf(formValues.getOrDefault(fieldName, ""));
 
             // Required validation
             if (rules.contains("required") && fieldValue.isEmpty()) {

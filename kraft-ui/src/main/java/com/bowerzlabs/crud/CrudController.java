@@ -12,7 +12,6 @@ import com.bowerzlabs.dtos.PageResponse;
 import com.bowerzlabs.dtos.Subject;
 import com.bowerzlabs.events.UIEvent;
 import com.bowerzlabs.events.UserActionEvent;
-import com.bowerzlabs.files.LocalMultipartFileStorage;
 import com.bowerzlabs.files.MultipartFileStorage;
 import com.bowerzlabs.files.StorageProperties;
 import com.bowerzlabs.formfields.FormField;
@@ -121,23 +120,24 @@ public class CrudController {
                     MultipartFile file = entry.getValue();
                     String uploadedFile = null;
 
-                    if (file != null && !file.isEmpty()) {
-                        switch (new StorageProperties().getProvider()){
-                            case Local:
-                                multipartFileStorage = new LocalMultipartFileStorage(storageProperties);
-                                uploadedFile = multipartFileStorage.uploadSingle(file);
-                                break;
-                            case Cloudinary:
-                                break;
-                            case AWS_S3:
-                                break;
-                            default:
-                                log.info("Unknown provider");
-                        }
-                        String uploadedFileName = null;
-                        formValues.put(field, uploadedFile); // Add it as if it was submitted in the form
-                        System.out.println("File uploaded for field " + field + ": " + uploadedFile);
-                    }
+//                    if (file != null && !file.isEmpty()) {
+//                        switch (new StorageProperties().getProvider()){
+//                            case Local:
+//                                multipartFileStorage = new LocalMultipartFileStorage(storageProperties);
+//                                uploadedFile = multipartFileStorage.uploadSingle(file);
+//                                break;
+//                            case Cloudinary:
+//                                break;
+//                            case AWS_S3:
+//                                break;
+//                            default:
+//                                log.info("Unknown provider");
+//                        }
+//                        String uploadedFileName = null;
+//                        formValues.put(field, uploadedFile); // Add it as if it was submitted in the form
+//                        System.out.println("File uploaded for field " + field + ": " + uploadedFile);
+//                    }
+//                    formValues.put(field, Arrays.toString(file.getBytes()));
                 }
             }
 
@@ -151,10 +151,12 @@ public class CrudController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Failed to save entity: " + e.getMessage());
             applicationEventPublisher.publishEvent(new UIEvent(this, "Failed to save entity", Status.Error));
+            return "redirect:/admin/crud/" + entityName;
         }
 
         return "redirect:/admin/crud/" + entityName;
     }
+
 
     // get entity by ID dynamically
     @GetMapping("/{entityName}/{id}")

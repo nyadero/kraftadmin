@@ -49,14 +49,14 @@ public class CrudService {
     public Object save(String entityName, Map<String, String> formValues, Object existing) {
         try {
             EntityMetaModel clazz = entityScanner.getEntityByName(entityName);
-            String subtype = formValues.get("subtype"); // comes from the form
+            Object subtype = formValues.get("subtype"); // comes from the form
             Class<?> actualClass = clazz.getEntityClass().getJavaType();
             log.info("entity {} formValues {}, actualClass {}", existing, formValues, actualClass);
 
             EntityMetaModel actualMetaModel = clazz;
 
-            if (subtype != null && !subtype.isBlank()) {
-                actualMetaModel = entityScanner.getEntityFromAllByName(subtype);
+            if (subtype != null) {
+                actualMetaModel = entityScanner.getEntityFromAllByName(subtype.toString());
                 actualClass = actualMetaModel.getEntityClass().getJavaType();
             }
 
@@ -71,7 +71,7 @@ public class CrudService {
 
             return entityManager.merge(entity);
         } catch (Exception e) {
-            log.info("error {}", e.toString());
+            log.info("error {}", e.getStackTrace());
             throw new RuntimeException(e);
         }
     }
@@ -282,10 +282,6 @@ public class CrudService {
         } else if (idType == String.class) {
             return id;
         }
-//        if (idType == String.class) return id;
-//        if (idType == Long.class || idType == long.class) return Long.parseLong(id);
-//        if (idType == Integer.class || idType == int.class) return Integer.parseInt(id);
-//        if (idType == UUID.class) return UUID.fromString(id);
 
         throw new IllegalArgumentException("Unsupported ID type: " + idType.getName());
     }
@@ -445,76 +441,7 @@ public class CrudService {
                 .getResultList();
     }
 
-//    public AnalyticsData loadAnalyticsData(EntityMetaModel entityMetaModel, PeriodFilter filter) {
-//        AnalyticsData analyticsData = new AnalyticsData();
-//        LocalDateTime now = LocalDateTime.now();
-//
-//        // Time range
-//        LocalDateTime start = filter.getTime();
-//
-//        Duration duration = Duration.between(start, now);
-//        long totalMinutes = duration.toMinutes();
-//
-//        // Decide interval granularity
-//        /* todo generate points based on the filter period, ie if minute labels should be 60secs, hours 60 minutes, day - 24 hours,
-//                week - 7 days, month 4 weeks, year 12 months
-//                 */
-//        int points = 10; // adjust for how many points you want on the graph
-////        int points = switch (filter.getPeriod()){
-////            case MINUTE -> i;
-////            case HOUR -> 60;
-////            case DAY -> 24;
-////            case WEEK -> 7;
-////            case MONTH -> 28;
-////            case YEAR -> 366;
-////        };
-//        long stepMinutes = totalMinutes / points;
-//
-//        List<String> labels = new ArrayList<>();
-//        List<Long> values = new ArrayList<>();
-//
-//        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-//
-//        for (int i = 0; i < points; i++) {
-//            LocalDateTime intervalStart = start.plusMinutes(i * stepMinutes);
-//            LocalDateTime intervalEnd = intervalStart.plusMinutes(stepMinutes);
-//
-//            CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
-//            Root<?> root = countQuery.from(entityMetaModel.getEntityClass());
-//            countQuery.select(cb.count(root)).where(cb.between(
-//                    root.get(entityMetaModel.getCreationTimestampField().getName()), intervalStart, intervalEnd
-//            ));
-//
-//            Long count = entityManager.createQuery(countQuery).getSingleResult();
-//            values.add(count);
-//
-//            // Label format can be minute, hour, day, etc.
 
-    /// /            String label = String.valueOf(intervalStart.getSecond()); // or .getDayOfWeek().toString()
-//            /* todo generate labels based on the filter period, ie if minute labels should be 60secs, hours 60 minutes, day - 24 hours,
-//                week - 7 days, month 4 weeks, year 12 months
-//                 */
-//            String label = switch (filter.getPeriod()){
-//                case MINUTE -> intervalStart.getDayOfWeek().toString();
-//                case HOUR -> null;
-//                case DAY -> null;
-//                case WEEK -> null;
-//                case MONTH -> null;
-//                case YEAR -> null;
-//            };
-//            labels.add(label);
-//        }
-//
-//        // Add to AnalyticsData
-//        analyticsData.setLabels(labels);
-//        analyticsData.setValues(values);
-//        analyticsData.setTotal(values.stream().mapToLong(Long::longValue).sum());
-//        analyticsData.setStartDate(start);
-//        analyticsData.setEndDate(now);
-//        analyticsData.setPeriodFilter(filter);
-//
-//        return analyticsData;
-//    }
     public AnalyticsData loadAnalyticsData(EntityMetaModel entityMetaModel, PeriodFilter filter) throws JsonProcessingException {
         AnalyticsData analyticsData = new AnalyticsData();
         LocalDateTime start = filter.getTime();
@@ -597,47 +524,5 @@ public class CrudService {
 
         return analyticsData;
     }
-
-
-//    public AnalyticsData loadAnalyticsData(EntityMetaModel entityMetaModel, PeriodFilter filter) {
-//        AnalyticsData analyticsData = new AnalyticsData();
-//        LocalDateTime now = LocalDateTime.now();
-//
-////        From filter.getTime() to now, generate:
-////
-////        labels = ["Mon", "Tue", "Wed", "Thu", "Fri"]
-////
-////        values = [23, 40, 18, 10, 5] (count of records created during each interval)
-//
-//        // Current period
-//        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-//        CriteriaQuery<Long> currentQuery = cb.createQuery(Long.class);
-//        Root<?> root = currentQuery.from(entityMetaModel.getEntityClass());
-//        currentQuery.select(cb.count(root))
-//                .where(cb.between(root.get(entityMetaModel.getCreationTimestampField().getName()), filter.getTime(), now));
-//        long currentTotal = entityManager.createQuery(currentQuery).getSingleResult();
-//
-//        // Previous period
-//        Duration duration = Duration.between(filter.getTime(), now);
-//        LocalDateTime previousStart = filter.getTime().minus(duration);
-//        LocalDateTime previousEnd = filter.getTime();
-//
-//        CriteriaQuery<Long> previousQuery = cb.createQuery(Long.class);
-//        Root<?> previousRoot = previousQuery.from(entityMetaModel.getEntityClass());
-//        previousQuery.select(cb.count(previousRoot))
-//                .where(cb.between(previousRoot.get(entityMetaModel.getCreationTimestampField().getName()), previousStart, previousEnd));
-//        long previousTotal = entityManager.createQuery(previousQuery).getSingleResult();
-//
-//        // Set data
-//        analyticsData.setTotal(currentTotal);
-//        analyticsData.setPreviousTotal(previousTotal);
-//        analyticsData.setStartDate(filter.getTime());
-//        analyticsData.setEndDate(now);
-//        analyticsData.setPeriodFilter(filter);
-//        analyticsData.calculateChange();
-//
-//        return analyticsData;
-//    }
-
 
 }
