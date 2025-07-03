@@ -1,2 +1,0 @@
-install:
-  - mvn install -DskipTests
