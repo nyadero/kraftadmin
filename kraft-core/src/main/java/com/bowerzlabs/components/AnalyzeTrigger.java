@@ -1,11 +1,8 @@
 package com.bowerzlabs.components;
 
 import com.bowerzlabs.service.AnalyzeData;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Component;
 
-@Component
+//@Component
 public class AnalyzeTrigger {
 
     private final AnalyzeData analyzeData;
@@ -15,7 +12,7 @@ public class AnalyzeTrigger {
     }
 
     // single startup run
-    @EventListener(ApplicationReadyEvent.class)
+//    @EventListener(ApplicationReadyEvent.class)
     public void onAppReady() {
         analyzeData.analyze();
     }

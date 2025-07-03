@@ -10,8 +10,6 @@ import com.bowerzlabs.dtos.PeriodFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -37,8 +35,8 @@ public class AnalyzeData {
     }
 
     // every 60 seconds
-    @Scheduled(fixedDelay = 60000)
-    @Async
+//    @Scheduled(fixedDelay = 60000)
+//    @Async
     public void analyze() {
         analyticsComponents = new ArrayList<>();
         periodFilters = new ArrayList<>();
@@ -50,7 +48,7 @@ public class AnalyzeData {
         try {
             log.info("Running background analytics scan...");
             assert entitiesScanner != null;
-            List<EntityMetaModel> entityMetaModelList = entitiesScanner.getAllEntityClasses();
+            List<EntityMetaModel> entityMetaModelList = entitiesScanner.getAllEntityClasses().stream().limit(6).toList();
             AnalyticsComponent analyticsComponent = null;
             PeriodFilter periodFilter = new PeriodFilter(TimePeriod.YEAR);
             String randomType = chartTypes.get(rand.nextInt(chartTypes.size()));
