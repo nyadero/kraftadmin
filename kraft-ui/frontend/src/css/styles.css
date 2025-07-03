@@ -1,6 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import "tailwindcss";
+
+@config "../../tailwind.config.js";
 
 @import 'tom-select/dist/css/tom-select.css';
 @import 'quill/dist/quill.snow.css';

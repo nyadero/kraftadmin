@@ -1,6 +1,6 @@
-import { Chart, registerables } from 'chart.js';
-
-Chart.register(...registerables);
+//import { Chart, registerables } from 'chart.js';
+//
+//Chart.register(...registerables);
 
 document.addEventListener('DOMContentLoaded', () => {
   const ctx = document.getElementById('myChart');

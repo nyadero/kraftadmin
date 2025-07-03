@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build:css": "tailwindcss -i ./src/css/styles.css -o ../src/main/resources/static/css/app.css --minify",
+    "dev": "vite && dev:css",
+    "build:css": "tailwindcss -i ./src/css/styles.css -o ../src/main/resources/static/css/app.css",
     "dev:css": "tailwindcss -i ./src/css/styles.css -o ../src/main/resources/static/css/app.css --watch",
     "build": "npm run build:css && vite build",
     "preview": "vite preview"

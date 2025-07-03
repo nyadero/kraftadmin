@@ -2,7 +2,6 @@ document.addEventListener("DOMContentLoaded", function () {
  const loader = document.getElementById('loader');
  if (loader) loader.style.display = 'none';
 
-
   /** ---------------- Sidebar Toggle ---------------- **/
 //  const menuIcon = document.getElementById("menu-toggle");
 //  menuIcon?.addEventListener("click", function () {
