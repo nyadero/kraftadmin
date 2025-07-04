@@ -68,7 +68,7 @@ public class KraftSettingsController {
         model.addAttribute("title", "Customize View: " + entityName);
 
 
-        return "settings/customize-entity-view";
+        return "kraft-settings/customize-entity-view";
     }
 
     @PostMapping("/settings/{entityName}/customize-entity-view")
@@ -110,7 +110,7 @@ public class KraftSettingsController {
     ){
         Optional<AdminUser> adminUser = kraftAdminUsersRepository.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
         adminUser.ifPresent(user -> model.addAttribute("adminUser", user));
-        return "settings/index";
+        return "kraft-settings/index";
     }
 
 

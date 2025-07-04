@@ -10,7 +10,6 @@
 <p th:text="${entityName}">ENTITY</p>
 
 <th:block layout:fragment="content">
-   <span th:text="${actions}"></span>
     <div th:replace="~{components/datatable :: entityTable(
     ${entityName},
     ${fieldNames},

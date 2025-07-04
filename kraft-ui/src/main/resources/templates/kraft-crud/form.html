@@ -182,6 +182,16 @@
                     <div th:replace="~{fragments/inputs/inputs :: currencyInput(${field})}"></div>
                     <div>
                          <span th:if="${validationErrors != null and validationErrors.containsKey(field.name)}"
+                               style="color:red;"
+                               th:text="${validationErrors[field.name]}">
+                         </span>
+                    </div>
+                </div>
+
+                <div th:case="'tags'">
+                    <div th:replace="~{fragments/inputs/inputs :: tagInput(${field})}"></div>
+                    <div>
+                         <span th:if="${validationErrors != null and validationErrors.containsKey(field.name)}"
                                th:text="${validationErrors[field.name]}"
                                style="color:red;">
                          </span>

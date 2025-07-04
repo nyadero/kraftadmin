@@ -12,6 +12,6 @@ public class NotificationController {
     // notifications page
     @GetMapping
     public String renderNotifications(Model model){
-        return "notifications/index";
+        return "kraft-notifications/index";
     }
 }

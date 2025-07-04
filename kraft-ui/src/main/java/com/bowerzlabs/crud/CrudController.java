@@ -83,7 +83,7 @@ public class CrudController {
         } catch (Exception e) {
             model.addAttribute("error", "Error rendering form " + e.getMessage());
         }
-        return "crud/form";
+        return "kraft-crud/form";
     }
 
     // add item to database
@@ -186,7 +186,7 @@ public class CrudController {
         } catch (Exception e) {
             model.addAttribute("error", "Error fetching entity " + e.getMessage());
         }
-        return "crud/details";
+        return "kraft-crud/details";
     }
 
     // render all items, use pagination
@@ -311,7 +311,7 @@ public class CrudController {
         } catch (Exception e) {
             applicationEventPublisher.publishEvent(new UIEvent(this, "ERROR FETCHING DATA", Status.Error));
         }
-        return "crud/list";
+        return "kraft-crud/list";
     }
 
     // render update item page
@@ -335,7 +335,7 @@ public class CrudController {
             return "redirect:/admin/crud/" + entityName;
         }
 
-        return "crud/form";
+        return "kraft-crud/form";
     }
 
     // update item in the db

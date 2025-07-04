@@ -28,7 +28,7 @@ public class KraftController {
     @GetMapping("/dashboard")
     public String dashboard(Model model) throws Exception {
         model.addAttribute("components", AnalyzeData.getAnalyticsComponents());
-        return "dashboard";
+        return "kraft-dashboard";
     }
 
     @GetMapping("/test")

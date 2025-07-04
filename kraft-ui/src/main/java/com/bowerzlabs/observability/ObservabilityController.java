@@ -1,9 +1,7 @@
 package com.bowerzlabs.observability;
 
 import io.micrometer.core.instrument.MeterRegistry;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.health.HealthEndpoint;
-import org.springframework.boot.actuate.metrics.MetricsEndpoint;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,6 +27,6 @@ public class ObservabilityController {
             Model model
     ){
         model.addAttribute("health", healthEndpoint.health());
-        return "observability/index";
+        return "kraft-observability/index";
     }
 }
