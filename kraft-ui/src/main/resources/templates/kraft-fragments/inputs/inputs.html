@@ -16,12 +16,10 @@
 
 <!-- Textarea input -->
 <th:block th:fragment="textareaInput(field)">
-  <label th:for="${field.label}">
       <textarea th:name="${field.name}"
                 th:placeholder="${field.placeholder}"
                 class="w-full p-2 rounded border outline-none bg-white my-5"
                 th:text="${field.value}"></textarea>
-  </label>
 </th:block>
 
 <!-- Select input (dropdown) -->
@@ -211,17 +209,6 @@
 </th:block>
 
 <!-- file input -->
-<!--<th:block th:fragment="fileInput(field)">-->
-<!--  <label th:for="${field.name}">-->
-<!--    <input type="file"-->
-<!--           th:id="${field.name}"-->
-<!--           th:name="${field.name}"-->
-<!--           th:placeholder="${field.placeholder}"-->
-<!--           th:value="${field.value}"-->
-<!--           th:attr="required=${field.required ? 'required' : null}"-->
-<!--           class="w-full p-2 rounded border outline-none bg-white my-5"/>-->
-<!--  </label>-->
-<!--</th:block>-->
 <th:block th:fragment="fileInput(field)">
     <label class="block w-full" th:for="${field.name}">
         <div class="w-full p-4 mt-3 border-2 border-dashed rounded cursor-pointer bg-gray-50 text-center hover:border-blue-400"
@@ -231,7 +218,7 @@
             <span class="block text-gray-600">Click or drag a file to upload</span>
             <input
                    class="hidden"
-                   onchange="previewFile(event, this)"
+                   onchange="validateFile(event, this)"
                    th:attr="required=${field.required ? 'required' : null}"
                    th:id="${field.name}"
                    th:name="${field.name}"
@@ -315,31 +302,6 @@
   </label>
 </th:block>
 
-<!-- This block renders the embedded field -->
-<!--<th:block th:fragment="embeddedInput(field)">-->
-<!--  <fieldset>-->
-<!--    <legend th:text="${field.label}"></legend>-->
-<!--    &lt;!&ndash; Loop through each embedded field &ndash;&gt;-->
-<!--    <div th:each="subField : ${field.formFieldList}">-->
-<!--      &lt;!&ndash; Render different field types based on sub-field type &ndash;&gt;-->
-<!--      <label th:for="${subField.name}" th:text="${subField.label}"></label>-->
-<!--      <div th:switch="${subField.type}">-->
-<!--        &lt;!&ndash; Render Text Input &ndash;&gt;-->
-<!--        <input th:switch="${subField.type}" type="text" th:name="${subField.name}" th:placeholder="${subField.placeholder}" th:value="${subField.value}" th:required="${subField.required}" class="w-full p-2 rounded border outline-none bg-white my-5" />-->
-
-<!--        &lt;!&ndash; Render Select Input &ndash;&gt;-->
-<!--&lt;!&ndash;        <select th:switch="${subField.type}" th:name="${subField.name}">&ndash;&gt;-->
-<!--&lt;!&ndash;          <option th:each="opt : ${subField.options}" th:value="${opt}" th:text="${opt}"></option>&ndash;&gt;-->
-<!--&lt;!&ndash;        </select>&ndash;&gt;-->
-
-<!--        &lt;!&ndash; Render Checkbox &ndash;&gt;-->
-<!--&lt;!&ndash;        <input th:switch="${subField.type}" type="checkbox" th:name="${subField.name}" th:checked="${subField.value}" />&ndash;&gt;-->
-<!--      </div>-->
-<!--      &lt;!&ndash; Display validation errors &ndash;&gt;-->
-<!--      <span th:if="${subField.validationErrors != null}" th:text="${subField.validationErrors[subField.name]}" style="color:red;"></span>-->
-<!--    </div>-->
-<!--  </fieldset>-->
-<!--</th:block>-->
 <!-- Embedded Field Fragment with Grid Layout -->
 <th:block th:fragment="embeddedInput(field)">
     <fieldset class="border border-gray-300 rounded p-4 my-4">
@@ -383,48 +345,6 @@
 </th:block>
 
 
-<!--search select input-->
-<th:block th:fragment="searchSelectInput(field)">
-    <label class="block mb-2 font-medium text-sm text-gray-700"
-           th:for="${field.name}"
-           th:text="${field.label} + (field.required ? ' *' : '')">
-    </label>
-
-<!--    <div class="relative w-full max-w-full">-->
-<!--        &lt;!&ndash; Search input &ndash;&gt;-->
-<!--        <input type="search"-->
-<!--               th:attr="id=${field.name + '-search'}, onkeyup=|filterSelectOptions('${field.name}')|"-->
-<!--               th:placeholder="'Search ' + ${field.label}"-->
-<!--               class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"-->
-<!--        />-->
-
-<!--        &lt;!&ndash; Dropdown &ndash;&gt;-->
-<!--        <select class="absolute left-0 right-0 z-10 bg-white border border-gray-300 mt-1 rounded shadow max-h-60 overflow-y-auto w-full"-->
-<!--                size="5"-->
-<!--                th:id="${field.name}"-->
-<!--                th:name="${field.name}">-->
-<!--            <option disabled selected th:text="'Select ' + ${field.label}"></option>-->
-<!--            <option th:each="opt : ${field.options}"-->
-<!--                    th:selected="${opt == field.value}"-->
-<!--                    th:text="${opt.key}"-->
-<!--                    th:value="${opt.value}">-->
-<!--            </option>-->
-<!--        </select>-->
-<!--    </div>-->
-
-        <select th:id="${field.name}"
-                th:name="${field.name}"
-                multiple
-                data-placeholder="Select one or more"
-                class="tom-select">
-            <option th:each="opt : ${field.options}"
-                    th:selected="${opt == field.value}"
-                    th:text="${opt.key}"
-                    th:value="${opt.value}">
-            </option>
-        </select>
-</th:block>
-
 <!--// single search select-->
 <th:block th:fragment="searchSelectInput(field)">
     <label class="block mb-2 font-medium text-sm text-gray-700"
@@ -432,38 +352,38 @@
            th:text="${field.label} + (field.required ? ' *' : '')">
     </label>
 
-    <select th:id="${field.name}"
-            th:name="${field.name}"
-            class="tom-select w-full"
-            data-placeholder="Select an option">
-        <option value="" disabled selected th:text="'Select ' + ${field.label}"></option>
+    <select class="tom-select w-full"
+            data-placeholder="Select an option"
+            th:id="${field.name}"
+            th:name="${field.name}">
+        <option disabled selected th:text="'Select ' + ${field.label}" value=""></option>
         <option th:each="opt : ${field.options}"
-                th:value="${opt.value}"
+                th:selected="${opt.value == field.value}"
                 th:text="${opt.key}"
-                th:selected="${opt.value == field.value}">
+                th:value="${opt.value}">
         </option>
     </select>
 </th:block>
 
 <!--multiple search select-->
-<!--<th:block th:fragment="multiSelectInput(field)">-->
-<!--    <label class="block mb-2 font-medium text-sm text-gray-700"-->
-<!--           th:for="${field.name}"-->
-<!--           th:text="${field.label} + (field.required ? ' *' : '')">-->
-<!--    </label>-->
+<th:block th:fragment="multiSelectInput(field)">
+    <label class="block mb-2 font-medium text-sm text-gray-700"
+           th:for="${field.name}"
+           th:text="${field.label} + (field.required ? ' *' : '')">
+    </label>
 
-<!--    <select multiple-->
-<!--            th:id="${field.name}"-->
-<!--            th:name="${field.name}"-->
-<!--            class="tom-multiselect w-full"-->
-<!--            data-placeholder="Select multiple">-->
-<!--        <option th:each="opt : ${field.options}"-->
-<!--                th:value="${opt.value}"-->
-<!--                th:text="${opt.key}"-->
-<!--                th:selected="${#lists.contains(field.value, opt.value)}">-->
-<!--        </option>-->
-<!--    </select>-->
-<!--</th:block>-->
+    <select class="tom-multiselect w-full"
+            data-placeholder="Select multiple"
+            th:name="${field.name}"
+            multiple
+            th:id="${field.name}">
+        <option th:each="opt : ${field.options}"
+                th:value="${opt.value}"
+                th:text="${opt.key}"
+                th:selected="${#lists.contains(field.value, opt.value)}">
+        </option>
+    </select>
+</th:block>
 
 <!--taginput-->
 <th:block th:fragment="tagInput(field)">
@@ -475,39 +395,12 @@
     <input type="text"
            th:id="${field.name}"
            th:name="${field.name}"
-           th:value="${field.value}"
+           th:data-placeholder="${field.placeholder}"
            class="tom-tags w-full"
-           data-placeholder="Enter tags" />
+           th:placeholder="${field.placeholder}"
+           th:value="${#strings.arrayJoin(field.value, ',')}"/>
 </th:block>
 
-
-
-<!--<th:block th:fragment="searchSelectInput(field)">-->
-<!--    <label class="block mb-2 font-medium text-sm text-gray-700" th:for="${field.name}"-->
-<!--           th:text="${field.label} + (field.required ? ' *' : '')"></label>-->
-
-<!--    <div class="">-->
-<!--        &lt;!&ndash; Fake select (input as trigger + dropdown list) &ndash;&gt;-->
-<!--        <input class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"-->
-<!--               th:attr="id=${field.name + '-search'}, onkeyup=|filterSelectOptions('${field.name}')|"-->
-<!--               th:placeholder="'Search ' + ${field.label}"-->
-<!--               type="search"-->
-<!--        />-->
-
-<!--        &lt;!&ndash; Select options shown below the input &ndash;&gt;-->
-<!--        <select class="absolute z-10 w-full bg-white border border-gray-300 mt-1 rounded shadow max-h-60 overflow-y-auto"-->
-<!--                size="5"-->
-<!--                th:id="${field.name}"-->
-<!--                th:name="${field.name}">-->
-<!--            <option disabled selected th:text="'Select ' + ${field.label}"></option>-->
-<!--            <option th:each="opt : ${field.options}"-->
-<!--                    th:selected="${opt == field.value}"-->
-<!--                    th:text="${opt.key}"-->
-<!--                    th:value="${opt.value}">-->
-<!--            </option>-->
-<!--        </select>-->
-<!--    </div>-->
-<!--</th:block>-->
 
 <!--currency-->
 <th:block th:fragment="currencyInput(field)">

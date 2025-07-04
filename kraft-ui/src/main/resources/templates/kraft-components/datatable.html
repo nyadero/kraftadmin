@@ -114,7 +114,7 @@
             <td th:each="field : ${fieldNames}">
                 <div th:with="displayField=${displayItem.get(field)}">
 <!--                    <span th:text="${displayField?.fieldType?.name()}"></span>-->
-                    <div th:replace="~{fragments/displays/display-field :: render(${displayField})}"></div>
+                    <div th:replace="~{kraft-fragments/displays/display-field :: render(${displayField})}"></div>
                 </div>
             </td>
             <td>

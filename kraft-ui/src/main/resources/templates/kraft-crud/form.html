@@ -14,7 +14,7 @@
             <label th:for="${field.name}" class="capitalize text-lg mb-1" th:text="${field.label} + ${field.required ? ' *' : ''}"></label>
             <div th:switch="${field.type}">
                 <div th:case="'text'" class="">
-                    <div th:replace="~{fragments/inputs/inputs :: textInput(${field})}"></div>
+                    <div th:replace="~{kraft-fragments/inputs/inputs :: textInput(${field})}"></div>
                     <div>
                          <span th:if="${validationErrors != null and validationErrors.containsKey(field.name)}"
                                th:text="${validationErrors[field.name]}"
@@ -24,7 +24,7 @@
                 </div>
 
                 <div th:case="'textarea'">
-                    <div th:replace="~{fragments/inputs/inputs :: textareaInput(${field})}"></div>
+                    <div th:replace="~{kraft-fragments/inputs/inputs :: textareaInput(${field})}"></div>
                     <div>
                          <span th:if="${validationErrors != null and validationErrors.containsKey(field.name)}"
                                th:text="${validationErrors[field.name]}"
@@ -34,7 +34,7 @@
                 </div>
 
                 <div th:case="'checkbox'">
-                    <div th:replace="~{fragments/inputs/inputs :: checkboxInput(${field})}"></div>
+                    <div th:replace="~{kraft-fragments/inputs/inputs :: checkboxInput(${field})}"></div>
                     <div>
                          <span th:if="${validationErrors != null and validationErrors.containsKey(field.name)}"
                                th:text="${validationErrors[field.name]}"
@@ -43,7 +43,7 @@
                     </div>
                 </div>
                 <div th:case="'select'">
-                    <div th:replace="~{fragments/inputs/inputs :: selectInput(${field})}"></div>
+                    <div th:replace="~{kraft-fragments/inputs/inputs :: selectInput(${field})}"></div>
                     <div>
                          <span th:if="${validationErrors != null and validationErrors.containsKey(field.name)}"
                                th:text="${validationErrors[field.name]}"
@@ -52,7 +52,7 @@
                     </div>
                 </div>
                 <div th:case="'searchable-select'">
-                    <div th:replace="~{fragments/inputs/inputs :: searchSelectInput(${field})}"></div>
+                    <div th:replace="~{kraft-fragments/inputs/inputs :: searchSelectInput(${field})}"></div>
                     <div>
                          <span th:if="${validationErrors != null and validationErrors.containsKey(field.name)}"
                                th:text="${validationErrors[field.name]}"
@@ -61,7 +61,7 @@
                     </div>
                 </div>
                 <div th:case="'number'">
-                    <div th:replace="~{fragments/inputs/inputs :: numberInput(${field})}"></div>
+                    <div th:replace="~{kraft-fragments/inputs/inputs :: numberInput(${field})}"></div>
                     <div>
                          <span th:if="${validationErrors != null and validationErrors.containsKey(field.name)}"
                                th:text="${validationErrors[field.name]}"
@@ -70,7 +70,7 @@
                     </div>
                 </div>
                 <div th:case="'email'">
-                    <div th:replace="~{fragments/inputs/inputs :: emailInput(${field})}"></div>
+                    <div th:replace="~{kraft-fragments/inputs/inputs :: emailInput(${field})}"></div>
                     <div>
                          <span th:if="${validationErrors != null and validationErrors.containsKey(field.name)}"
                                th:text="${validationErrors[field.name]}"
@@ -79,7 +79,7 @@
                     </div>
                 </div>
                 <div th:case="'password'">
-                    <div th:replace="~{fragments/inputs/inputs :: passwordInput(${field})}"></div>
+                    <div th:replace="~{kraft-fragments/inputs/inputs :: passwordInput(${field})}"></div>
                     <div>
                          <span th:if="${validationErrors != null and validationErrors.containsKey(field.name)}"
                                th:text="${validationErrors[field.name]}"
@@ -88,7 +88,7 @@
                     </div>
                 </div>
                 <div th:case="'color'">
-                    <div th:replace="~{fragments/inputs/inputs :: colorInput(${field})}"></div>
+                    <div th:replace="~{kraft-fragments/inputs/inputs :: colorInput(${field})}"></div>
                     <div>
                          <span th:if="${validationErrors != null and validationErrors.containsKey(field.name)}"
                                th:text="${validationErrors[field.name]}"
@@ -97,7 +97,7 @@
                     </div>
                 </div>
                 <div th:case="'file'">
-                    <div th:replace="~{fragments/inputs/inputs :: fileInput(${field})}"></div>
+                    <div th:replace="~{kraft-fragments/inputs/inputs :: fileInput(${field})}"></div>
                     <div>
                          <span th:if="${validationErrors != null and validationErrors.containsKey(field.name)}"
                                th:text="${validationErrors[field.name]}"
@@ -106,7 +106,7 @@
                     </div>
                 </div>
                 <div th:case="'time'">
-                    <div th:replace="~{fragments/inputs/inputs :: timeInput(${field})}"></div>
+                    <div th:replace="~{kraft-fragments/inputs/inputs :: timeInput(${field})}"></div>
                     <div>
                          <span th:if="${validationErrors != null and validationErrors.containsKey(field.name)}"
                                th:text="${validationErrors[field.name]}"
@@ -115,7 +115,7 @@
                     </div>
                 </div>
                 <div th:case="'date'">
-                    <div th:replace="~{fragments/inputs/inputs :: dateInput(${field})}"></div>
+                    <div th:replace="~{kraft-fragments/inputs/inputs :: dateInput(${field})}"></div>
                     <div>
                          <span th:if="${validationErrors != null and validationErrors.containsKey(field.name)}"
                                th:text="${validationErrors[field.name]}"
@@ -124,7 +124,7 @@
                     </div>
                 </div>
                 <div th:case="'datetime'">
-                    <div th:replace="~{fragments/inputs/inputs :: dateTimeInput(${field})}"></div>
+                    <div th:replace="~{kraft-fragments/inputs/inputs :: dateTimeInput(${field})}"></div>
                     <div>
                          <span th:if="${validationErrors != null and validationErrors.containsKey(field.name)}"
                                th:text="${validationErrors[field.name]}"
@@ -133,7 +133,7 @@
                     </div>
                 </div>
                 <div th:case="'range'">
-                    <div th:replace="~{fragments/inputs/inputs :: rangeInput(${field})}"></div>
+                    <div th:replace="~{kraft-fragments/inputs/inputs :: rangeInput(${field})}"></div>
                     <div>
                          <span th:if="${validationErrors != null and validationErrors.containsKey(field.name)}"
                                th:text="${validationErrors[field.name]}"
@@ -142,7 +142,7 @@
                     </div>
                 </div>
                 <div th:case="'tel'">
-                    <div th:replace="~{fragments/inputs/inputs :: telInput(${field})}"></div>
+                    <div th:replace="~{kraft-fragments/inputs/inputs :: telInput(${field})}"></div>
                     <div>
                          <span th:if="${validationErrors != null and validationErrors.containsKey(field.name)}"
                                th:text="${validationErrors[field.name]}"
@@ -151,7 +151,7 @@
                     </div>
                 </div>
                 <div th:case="'url'">
-                    <div th:replace="~{fragments/inputs/inputs :: urlInput(${field})}"></div>
+                    <div th:replace="~{kraft-fragments/inputs/inputs :: urlInput(${field})}"></div>
                     <div>
                          <span th:if="${validationErrors != null and validationErrors.containsKey(field.name)}"
                                th:text="${validationErrors[field.name]}"
@@ -160,7 +160,7 @@
                     </div>
                 </div>
                 <div th:case="'wysiwyg'">
-                    <div th:replace="~{fragments/inputs/inputs :: wysiwygInput(${field})}"></div>
+                    <div th:replace="~{kraft-fragments/inputs/inputs :: wysiwygInput(${field})}"></div>
                     <div>
                          <span th:if="${validationErrors != null and validationErrors.containsKey(field.name)}"
                                th:text="${validationErrors[field.name]}"
@@ -169,7 +169,7 @@
                     </div>
                 </div>
                 <div th:case="'embedded'">
-                    <div th:replace="~{fragments/inputs/inputs :: embeddedInput(${field})}"></div>
+                    <div th:replace="~{kraft-fragments/inputs/inputs :: embeddedInput(${field})}"></div>
                     <div>
                          <span th:if="${validationErrors != null and validationErrors.containsKey(field.name)}"
                                th:text="${validationErrors[field.name]}"
@@ -179,7 +179,7 @@
                 </div>
 
                 <div th:case="'currency'">
-                    <div th:replace="~{fragments/inputs/inputs :: currencyInput(${field})}"></div>
+                    <div th:replace="~{kraft-fragments/inputs/inputs :: currencyInput(${field})}"></div>
                     <div>
                          <span th:if="${validationErrors != null and validationErrors.containsKey(field.name)}"
                                style="color:red;"
@@ -189,7 +189,7 @@
                 </div>
 
                 <div th:case="'tags'">
-                    <div th:replace="~{fragments/inputs/inputs :: tagInput(${field})}"></div>
+                    <div th:replace="~{kraft-fragments/inputs/inputs :: tagInput(${field})}"></div>
                     <div>
                          <span th:if="${validationErrors != null and validationErrors.containsKey(field.name)}"
                                th:text="${validationErrors[field.name]}"

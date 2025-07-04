@@ -10,7 +10,7 @@
 <p th:text="${entityName}">ENTITY</p>
 
 <th:block layout:fragment="content">
-    <div th:replace="~{components/datatable :: entityTable(
+    <div th:replace="~{kraft-components/datatable :: entityTable(
     ${entityName},
     ${fieldNames},
     ${sortableFieldNames},
@@ -26,13 +26,13 @@
 
             <!--        bulk actions component -->
             <div class="w-max mx-auto items-center justify-center hidden" id="bulkActions">
-                <div th:replace="~{components/bulk-action :: bulkActions(entityName=${entityName})}"></div>
+                <div th:replace="~{kraft-components/bulk-action :: bulkActions(entityName=${entityName})}"></div>
             </div>
 
 
     <div th:if="${totalElements != null and totalElements > 0}">
         <!--     pagination -->
-        <div th:replace="~{components/pagination :: pagination(${entityName}, ${currentPage}, ${totalPages}, ${size}, ${search})}"></div>
+        <div th:replace="~{kraft-components/pagination :: pagination(${entityName}, ${currentPage}, ${totalPages}, ${size}, ${search})}"></div>
     </div>
 
         <!--        delete -->
@@ -49,12 +49,12 @@
 
         <!-- No items message -->
         <section th:if="${totalElements == 0}">
-            <div th:replace="~{components/no-data :: nodata-container(|No ${entityName} found at the moment|)}"></div>
+            <div th:replace="~{kraft-components/no-data :: nodata-container(|No ${entityName} found at the moment|)}"></div>
         </section>
 
         <!--   item filter container     -->
         <div style="display: none; justify-content: center; align-items: center; height: fit-content; width:100%; position:absolute;" id="searchModal">
-            <div th:replace="~{fragments/components/filter-modal :: filter-container}"></div>
+            <div th:replace="~{kraft-fragments/components/filter-modal :: filter-container}"></div>
         </div>
 
     </div>
