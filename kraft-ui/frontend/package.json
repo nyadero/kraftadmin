@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite && dev:css",
-    "build:css": "tailwindcss -i ./src/css/styles.css -o ../src/main/resources/static/css/app.css",
-    "dev:css": "tailwindcss -i ./src/css/styles.css -o ../src/main/resources/static/css/app.css --watch",
+    "build:css": "tailwindcss -i ./src/css/styles.css -o ../src/main/resources/static/css/kraft.css",
+    "dev:css": "tailwindcss -i ./src/css/styles.css -o ../src/main/resources/static/css/kraft.css --watch",
     "build": "npm run build:css && vite build",
     "preview": "vite preview"
   },

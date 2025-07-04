@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title th:text="${title} ?: 'Kraft Admin'">Kraft Admin</title>
-  <link th:href="@{/css/app.css}" th:rel="stylesheet">
+  <link th:href="@{/css/kraft.css}" th:rel="stylesheet">
 </head>
 
 <body class="bg-slate-300">
@@ -15,6 +15,13 @@
 
   <!-- Sidebar -->
       <div th:replace="~{components/sidebar :: sidebar-container}"></div>
+  <!-- Sidebar Wrapper -->
+  <!--  <div id="sidebar-wrapper" class="transition-all duration-300 w-64">-->
+  <!--    <div id="sidebar" class="h-screen fixed z-30 bg-white w-64 transition-transform transform translate-x-0">-->
+  <!--      <div th:replace="~{components/sidebar :: sidebar-container}"></div>-->
+  <!--    </div>-->
+  <!--  </div>-->
+
 
   <!-- Page Content (shifted to the right of sidebar) -->
   <div class="flex-1 flex flex-col">
@@ -25,9 +32,9 @@
     </div>
 
     <!-- Main Content -->
-    <main class="flex-1 p-4 overflow-y-hidden">
-      <h3 class="ws-data test-classes">Hello from websocket</h3>
-      <div class="bg-red text-white p-4">Tailwind is working!</div>
+    <!--    <main class="flex-1 p-4 overflow-y-hidden">-->
+    <div class="flex-1 flex flex-col transition-all duration-300 p-4" id="main">
+      <h3 class="ws-data">Hello from websocket</h3>
       <div id="loader" class="fixed inset-0 flex items-center justify-center bg-white z-50">
         <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-32 w-32"></div>
       </div>
@@ -38,14 +45,13 @@
   </div>
 </div>
 
-<script th:src="@{/js/script.js}" defer></script>
+  <script defer th:src="@{/js/script.js}" type="module"></script>
 <script defer th:src="@{/js/bulkActions.js}" type="module"></script>
 <script defer th:src="@{/js/datatable.js}" type="module"></script>
 <script defer th:src="@{/js/dragDrop.js}" type="module"></script>
 <script defer th:src="@{/js/wysiwyg.js}" type="module"></script>
 <script defer th:src="@{/js/formUtils.js}" type="module"></script>
-<!--<script th:src="@{/js/main.js}" defer></script>-->
-<script defer th:src="@{/js/dropdown.js}"></script>
+  <script defer th:src="@{/js/dropdown.js}" type="module"></script>
 <script defer th:src="@{/js/websocket.js}" type="module"></script>
 <script defer th:src="@{/js/analytics.js}" type="module"></script>
 </body>
