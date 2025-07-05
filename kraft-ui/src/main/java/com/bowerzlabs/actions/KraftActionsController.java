@@ -3,25 +3,19 @@ package com.bowerzlabs.actions;
 import com.bowerzlabs.EntitiesScanner;
 import com.bowerzlabs.EntityMetaModel;
 import com.bowerzlabs.InputGenerator;
-import com.bowerzlabs.constants.FieldType;
 import com.bowerzlabs.constants.Status;
-import com.bowerzlabs.constants.UserActionType;
 import com.bowerzlabs.database.DbObjectSchema;
 import com.bowerzlabs.dtos.FieldValue;
 import com.bowerzlabs.dtos.PageResponse;
 import com.bowerzlabs.events.UIEvent;
-import com.bowerzlabs.events.UserActionEvent;
 import com.bowerzlabs.formfields.FormField;
-import com.bowerzlabs.models.kraftmodels.AdminUser;
 import com.bowerzlabs.service.CrudService;
-import com.bowerzlabs.utils.DataConverter;
 import com.bowerzlabs.utils.DisplayUtils;
 import com.bowerzlabs.utils.KraftUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,15 +31,15 @@ import java.util.stream.Collectors;
 @Controller
 @RequestMapping("/admin")
 //@AdminController
-public class ActionsController {
+public class KraftActionsController {
     public static final String ENTITY_NAME = "AdminUserActions";
     private final CrudService crudService;
-    private static final Logger log = LoggerFactory.getLogger(ActionsController.class);
+    private static final Logger log = LoggerFactory.getLogger(KraftActionsController.class);
     private final EntitiesScanner entitiesScanner;
     private final ApplicationEventPublisher applicationEventPublisher;
 
 
-    public ActionsController(CrudService crudService, EntitiesScanner entitiesScanner, ApplicationEventPublisher applicationEventPublisher) {
+    public KraftActionsController(CrudService crudService, EntitiesScanner entitiesScanner, ApplicationEventPublisher applicationEventPublisher) {
         this.crudService = crudService;
         this.entitiesScanner = entitiesScanner;
         this.applicationEventPublisher = applicationEventPublisher;
