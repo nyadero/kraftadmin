@@ -5,12 +5,32 @@ import com.bowerzlabs.formfields.FormField;
 import java.util.Map;
 
 public class TagInput extends FormField {
+    private final String placeholder;
+    private final boolean required;
+    private final Object value;
+    private final Map<String, String> validationErrors;
+    private final Map<String, String> validationRules;
+    private String label;
+    private String name;
+
+    public TagInput(String name, String label, String placeholder, boolean required, Object value,
+                    Map<String, String> validationErrors, Map<String, String> validationRules) {
+        super();
+        this.name = name;
+        this.label = label;
+        this.placeholder = placeholder;
+        this.required = required;
+        this.value = value;
+        this.validationErrors = validationErrors;
+        this.validationRules = validationRules;
+    }
+
     /**
      * returns the form-field label
      */
     @Override
     public String getLabel() {
-        return "";
+        return label;
     }
 
     /**
@@ -21,12 +41,22 @@ public class TagInput extends FormField {
         return "tags";
     }
 
+    @Override
+    public void setLabel(String s) {
+        this.label = s;
+    }
+
     /**
      * returns the form-field name based on the entity field name
      */
     @Override
     public String getName() {
-        return "";
+        return name;
+    }
+
+    @Override
+    public void setName(String s) {
+        this.name = s;
     }
 
     /**
@@ -34,7 +64,7 @@ public class TagInput extends FormField {
      */
     @Override
     public String getPlaceholder() {
-        return "";
+        return placeholder;
     }
 
     /**
@@ -42,7 +72,7 @@ public class TagInput extends FormField {
      */
     @Override
     public boolean getRequired() {
-        return false;
+        return required;
     }
 
     /**
@@ -50,7 +80,7 @@ public class TagInput extends FormField {
      */
     @Override
     public Object getValue() {
-        return null;
+        return value;
     }
 
     /**
@@ -58,7 +88,7 @@ public class TagInput extends FormField {
      */
     @Override
     public Map<String, String> getValidationErrors() {
-        return Map.of();
+        return validationErrors;
     }
 
     /**
@@ -66,7 +96,7 @@ public class TagInput extends FormField {
      */
     @Override
     public Map<String, String> getValidationRules() {
-        return Map.of();
+        return validationRules;
     }
 
     /**
@@ -74,6 +104,28 @@ public class TagInput extends FormField {
      */
     @Override
     public Map<String, Object> getModelData() {
-        return Map.of();
+        return Map.of(
+                "label", label,
+                "placeholder", placeholder,
+                "name", name,
+                "value", value,
+                "required", required,
+                "type", getType(),
+                "validationRules", validationRules,
+                "validationErrors", validationErrors
+        );
+    }
+
+    @Override
+    public String toString() {
+        return "TagInput{" +
+                "label='" + label + '\'' +
+                ", placeholder='" + placeholder + '\'' +
+                ", required=" + required +
+                ", value=" + value +
+                ", name='" + name + '\'' +
+                ", validationErrors=" + validationErrors +
+                ", validationRules=" + validationRules +
+                '}';
     }
 }
