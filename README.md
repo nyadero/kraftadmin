@@ -40,7 +40,7 @@ Add the Maven Dependency
 <dependency>
   <groupId>com.bowerzlabs</groupId>
   <artifactId>kraft-starter</artifactId>
-  <version>0.1.0</version> <!-- Replace with the local version -->
+  <version>0.1.0</version>
 </dependency>
 ````
 
