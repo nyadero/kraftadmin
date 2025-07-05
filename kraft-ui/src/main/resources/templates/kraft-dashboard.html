@@ -14,7 +14,8 @@
         <fieldset class="rounded border mb-2  w-full overflow-y-scroll">
             <legend class="p-2 ml-5 text-lg">Analytics Overview</legend>
             <div class="p-4 b-2">
-                <div th:replace="~{fragments/analytics/analytics-overview :: analytics-overview(${components})}"></div>
+                <div th:replace="~{kraft-fragments/analytics/analytics-overview :: analytics-overview(${components})}"></div>
+                <div th:replace="~{kraft-components/coming-soon :: coming-soon-container}"></div>
             </div>
         </fieldset>
 
@@ -22,7 +23,7 @@
         <fieldset class="rounded border mb-2 w-full overflow-y-scroll">
             <legend class="p-2 ml-5 text-lg">Application Health & Monitoring</legend>
             <div class="p-4 b-2">
-                <div th:replace="~{components/coming-soon :: coming-soon-container}"></div>
+                <div th:replace="~{kraft-components/coming-soon :: coming-soon-container}"></div>
             </div>
         </fieldset>
 
@@ -31,7 +32,7 @@
             <fieldset class="w-full p-4 rounded shadow bg-white">
                 <h3>Traffic Summary</h3>
                 <div class="p-4 b-2">
-                    <div th:replace="~{components/coming-soon :: coming-soon-container}"></div>
+                    <div th:replace="~{kraft-components/coming-soon :: coming-soon-container}"></div>
                 </div>
             </fieldset>
 
@@ -39,7 +40,7 @@
             <fieldset class="w-full p-4 rounded shadow bg-white">
                 <h3>Locations</h3>
                 <div class="p-4 b-2">
-                    <div th:replace="~{components/coming-soon :: coming-soon-container}"></div>
+                    <div th:replace="~{kraft-components/coming-soon :: coming-soon-container}"></div>
                 </div>
             </fieldset>
         </div>

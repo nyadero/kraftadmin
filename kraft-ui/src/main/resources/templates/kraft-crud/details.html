@@ -30,6 +30,7 @@
 <!--</body>-->
 <body>
 <th:block layout:fragment="content">
+    <pre th:text="${item}"></pre>
     <div class="max-w-4xl mx-auto mt-10 p-6 bg-white rounded-lg shadow">
         <h1 class="text-3xl font-bold text-gray-800 mb-8" th:text="${entityName} + ' Details'">Entity Details</h1>
 
@@ -38,7 +39,7 @@
                 <div class="border-l-4 border-blue-500 pl-4 py-3 bg-gray-50 rounded" th:each="field : ${fieldNames}">
                     <div class="text-sm text-gray-600 font-semibold mb-1" th:text="${field}">Field Name</div>
                     <div th:with="displayField=${entry.get(field)}">
-                        <div th:replace="~{fragments/displays/display-field :: render(${displayField})}"></div>
+                        <div th:replace="~{kraft-fragments/displays/display-field :: render(${displayField})}"></div>
                     </div>
                 </div>
             </div>
