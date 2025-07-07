@@ -29,7 +29,30 @@ public class NumberFieldStrategy implements FormFieldStrategy {
         String label = FormField.formatLabel(field.getName());
         Object value = extractValue(field, dbObjectSchema);
 
+        Number defaultValue = getDefaultValue(field.getType(), value);
+
         boolean required = extractRequiredValidation(dbObjectSchema.getValidationRules(), field);
-        return new NumberField(label, value != null ? (Number) value : 0, field.getName(), required, dbObjectSchema.getValidationErrors(), dbObjectSchema.getValidationRules());
+        return new NumberField(label, defaultValue, field.getName(), required, dbObjectSchema.getValidationErrors(), dbObjectSchema.getValidationRules());
+    }
+
+    private Number getDefaultValue(Class<?> fieldType, Object value) {
+        // If value is not null, cast and return it
+        if (value != null) {
+            return (Number) value;
+        }
+
+        // Handle primitive types with their default values
+        if (fieldType == int.class) {
+            return 0;
+        } else if (fieldType == long.class) {
+            return 0L;
+        } else if (fieldType == float.class) {
+            return 0.0f;
+        } else if (fieldType == double.class) {
+            return 0.0;
+        }
+
+        // For wrapper types, return null (they can handle null values)
+        return null;
     }
 }
