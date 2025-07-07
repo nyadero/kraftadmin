@@ -1,9 +1,9 @@
 package com.bowerzlabs.service;
 
-import com.bowerzlabs.DynamicQueryBuilder;
 import com.bowerzlabs.EntitiesScanner;
 import com.bowerzlabs.EntityMetaModel;
 import com.bowerzlabs.EntityValueAccessor;
+import com.bowerzlabs.OptimizedDynamicQueryBuilder;
 import com.bowerzlabs.constants.DataFormat;
 import com.bowerzlabs.data.DataExporter;
 import com.bowerzlabs.data.DataExporterRegistry;
@@ -25,11 +25,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 
 import java.lang.reflect.Field;
-import java.text.SimpleDateFormat;
-import java.time.*;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+
 
 @Service
 @Transactional
@@ -65,13 +69,35 @@ public class CrudService {
                     : existing;
 
             //  Use actualMetaModel here, not the original parent model
+//            for (Map.Entry<String, String> entry : formValues.entrySet()) {
+//                EntityValueAccessor.setFieldValue(actualMetaModel.getEntityClass(), entity, entry.getKey(), entry.getValue(), entityManager);
+//            }
+
+            // Handle regular fields and ManyToMany relations separately
             for (Map.Entry<String, String> entry : formValues.entrySet()) {
-                EntityValueAccessor.setFieldValue(actualMetaModel.getEntityClass(), entity, entry.getKey(), entry.getValue(), entityManager);
+                String fieldName = entry.getKey();
+                String fieldValue = entry.getValue();
+
+                // Skip subtype field as it's not a real entity field
+                if ("subtype".equals(fieldName)) {
+                    continue;
+                }
+
+                // Check if this field is a ManyToMany relation
+                if (isManyToManyField(actualMetaModel, fieldName)) {
+                    handleManyToManyField(entity, fieldName, fieldValue, actualMetaModel);
+                } else {
+                    // Handle regular fields
+                    EntityValueAccessor.setFieldValue(actualMetaModel.getEntityClass(), entity, fieldName, fieldValue, entityManager);
+                }
             }
 
-            return entityManager.merge(entity);
+            Object savedEntity = entityManager.merge(entity);
+            entityManager.flush(); // Force synchronization
+            return savedEntity;
+//            return entityManager.merge(entity);
         } catch (Exception e) {
-            log.info("error {}", e.getStackTrace());
+            log.info("error {}", e.toString());
             throw new RuntimeException(e);
         }
     }
@@ -81,7 +107,12 @@ public class CrudService {
         try {
             EntityMetaModel clazz = entityScanner.getEntityByName(entityName);
             Object idVal = clazz.convertId(id);
-            Object object = entityManager.find(clazz.getEntityClass().getJavaType(), idVal);
+            CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+            CriteriaQuery<Object> criteriaQuery = criteriaBuilder.createQuery(Object.class);
+            Root<Object> root = criteriaQuery.from((Class<Object>) clazz.getEntityClass().getJavaType());
+            criteriaQuery.select(root).where(criteriaBuilder.equal(root.get(clazz.getIdField().getName()), idVal.toString()));
+//            Object object = entityManager.find(clazz.getEntityClass().getJavaType(), idVal);
+            Object object = entityManager.createQuery(criteriaQuery).getSingleResult();
             log.info("object {} idVal {}", object, idVal);
             return Optional.of(new DbObjectSchema(clazz, object));
         } catch (Exception e) {
@@ -91,38 +122,135 @@ public class CrudService {
     }
 
     // find all data, can sort, search and filter
+//    public Page<DbObjectSchema> findAll(String entityName, int page, int size, Map<String, String> filters) throws Exception {
+//        try {
+//            EntityMetaModel clazz = entityScanner.getEntityByName(entityName);
+//
+//            CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+//
+//            CriteriaQuery<Object> query = DynamicQueryBuilder.buildQuery(cb, clazz.getEntityClass().getJavaType(), filters, filters.get("search"));
+//            TypedQuery<Object> typedQuery = entityManager.createQuery(query);
+//            typedQuery.setFirstResult(page * size);
+//            typedQuery.setMaxResults(size);
+//            List<Object> results = typedQuery.getResultList();
+//
+//            // ---- Count Query ----
+//            CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
+//            Root<?> countRoot = countQuery.from(clazz.getEntityClass());
+//            Predicate[] countPredicates = DynamicQueryBuilder.buildPredicates(cb, countRoot, clazz.getEntityClass().getJavaType(), filters, filters.get("search"));
+//            countQuery.select(cb.count(countRoot)).where(countPredicates);
+//            long total = entityManager.createQuery(countQuery).getSingleResult();
+//
+//            // ---- Transform to Schema List ----
+//            List<DbObjectSchema> schemaList = results.stream().map(entity -> {
+//                try {
+//                    return new DbObjectSchema(clazz, entity);
+//                } catch (Exception e) {
+//                    throw new RuntimeException(e);
+//                }
+//            }).collect(Collectors.toList());
+//
+//            return new PageImpl<>(schemaList, PageRequest.of(page, size), total);
+//        } catch (Exception e) {
+//            log.error("Error fetching data", e);
+//            throw new RuntimeException(e);
+//        }
+//    }
+
+    // Enhanced findAll method with nested field support and optimizations
     public Page<DbObjectSchema> findAll(String entityName, int page, int size, Map<String, String> filters) throws Exception {
+        log.info("filters {}", filters.entrySet());
         try {
             EntityMetaModel clazz = entityScanner.getEntityByName(entityName);
+            Class<?> entityClass = clazz.getEntityClass().getJavaType();
 
             CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 
-            CriteriaQuery<Object> query = DynamicQueryBuilder.buildQuery(cb, clazz.getEntityClass().getJavaType(), filters, filters.get("search"));
-            TypedQuery<Object> typedQuery = entityManager.createQuery(query);
-            typedQuery.setFirstResult(page * size);
-            typedQuery.setMaxResults(size);
-            List<Object> results = typedQuery.getResultList();
+            // Extract search parameter - check both "search" and "filter.search"
+            String searchKeyword = filters.get("search");
+            log.info("searchKeyword {}", searchKeyword);
+            if (searchKeyword == null) {
+                searchKeyword = filters.get("search");
+            }
 
-            // ---- Count Query ----
-            CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
-            Root<?> countRoot = countQuery.from(clazz.getEntityClass());
-            Predicate[] countPredicates = DynamicQueryBuilder.buildPredicates(cb, countRoot, clazz.getEntityClass().getJavaType(), filters, filters.get("search"));
-            countQuery.select(cb.count(countRoot)).where(countPredicates);
-            long total = entityManager.createQuery(countQuery).getSingleResult();
+            log.info("searchKeyword2 {}", searchKeyword);
 
-            // ---- Transform to Schema List ----
-            List<DbObjectSchema> schemaList = results.stream().map(entity -> {
+            // Build both queries efficiently with shared logic
+            OptimizedDynamicQueryBuilder.QueryResult queryResult =
+                    OptimizedDynamicQueryBuilder.buildQueries(cb, entityClass, filters, searchKeyword);
+
+            // Execute queries with proper hints for performance
+            TypedQuery<Object> dataQuery = entityManager.createQuery(queryResult.getDataQuery());
+            TypedQuery<Long> countQuery = entityManager.createQuery(queryResult.getCountQuery());
+
+            // Add query hints for better performance
+            dataQuery.setHint("org.hibernate.readOnly", true);
+            dataQuery.setHint("org.hibernate.cacheable", true);
+            countQuery.setHint("org.hibernate.cacheable", true);
+
+            // Set pagination
+            dataQuery.setFirstResult(page * size);
+            dataQuery.setMaxResults(size);
+
+            // Execute both queries concurrently for better performance
+            CompletableFuture<List<Object>> dataFuture = CompletableFuture.supplyAsync(() -> {
                 try {
-                    return new DbObjectSchema(clazz, entity);
+                    return dataQuery.getResultList();
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    log.error("Error executing data query: {}", e.getMessage());
+                    throw new RuntimeException("Failed to execute data query", e);
                 }
-            }).collect(Collectors.toList());
+            });
+
+            CompletableFuture<Long> countFuture = CompletableFuture.supplyAsync(() -> {
+                try {
+                    return countQuery.getSingleResult();
+                } catch (Exception e) {
+                    log.error("Error executing count query: {}", e.getMessage());
+                    throw new RuntimeException("Failed to execute count query", e);
+                }
+            });
+
+            // Wait for both queries to complete
+            List<Object> results = dataFuture.get();
+            long total = countFuture.get();
+
+            // Transform to schema list with parallel processing for large datasets
+            List<DbObjectSchema> schemaList;
+            if (results.size() > 100) {
+                // Use parallel processing for large datasets
+                schemaList = results.parallelStream()
+                        .map(entity -> {
+                            try {
+                                return new DbObjectSchema(clazz, entity);
+                            } catch (Exception e) {
+                                log.error("Error creating schema for entity: {}", entity, e);
+                                throw new RuntimeException("Failed to create schema for entity", e);
+                            }
+                        })
+                        .collect(Collectors.toList());
+            } else {
+                // Use sequential processing for small datasets
+                schemaList = results.stream()
+                        .map(entity -> {
+                            try {
+                                return new DbObjectSchema(clazz, entity);
+                            } catch (Exception e) {
+                                log.error("Error creating schema for entity: {}", entity, e);
+                                throw new RuntimeException("Failed to create schema for entity", e);
+                            }
+                        })
+                        .collect(Collectors.toList());
+            }
+
+            log.debug("Successfully retrieved {} records out of {} total for entity '{}' (page {}, size {}) with search: '{}'",
+                    schemaList.size(), total, entityName, page, size, searchKeyword);
 
             return new PageImpl<>(schemaList, PageRequest.of(page, size), total);
         } catch (Exception e) {
-            log.error("Error fetching data", e);
-            throw new RuntimeException(e);
+            log.error("Error fetching data for entity '{}', page {}, size {}: {}",
+                    entityName, page, size, e.getMessage(), e);
+            throw new RuntimeException("Failed to fetch data: " + e.getMessage(), e);
         }
     }
 
@@ -146,12 +274,21 @@ public class CrudService {
         // Dynamically build the query based on the search field
         String queryString = "SELECT e FROM " + clazz.getEntityClass().getJavaType().getSimpleName() + " e WHERE e." + searchField + " = :query";
 
+        Class<?> entityClass = clazz.getEntityClass().getJavaType();
+
+        // Use Criteria API
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Object> criteriaQuery = criteriaBuilder.createQuery(Object.class);
+        Root<Object> root = criteriaQuery.from((Class<Object>) entityClass);
+        criteriaQuery.select(root).where(criteriaBuilder.like(root.get(searchField), query));
+
         // Create a TypedQuery
         TypedQuery<?> typedQuery = entityManager.createQuery(queryString, clazz.getEntityClass().getJavaType());
         typedQuery.setParameter("query", query);
 
         // Execute the query and get the results
-        List<Object> resultList = Collections.singletonList(typedQuery.getResultList());
+//        List<Object> resultList = Collections.singletonList(typedQuery.getResultList());
+        List<Object> resultList = entityManager.createQuery(criteriaQuery).getResultList();
 
         // Convert entities to DbObjectSchema
         return resultList.stream().map(entity -> {
@@ -160,214 +297,35 @@ public class CrudService {
     }
 
     // get all items
+// IgnoreCast
     public List<DbObjectSchema> getAll(String entityName) {
         try {
-            // Resolve entity class by name
-//            Class<?> entityClass = entityScanner.getEntityByName(entityName);
-//            EntityType<?> clazz = entityScanner.getEntityByName(entityName);
             EntityMetaModel clazz = entityScanner.getEntityByName(entityName);
 
             if (clazz == null) {
                 throw new IllegalArgumentException("Entity not found for name: " + entityName);
             }
 
-            // Build and execute query
-            String queryString = "SELECT e FROM " + clazz.getEntityClass().getJavaType().getSimpleName() + " e";
-            TypedQuery<?> typedQuery = entityManager.createQuery(queryString, clazz.getEntityClass().getJavaType());
-            List<?> resultList = typedQuery.getResultList();
+            Class<?> entityClass = clazz.getEntityClass().getJavaType();
 
-            // Map each entity to DbObjectSchema
+            // Use Criteria API
+            CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+            CriteriaQuery<Object> criteriaQuery = criteriaBuilder.createQuery(Object.class);
+            Root<Object> root = criteriaQuery.from((Class<Object>) entityClass);
+            criteriaQuery.select(root);
+
+            TypedQuery<Object> typedQuery = entityManager.createQuery(criteriaQuery);
+            List<Object> resultList = typedQuery.getResultList();
+
             List<DbObjectSchema> schemaList = new ArrayList<>();
             for (Object entity : resultList) {
                 schemaList.add(new DbObjectSchema(clazz, entity));
             }
             return schemaList;
         } catch (Exception e) {
-            // Handle unexpected errors
-            log.info("entities error {}", e);
+            log.error("Error fetching entities for: {}", entityName, e);
             throw new RuntimeException("Failed to fetch entities for: " + entityName, e);
         }
-    }
-
-
-    // converts field value to its equivalent field type
-    private Object convertValue(Class<?> fieldType, Object value) throws NoSuchFieldException, IllegalAccessException {
-        List<String> enumValues;
-
-        if (value == null) {
-            return null;
-        }
-
-        if (fieldType == Integer.class || fieldType == int.class) {
-            return Integer.parseInt(value.toString().trim());
-        } else if (fieldType == Long.class || fieldType == long.class) {
-            return Long.parseLong(value.toString().trim());
-        } else if (fieldType == Double.class || fieldType == double.class) {
-            return Double.parseDouble(value.toString().trim());
-        } else if (fieldType == Boolean.class || fieldType == boolean.class) {
-            return Boolean.parseBoolean(String.valueOf(value));
-        } else if (fieldType == LocalDateTime.class) {
-            return LocalDateTime.parse(value.toString(), DateTimeFormatter.ISO_LOCAL_DATE);
-        } else if (fieldType == LocalTime.class) {
-            // Support both 24hr and 12hr (AM/PM) formats
-            DateTimeFormatter formatter = value.toString().contains("am") || value.toString().toLowerCase().contains("pm") ? DateTimeFormatter.ofPattern("hh:mm a") : DateTimeFormatter.ofPattern("HH:mm");
-            return LocalTime.parse((CharSequence) value, formatter);
-        } else if (fieldType == LocalDate.class) {
-            if (value instanceof LocalDate) {
-                return value; // Already a LocalDate
-            } else if (value instanceof String) {
-                return LocalDate.parse((String) value, DateTimeFormatter.ISO_DATE); // Parse from String
-            }
-        } else if (fieldType == ZonedDateTime.class) {
-            return ZonedDateTime.parse(value.toString());
-        } else if (fieldType == OffsetDateTime.class) {
-            return OffsetDateTime.parse(value.toString());
-        } else if (fieldType == Date.class) {
-            return java.sql.Date.valueOf(value.toString()); // Convert to SQL Date
-        } else if (Collection.class.isAssignableFrom(fieldType)) {
-            // Handle List types (Assuming comma-separated values)
-            return Arrays.stream(value.toString().replaceAll("[\\[\\]]", "").split(",")).map(String::trim).toList();
-        } else if (fieldType.isEnum()) {
-            Class<? extends Enum<?>> enumClass = (Class<? extends Enum<?>>) fieldType;
-            enumValues = Arrays.stream(enumClass.getEnumConstants()).map(Enum::name).toList();
-            return enumClass.getField((String) value).get(value);
-        }
-
-        return value.toString().trim(); // Default: String
-    }
-
-    // format field value for display
-    private String formatForDisplay(Class<?> fieldType, Object value) {
-        if (value == null) return "";
-
-        if (fieldType == LocalDateTime.class) {
-            return ((LocalDateTime) value).format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss a"));
-        } else if (fieldType == LocalTime.class) {
-            return ((LocalTime) value).format(DateTimeFormatter.ofPattern("hh:mm a"));
-        } else if (fieldType == LocalDate.class) {
-            return ((LocalDate) value).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        } else if (fieldType == ZonedDateTime.class) {
-            ZonedDateTime zdt = (ZonedDateTime) value;
-            return zdt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss a z"));
-        } else if (fieldType == OffsetDateTime.class) {
-            OffsetDateTime odt = (OffsetDateTime) value;
-            return odt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss a O"));
-        } else if (fieldType == Date.class) {
-            return new SimpleDateFormat("yyyy-MM-dd hh:mm:ss a").format((Date) value);
-        } else if (Collection.class.isAssignableFrom(fieldType)) {
-            return String.join(", ", ((Collection<?>) value).stream().map(Object::toString).toList());
-        } else if (fieldType.isEnum()) {
-            return value.toString(); // You could prettify this if needed
-        }
-
-        return value.toString(); // Default fallback
-    }
-
-
-    // id is passed as a string, so we need to parse it to field's class
-    private Object convertId(String id, Class<?> entityClass) throws NoSuchFieldException {
-        Field idField = findPrimaryKeyField(entityClass);
-        if (idField == null) {
-            throw new NoSuchFieldException("No field annotated with @Id found in class: " + entityClass.getName());
-        }
-
-        Class<?> idType = idField.getType();
-
-        if (idType == Long.class || idType == long.class) {
-            return Long.parseLong(id);
-        } else if (idType == UUID.class) {
-            return UUID.fromString(id);
-        } else if (idType == Integer.class || idType == int.class) {
-            return Integer.parseInt(id);
-        } else if (idType == String.class) {
-            return id;
-        }
-
-        throw new IllegalArgumentException("Unsupported ID type: " + idType.getName());
-    }
-
-
-    // find the primary id by checking Id annotation on JPA entities
-    private Field findPrimaryKeyField(Class<?> entityClass) {
-        for (Field field : entityClass.getDeclaredFields()) {
-            // find both jpa and mongo id
-            if (field.isAnnotationPresent(Id.class)) {
-                field.setAccessible(true);
-                return field;
-            }
-        }
-        return null; // No primary key found
-    }
-
-    private Field getFieldIncludingSuperclasses(Class<?> clazz, String fieldName) throws NoSuchFieldException {
-        while (clazz != null) {
-            try {
-                return clazz.getDeclaredField(fieldName);
-            } catch (NoSuchFieldException e) {
-                clazz = clazz.getSuperclass();
-            }
-        }
-        throw new NoSuchFieldException("Field " + fieldName + " not found in class hierarchy.");
-    }
-
-    // === Helper Method ===
-    private Field getFieldFromClass(Class<?> clazz, String fieldName) throws NoSuchFieldException {
-        for (Class<?> current = clazz; current != null; current = current.getSuperclass()) {
-            for (Field field : current.getDeclaredFields()) {
-                if (field.getName().equalsIgnoreCase(fieldName)) {
-                    field.setAccessible(true);
-                    return field;
-                }
-            }
-        }
-        throw new NoSuchFieldException("No such field: " + fieldName);
-    }
-
-    private void buildSearchPredicates(CriteriaBuilder cb, Root<?> root, Class<?> entityClass, String searchKeyword, List<Predicate> searchPredicates, Set<String> visitedPaths) {
-
-        for (Field field : entityClass.getDeclaredFields()) {
-            field.setAccessible(true);
-            String fieldName = field.getName();
-            Class<?> fieldType = field.getType();
-
-            try {
-                if (visitedPaths.contains(fieldName)) continue;
-                visitedPaths.add(fieldName);
-
-                if (fieldType.equals(String.class)) {
-                    searchPredicates.add(cb.like(cb.lower(root.get(fieldName)), "%" + searchKeyword.toLowerCase() + "%"));
-
-                } else if (Number.class.isAssignableFrom(fieldType) || fieldType.isPrimitive()) {
-                    Object convertedValue = convertValue(fieldType, searchKeyword);
-                    if (convertedValue != null) {
-                        searchPredicates.add(cb.equal(root.get(fieldName), convertedValue));
-                    }
-
-                } else if (fieldType.isEnum()) {
-                    Object enumValue = Arrays.stream(fieldType.getEnumConstants()).filter(e -> e.toString().equalsIgnoreCase(searchKeyword)).findFirst().orElse(null);
-                    if (enumValue != null) {
-                        searchPredicates.add(cb.equal(root.get(fieldName), enumValue));
-                    }
-
-                } else if (field.getAnnotation(Embedded.class) != null || fieldType.isAnnotationPresent(Embeddable.class)) {
-                    // Recursive call for @Embeddable fields
-                    Path<?> embeddablePath = root.get(fieldName);
-                    buildSearchPredicates(cb, embeddablePath, fieldType, searchKeyword, searchPredicates, visitedPaths);
-
-                } else if (field.getAnnotation(OneToOne.class) != null || field.getAnnotation(ManyToOne.class) != null) {
-                    // Join and search associated entity
-                    Join<?, ?> join = root.join(fieldName, JoinType.LEFT);
-                    buildSearchPredicates(cb, join, fieldType, searchKeyword, searchPredicates, visitedPaths);
-                }
-
-            } catch (Exception e) {
-                //  log: fieldName + " skipped due to: " + e.getMessage()
-            }
-        }
-    }
-
-    private void buildSearchPredicates(CriteriaBuilder cb, Path<?> path, Class<?> clazz, String searchKeyword, List<Predicate> searchPredicates, Set<String> visitedPaths) {
-
     }
 
     // bulk delete items
@@ -499,13 +457,30 @@ public class CrudService {
             LocalDateTime intervalStart = start.plus(intervalDuration.multipliedBy(i));
             LocalDateTime intervalEnd = intervalStart.plus(intervalDuration);
 
+            //  Skip if no @CreatedTimestamp
+            if (entityMetaModel.getCreationTimestampField() == null) {
+                continue;
+            }
+
             // Query to count records in this interval
             CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
             Root<?> root = countQuery.from(entityMetaModel.getEntityClass());
 
-            countQuery.select(cb.count(root)).where(cb.between(
-                    root.get(entityMetaModel.getCreationTimestampField().getName()), intervalStart, intervalEnd
-            ));
+            // Ensure field access is valid
+            Path<LocalDateTime> timestampPath = root.get(entityMetaModel.getCreationTimestampField().getName());
+
+            countQuery.select(cb.count(root)).where(
+                    cb.between(timestampPath, intervalStart, intervalEnd)
+            );
+
+//            // Query to count records in this interval
+//            CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
+//            Root<?> root = countQuery.from(entityMetaModel.getEntityClass());
+//
+//            // if there is no @CreatedTimestamp skip analyzing data
+//            countQuery.select(cb.count(root)).where(cb.between(
+//                    root.get(entityMetaModel.getCreationTimestampField().getName()), intervalStart, intervalEnd
+//            ));
 
             Long count = entityManager.createQuery(countQuery).getSingleResult();
             values.add(count);
@@ -524,5 +499,283 @@ public class CrudService {
 
         return analyticsData;
     }
+
+
+    private boolean isManyToManyField(EntityMetaModel metaModel, String fieldName) {
+        try {
+            Field field = metaModel.getEntityClass().getJavaType().getDeclaredField(fieldName);
+            return field.isAnnotationPresent(ManyToMany.class);
+        } catch (NoSuchFieldException e) {
+            return false;
+        }
+    }
+
+
+    private void handleManyToManyField(Object entity, String fieldName, String fieldValue, EntityMetaModel metaModel) {
+        log.info("handling manytomany insertions");
+        try {
+            Field field = metaModel.getEntityClass().getJavaType().getDeclaredField(fieldName);
+            field.setAccessible(true);
+
+            // Get the target entity type from the generic type
+            ParameterizedType parameterizedType = (ParameterizedType) field.getGenericType();
+            Class<?> targetEntityClass = (Class<?>) parameterizedType.getActualTypeArguments()[0];
+
+            // Parse the comma-separated values
+            String[] values = fieldValue.split(",");
+            List<Object> relatedEntities = new ArrayList<>();
+
+            log.info("values {}", values);
+            for (String value : values) {
+                value = value.trim();
+                if (!value.isEmpty()) {
+                    // Find or create the related entity
+                    Object relatedEntity = findOrCreateRelatedEntity(targetEntityClass, value);
+                    if (relatedEntity != null) {
+                        relatedEntities.add(relatedEntity);
+                    }
+                }
+            }
+            // Set the field value
+            field.set(entity, relatedEntities);
+        } catch (Exception e) {
+            log.error("Error handling ManyToMany field {}: {}", fieldName, e.getMessage());
+            throw new RuntimeException("Failed to handle ManyToMany field: " + fieldName, e);
+        }
+    }
+
+    private Object findOrCreateRelatedEntity(Class<?> entityClass, String value) {
+        try {
+            // First, try to find existing entity by name or other identifier
+            Object existingEntity = findExistingEntity(entityClass, value);
+            if (existingEntity != null) {
+                return existingEntity;
+            }
+
+            // If not found, create a new one
+            return createNewEntity(entityClass, value);
+
+        } catch (Exception e) {
+            log.error("Error finding or creating related entity of type {} with value {}: {}",
+                    entityClass.getSimpleName(), value, e.getMessage());
+            return null;
+        }
+    }
+
+    private Object findExistingEntity(Class<?> entityClass, String value) {
+        try {
+            // Use CriteriaBuilder to search for existing entity
+            CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+            CriteriaQuery<Object> cq = (CriteriaQuery<Object>) cb.createQuery(entityClass);
+            Root<Object> root = (Root<Object>) cq.from(entityClass);
+
+            // loop over entity declared fields and find one that matches value
+            for (Field field : entityClass.getDeclaredFields()) {
+                log.info("field name {}", field.getName());
+                Predicate predicate = cb.equal(root.get(field.getName()), value);
+                cq.where(predicate);
+            }
+
+            TypedQuery<Object> query = entityManager.createQuery(cq);
+            List<Object> results = query.getResultList();
+
+            return results.isEmpty() ? null : results.get(0);
+
+        } catch (Exception e) {
+            log.debug("Could not find existing entity of type {} with value {}: {}",
+                    entityClass.getSimpleName(), value, e.getMessage());
+            return null;
+        }
+    }
+
+//    private Object createNewEntity(Class<?> entityClass, String value) {
+//        try {
+//            Object newEntity = entityClass.getDeclaredConstructor().newInstance();
+//
+//            log.info("newEntity {}", newEntity);
+//            // Set the name field - adjust based on your entity structure
+//            Field nameField = entityClass.getDeclaredField("tag");
+//            nameField.setAccessible(true);
+//            nameField.set(newEntity, value);
+//
+
+    /// /            // Persist the new entity
+    /// /            entityManager.persist(newEntity);
+    /// ///            entityManager.merge(newEntity);
+    /// /            return newEntity;
+//
+//            // DON'T persist here - let the parent transaction handle it
+//            return newEntity;
+//
+//        } catch (Exception e) {
+//            log.error("Error creating new entity of type {} with value {}: {}",
+//                    entityClass.getSimpleName(), value, e.getMessage());
+//            throw new RuntimeException("Failed to create new entity", e);
+//
+//        }
+//    }
+    private Object createNewEntity(Class<?> entityClass, String value) {
+        try {
+            Object newEntity = entityClass.getDeclaredConstructor().newInstance();
+            log.info("newEntity before setting value: {}", newEntity);
+
+            // Find the appropriate field to set the value
+            Field targetField = findTargetField(entityClass);
+
+            if (targetField != null) {
+                targetField.setAccessible(true);
+                targetField.set(newEntity, value);
+                log.info("Set field '{}' with value '{}'", targetField.getName(), value);
+            } else {
+                log.warn("No suitable field found to set value '{}' in entity class '{}'",
+                        value, entityClass.getSimpleName());
+            }
+
+            log.info("newEntity after setting value: {}", newEntity);
+            return newEntity;
+
+        } catch (Exception e) {
+            log.error("Error creating new entity of type {} with value {}: {}",
+                    entityClass.getSimpleName(), value, e.getMessage());
+            throw new RuntimeException("Failed to create new entity", e);
+        }
+    }
+
+    /**
+     * Find the target field to set the value based on priority:
+     * 1. Field annotated with @Column and not primary key
+     * 2. String field that's not id, createdAt, updatedAt, etc.
+     * 3. First non-excluded field
+     */
+    private Field findTargetField(Class<?> entityClass) {
+        Field[] fields = entityClass.getDeclaredFields();
+        List<Field> candidateFields = new ArrayList<>();
+
+        for (Field field : fields) {
+            // Skip fields that shouldn't be set manually
+            if (shouldSkipField(field)) {
+                continue;
+            }
+
+            // Priority 1: Fields with @Column annotation (likely the main content field)
+            if (field.isAnnotationPresent(Column.class) && !isPrimaryKey(field)) {
+                candidateFields.add(0, field); // Add to beginning for priority
+            }
+            // Priority 2: String fields that look like content fields
+            else if (field.getType() == String.class && isContentField(field)) {
+                candidateFields.add(field);
+            }
+            // Priority 3: Other suitable fields
+            else if (field.getType() == String.class) {
+                candidateFields.add(field);
+            }
+        }
+
+        return candidateFields.isEmpty() ? null : candidateFields.get(0);
+    }
+
+    /**
+     * Check if a field should be skipped (system fields, relations, etc.)
+     */
+    private boolean shouldSkipField(Field field) {
+        String fieldName = field.getName().toLowerCase();
+
+        // Skip system fields
+        if (fieldName.contains("id") ||
+                fieldName.contains("createdat") ||
+                fieldName.contains("updatedat") ||
+                fieldName.contains("createtime") ||
+                fieldName.contains("updatetime") ||
+                fieldName.contains("timestamp")) {
+            return true;
+        }
+
+        // Skip relationship fields
+        if (field.isAnnotationPresent(OneToMany.class) ||
+                field.isAnnotationPresent(ManyToMany.class) ||
+                field.isAnnotationPresent(ManyToOne.class) ||
+                field.isAnnotationPresent(OneToOne.class)) {
+            return true;
+        }
+
+        // Skip transient fields
+        if (field.isAnnotationPresent(Transient.class)) {
+            return true;
+        }
+
+        // Skip static and final fields
+        int modifiers = field.getModifiers();
+        return Modifier.isStatic(modifiers) || Modifier.isFinal(modifiers);
+    }
+
+    /**
+     * Check if a field is a primary key
+     */
+    private boolean isPrimaryKey(Field field) {
+        return field.isAnnotationPresent(Id.class) ||
+                field.isAnnotationPresent(EmbeddedId.class);
+    }
+
+    /**
+     * Check if a field looks like a content field (common naming patterns)
+     */
+    private boolean isContentField(Field field) {
+        String fieldName = field.getName().toLowerCase();
+
+        // Common content field names
+        return fieldName.equals("name") ||
+                fieldName.equals("title") ||
+                fieldName.equals("tag") ||
+                fieldName.equals("value") ||
+                fieldName.equals("content") ||
+                fieldName.equals("description") ||
+                fieldName.equals("text") ||
+                fieldName.equals("label");
+    }
+
+    // Alternative approach using reflection utilities and entity metadata
+    private Object createNewEntityWithMetadata(Class<?> entityClass, String value) {
+        try {
+            Object newEntity = entityClass.getDeclaredConstructor().newInstance();
+            log.info("newEntity before setting value: {}", newEntity);
+
+            // Use JPA metadata to find the right field
+            EntityMetaModel metaModel = entityScanner.getEntityByName(entityClass.getSimpleName());
+            Field targetField = findTargetFieldUsingMetadata(metaModel);
+
+            if (targetField != null) {
+                targetField.setAccessible(true);
+                targetField.set(newEntity, value);
+                log.info("Set field '{}' with value '{}'", targetField.getName(), value);
+            }
+
+            log.info("newEntity after setting value: {}", newEntity);
+            return newEntity;
+
+        } catch (Exception e) {
+            log.error("Error creating new entity of type {} with value {}: {}",
+                    entityClass.getSimpleName(), value, e.getMessage());
+            throw new RuntimeException("Failed to create new entity", e);
+        }
+    }
+
+    /**
+     * Find target field using your existing EntityMetaModel
+     */
+    private Field findTargetFieldUsingMetadata(EntityMetaModel metaModel) {
+        // This would use your existing entity scanning logic
+        // to find the most appropriate field based on your metadata
+        Class<?> entityClass = metaModel.getEntityClass().getJavaType();
+
+        // Look for fields that are:
+        // 1. Not primary keys
+        // 2. Not timestamps
+        // 3. Not relationships
+        // 4. String type
+        // 5. Likely to be the "main" content field
+
+        return findTargetField(entityClass);
+    }
+
 
 }
