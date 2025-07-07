@@ -56,3 +56,5 @@ function performBulkAction(action) {
 
   window.location.href = `/admin/crud/${entityName}/bulk-action?action=${action}&selectedIds=${selectedIds}`;
 }
+
+window.performBulkAction = performBulkAction;
