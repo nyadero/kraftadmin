@@ -3,19 +3,29 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
 <!--    <parent>-->
-<!--        <groupId>com.github.nyadero.kraftadmin</groupId>-->
-<!--        <artifactId>kraft</artifactId>-->
-<!--        <version>0.0.1-SNAPSHOT</version>-->
+    <!--        <groupId>com.github.nyadero</groupId>-->
+    <!--        <artifactId>kraftadmin</artifactId>-->
+    <!--        <version>1.0.0</version>-->
+    <!--        <relativePath>../pom.xml</relativePath>-->
 <!--    </parent>-->
+
     <parent>
-        <groupId>com.github.nyadero</groupId>
+        <groupId>io.github.bowerzlabs</groupId>
         <artifactId>kraftadmin</artifactId>
-        <version>1.0.0</version>
-        <relativePath>../pom.xml</relativePath>
+        <version>0.1.0</version>
     </parent>
 
     <artifactId>kraft-ui</artifactId>
+    <name>Kraft UI Module</name>
+    <description>Responsible for the views</description>
+
+    <scm>
+        <connection>scm:git:git://github.com/nyadero/kraftadmin.git</connection>
+        <developerConnection>scm:git:ssh://github.com:nyadero/kraftadmin.git</developerConnection>
+        <url>https://github.com/nyadero/kraftadmin/tree/main</url>
+    </scm>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -51,9 +61,9 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.nyadero</groupId>
+            <groupId>io.github.bowerzlabs</groupId>
             <artifactId>kraft-data-jpa</artifactId>
-            <version>1.0.0</version>
+            <version>0.1.0</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -80,13 +90,30 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.nyadero</groupId>
+            <groupId>io.github.bowerzlabs</groupId>
             <artifactId>kraft-core</artifactId>
-            <version>1.0.0</version>
+            <version>0.1.0</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-actuator</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+        </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>3.1.4</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

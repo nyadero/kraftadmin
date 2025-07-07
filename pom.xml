@@ -1,26 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.4.4</version>
 		<relativePath/>
 	</parent>
-	<groupId>com.github.nyadero</groupId>
+
+    <groupId>io.github.bowerzlabs</groupId>
 	<artifactId>kraftadmin</artifactId>
-	<version>1.0.0</version>
+    <version>0.1.0</version>
 	<packaging>pom</packaging>
-	<name>kraft</name>
-	<description>Management,logging,monitoring and analytics library for springboot apps</description>
-	<url/>
-	<licenses>
-		<license/>
+
+    <name>KraftAdmin</name>
+    <description>Management, logging, monitoring and analytics library for Spring Boot applications</description>
+    <url>https://github.com/nyadero/kraftadmin</url>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/licenses/MIT</url>
+            <distribution>repo</distribution>
+        </license>
 	</licenses>
+
 	<developers>
-		<developer/>
+        <developer>
+            <id>nyadero</id>
+            <name>Nyadero Brian Odhiambo</name>
+            <email>briannyadero443@gmail.com</email>
+            <url>https://github.com/nyadero</url>
+        </developer>
 	</developers>
+
 	<modules>
 		<module>kraft-core</module>
 		<module>kraft-sandbox</module>
@@ -32,60 +47,188 @@
         <module>kraft-starter</module>
 		<module>kraft-monitoring</module>
 	</modules>
+
 	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
+        <connection>scm:git:git://github.com/nyadero/kraftadmin.git</connection>
+        <developerConnection>scm:git:ssh://github.com:nyadero/kraftadmin.git</developerConnection>
+        <url>https://github.com/nyadero/kraftadmin/tree/main</url>
+        <tag>HEAD</tag>
 	</scm>
+
 	<properties>
 		<java.version>17</java.version>
-		<spring.boot.version>3.2.5</spring.boot.version>
+        <spring.boot.version>3.4.4</spring.boot.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <micrometer.version>1.12.2</micrometer.version>
+        <tika.version>2.9.0</tika.version>
 	</properties>
-	<dependencies>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-dependencies</artifactId>
-			<version>${spring.boot.version}</version>
-			<type>pom</type>
-			<scope>import</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-autoconfigure</artifactId>
-		</dependency>
 
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-devtools</artifactId>
-			<scope>runtime</scope>
-		</dependency>
+    <!-- Move dependencies to dependencyManagement for parent POM -->
+    <!--	<dependencyManagement>-->
+    <!--		<dependencies>-->
+    <!--			<dependency>-->
+    <!--				<groupId>org.apache.tika</groupId>-->
+    <!--				<artifactId>tika-core</artifactId>-->
+    <!--				<version>${tika.version}</version>-->
+    <!--			</dependency>-->
 
-		<dependency>
-			<groupId>org.apache.tika</groupId>
-			<artifactId>tika-core</artifactId>
-			<version>2.9.0</version>
-		</dependency>
+    <!--			<dependency>-->
+    <!--				<groupId>io.micrometer</groupId>-->
+    <!--				<artifactId>micrometer-registry-prometheus</artifactId>-->
+    <!--				<version>${micrometer.version}</version>-->
+    <!--			</dependency>-->
+    <!--		</dependencies>-->
+    <!--	</dependencyManagement>-->
+    <dependencyManagement>
+        <dependencies>
+            <!-- Already existing -->
+            <dependency>
+                <groupId>org.apache.tika</groupId>
+                <artifactId>tika-core</artifactId>
+                <version>${tika.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.micrometer</groupId>
+                <artifactId>micrometer-registry-prometheus</artifactId>
+                <version>${micrometer.version}</version>
+            </dependency>
 
-		<dependency>
-			<groupId>io.micrometer</groupId>
-			<artifactId>micrometer-registry-prometheus</artifactId>
-			<scope>runtime</scope>
-		</dependency>
+            <!-- ✅ ADD these explicitly -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-data-jpa</artifactId>
+                <version>${spring.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-validation</artifactId>
+                <version>${spring.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-web</artifactId>
+                <version>${spring.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-test</artifactId>
+                <version>${spring.boot.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.session</groupId>
+                <artifactId>spring-session-core</artifactId>
+                <version>3.2.2</version> <!-- Explicit version, not covered by boot BOM -->
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
-		<dependency>
-			<groupId>io.micrometer</groupId>
-			<artifactId>micrometer-core</artifactId>
-		</dependency>
 
-	</dependencies>
-
-	<repositories>
+    <!-- Distribution Management for Maven Central -->
+    <distributionManagement>
+        <snapshotRepository>
+            <id>central</id>
+            <url>https://central.sonatype.com/api/v1/publisher/deployments</url>
+        </snapshotRepository>
 		<repository>
-			<id>jitpack.io</id>
-			<url>https://jitpack.io</url>
+            <id>central</id>
+            <url>https://central.sonatype.com/api/v1/publisher/deployments</url>
 		</repository>
-	</repositories>
+    </distributionManagement>
 
+    <!--	<repositories>-->
+    <!--		<repository>-->
+    <!--			<id>jitpack.io</id>-->
+    <!--			<url>https://jitpack.io</url>-->
+    <!--		</repository>-->
+    <!--	</repositories>-->
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>17</source>
+                    <target>17</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <!-- Release Profile for Maven Central -->
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <!-- Source plugin -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>3.3.0</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <!-- Javadoc plugin -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.6.3</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <doclint>none</doclint>
+                            <source>17</source>
+                        </configuration>
+                    </plugin>
+
+                    <!-- GPG plugin for signing -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>3.1.0</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <!-- Central Publishing Plugin -->
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>0.4.0</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <publishingServerId>central</publishingServerId>
+                            <tokenAuth>true</tokenAuth>
+                            <autoPublish>true</autoPublish>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>

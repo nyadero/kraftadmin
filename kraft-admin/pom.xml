@@ -3,30 +3,31 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <!--    <parent>-->
+    <!--        <groupId>com.github.nyadero</groupId>-->
+    <!--        <artifactId>kraftadmin</artifactId>-->
+    <!--        <version>1.0.0</version>-->
+    <!--        <relativePath>../pom.xml</relativePath>-->
+    <!--    </parent>-->
+
     <parent>
-        <groupId>com.github.nyadero</groupId>
+        <groupId>io.github.bowerzlabs</groupId>
         <artifactId>kraftadmin</artifactId>
-        <version>1.0.0</version>
-        <relativePath>../pom.xml</relativePath>
+        <version>0.1.0</version>
     </parent>
 
     <artifactId>kraft-admin</artifactId>
+    <name>Kraft Admin</name>
+    <description>Management, logging, monitoring and analytics library for Spring Boot applications</description>
+    <url>https://github.com/nyadero/kraftadmin</url>
 
-<!--    <properties>-->
-<!--        <maven.compiler.source>21</maven.compiler.source>-->
-<!--        <maven.compiler.target>21</maven.compiler.target>-->
-<!--        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>-->
-<!--        <spring.boot.version>3.2.5</spring.boot.version>-->
-<!--    </properties>-->
-
+    <scm>
+        <connection>scm:git:git://github.com/nyadero/kraftadmin.git</connection>
+        <developerConnection>scm:git:ssh://github.com:nyadero/kraftadmin.git</developerConnection>
+        <url>https://github.com/nyadero/kraftadmin</url>
+    </scm>
 
     <dependencies>
-<!--        <dependency>-->
-<!--            <groupId>com.github.nyadero</groupId>-->
-<!--            <artifactId>kraft-starter</artifactId>-->
-<!--            <version>1.0.0</version>-->
-<!--        </dependency>-->
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
@@ -43,27 +44,27 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.nyadero</groupId>
+            <groupId>io.github.bowerzlabs</groupId>
             <artifactId>kraft-core</artifactId>
-            <version>1.0.0</version>
+            <version>0.1.0</version>
         </dependency>
 
         <dependency>
-            <groupId>com.github.nyadero</groupId>
+            <groupId>io.github.bowerzlabs</groupId>
             <artifactId>kraft-security</artifactId>
-            <version>1.0.0</version>
+            <version>0.1.0</version>
         </dependency>
 
         <dependency>
-            <groupId>com.github.nyadero</groupId>
+            <groupId>io.github.bowerzlabs</groupId>
             <artifactId>kraft-data-jpa</artifactId>
-            <version>1.0.0</version>
+            <version>0.1.0</version>
         </dependency>
 
         <dependency>
-            <groupId>com.github.nyadero</groupId>
+            <groupId>io.github.bowerzlabs</groupId>
             <artifactId>kraft-ui</artifactId>
-            <version>1.0.0</version>
+            <version>0.1.0</version>
         </dependency>
 
         <dependency>
