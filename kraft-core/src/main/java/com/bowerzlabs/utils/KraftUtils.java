@@ -96,10 +96,9 @@ public class KraftUtils {
     }
 
 
-    // Detect Kotlin-Compiled Entities
+//     Detect Kotlin-Compiled Entities
 //    public static boolean isKotlinClass(EntityType<?> clazz) {
 //        return clazz.getJavaType().getAnnotation(Metadata.class) != null;
 //    }
-
 
 }
