@@ -1,5 +1,6 @@
 package com.bowerzlabs.models;
 
+import com.bowerzlabs.annotations.DisplayField;
 import com.bowerzlabs.annotations.FormInputType;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -24,6 +25,7 @@ public class Post {
                     @JoinColumn(name = "tag_id", referencedColumnName = "id")
             }
     )
+    @DisplayField(value = "tag")
     @FormInputType(FormInputType.Type.TAGS)
     private List<Tag> tags;
     @CreationTimestamp
