@@ -1,5 +1,6 @@
 package com.bowerzlabs.models;
 
+import com.bowerzlabs.annotations.DisplayField;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -14,6 +15,7 @@ public class Tag {
     private String id;
     private String tag;
     @ManyToMany(mappedBy = "tags", fetch = FetchType.LAZY)
+    @DisplayField(value = "id")
     private Set<Post> posts;
     @CreationTimestamp
     private LocalDateTime createdAt;
