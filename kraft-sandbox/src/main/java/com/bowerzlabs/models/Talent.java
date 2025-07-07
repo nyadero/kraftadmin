@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
-@Entity
-//@Table(name = "talents")
+@Entity(name = "talents")
+@Table(name = "talents")
 public class Talent {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
