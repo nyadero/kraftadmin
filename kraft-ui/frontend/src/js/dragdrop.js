@@ -8,7 +8,9 @@ function handleFileDrop(e, container) {
   e.stopPropagation();
   const input = container.querySelector('input[type="file"]');
   input.files = e.dataTransfer.files;
-  previewFiles({ target: input });
+
+  validateFile({ target: input }, input);
+//  previewFiles({ target: input });
 }
 
 function previewFiles(event) {

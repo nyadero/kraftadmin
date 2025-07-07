@@ -1,7 +1,4 @@
 import TomSelect from 'tom-select';
-//import 'tom-select/dist/css/tom-select.css';
-
-console.log("form-utils js")
 
 document.addEventListener("DOMContentLoaded", function () {
     // Single select
@@ -28,6 +25,67 @@ document.addEventListener("DOMContentLoaded", function () {
                    create: true
                });
            });
+
+
+//            // Single select
+//               document.querySelectorAll('.tom-select').forEach(el => {
+//                   new TomSelect(el, {
+//                       allowEmptyOption: true,
+//                       searchField: ['text'],
+//                       maxOptions: 50,
+//                       render: {
+//                           option: function(data, escape) {
+//                               return '<div>' + escape(data.text) + '</div>';
+//                           },
+//                           item: function(data, escape) {
+//                               return '<div>' + escape(data.text) + '</div>';
+//                           }
+//                       }
+//                   });
+//               });
+//
+//               // Multi-select
+//               document.querySelectorAll('.tom-multiselect').forEach(el => {
+//                   new TomSelect(el, {
+//                       plugins: ['remove_button'],
+//                       persist: false,
+//                       create: false,
+//                       hideSelected: true,
+//                       closeAfterSelect: true,
+//                       searchField: ['text'],
+//                       maxOptions: 50,
+//                       render: {
+//                           option: function(data, escape) {
+//                               return '<div>' + escape(data.text) + '</div>';
+//                           },
+//                           item: function(data, escape) {
+//                               return '<div>' + escape(data.text) + '</div>';
+//                           }
+//                       }
+//                   });
+//               });
+//
+//               // Tag input
+//               document.querySelectorAll('.tom-tags').forEach(el => {
+//                   new TomSelect(el, {
+//                       plugins: ['remove_button'],
+//                       delimiter: ',',
+//                       persist: false,
+//                       create: true,
+//                       hideSelected: true,
+//                       closeAfterSelect: true,
+//                       searchField: ['text'],
+//                       maxOptions: 50,
+//                       render: {
+//                           option: function(data, escape) {
+//                               return '<div>' + escape(data.text) + '</div>';
+//                           },
+//                           item: function(data, escape) {
+//                               return '<div>' + escape(data.text) + '</div>';
+//                           }
+//                       }
+//                   });
+//               });
 
     const subtypeSelector = document.querySelector("select[name='subtype']");
     const allSubtypeGroups = document.querySelectorAll(".subtype-group");
@@ -165,21 +223,3 @@ function filterSelectOptions1(selectId) {
     input.value = newCode + cleaned;
   }
 
-  function validateFile(event, input) {
-      const file = input.files[0];
-      if (!file) return;
-
-      const forbiddenExtensions = ['.exe', '.bat', '.sh', '.cmd', '.msi', '.com'];
-      const fileName = file.name.toLowerCase();
-
-      const isExecutable = forbiddenExtensions.some(ext => fileName.endsWith(ext));
-
-      if (isExecutable) {
-          alert("Executable files are not allowed.");
-          input.value = ''; // Clear the input
-          return;
-      }
-
-      // Optionally preview or upload the file
-      previewFile(event, input);
-  }
