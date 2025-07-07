@@ -224,7 +224,7 @@
                    th:name="${field.name}"
                    type="file"/>
         </div>
-        <div class="mt-2" id="preview-${field.name}"></div>
+        <div class="mt-2" th:attr="id='preview-' + ${field.name}"></div>
     </label>
 </th:block>
 
@@ -387,10 +387,10 @@
 
 <!--taginput-->
 <th:block th:fragment="tagInput(field)">
-    <label class="block mb-2 font-medium text-sm text-gray-700"
-           th:for="${field.name}"
-           th:text="${field.label} + (field.required ? ' *' : '')">
-    </label>
+    <!--    <label class="block mb-2 font-medium text-sm text-gray-700"-->
+    <!--           th:for="${field.name}"-->
+    <!--           th:text="${field.label} + (field.required ? ' *' : '')">-->
+    <!--    </label>-->
 
     <input type="text"
            th:id="${field.name}"
