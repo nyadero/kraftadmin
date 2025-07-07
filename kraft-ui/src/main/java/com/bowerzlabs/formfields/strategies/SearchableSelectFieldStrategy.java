@@ -1,5 +1,6 @@
 package com.bowerzlabs.formfields.strategies;
 
+import com.bowerzlabs.EntitiesScanner;
 import com.bowerzlabs.annotations.DisplayField;
 import com.bowerzlabs.database.DbObjectSchema;
 import com.bowerzlabs.formfields.FormField;
@@ -15,7 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.bowerzlabs.EntitiesScanner.resolveEntityName;
 import static com.bowerzlabs.formfields.FormFieldFactory.*;
 
 public class SearchableSelectFieldStrategy implements FormFieldStrategy {
@@ -34,24 +34,20 @@ public class SearchableSelectFieldStrategy implements FormFieldStrategy {
 
         boolean required = extractRequiredValidation(dbObjectSchema.getValidationRules(), field);
         Class<?> relatedEntityClass = field.getType();
-        String entityName = resolveEntityName(relatedEntityClass);
-        List<DbObjectSchema> relatedEntities = staticCrudService.getAll(relatedEntityClass.getSimpleName());
-//                log.info("related entities {}", relatedEntities);
+        log.info("relatedEntityClass in search select field strategy {}", relatedEntityClass);
+        String entityName = EntitiesScanner.resolveEntityNameManual(relatedEntityClass); // Pass EntityManager
+        List<DbObjectSchema> relatedEntities = staticCrudService.getAll(entityName);
         Map<Object, Object> optionsMap = new HashMap<>();
-        String primaryKey = "";
         for (DbObjectSchema related : relatedEntities) {
-//                    log.info("related {}", related);
             Object key;
             Object value1;
 
             try {
                 if (field.isAnnotationPresent(DisplayField.class)) {
                     DisplayField displayField = field.getAnnotation(DisplayField.class);
-//                            log.info("displayField {}", displayField);
                     String displayFieldName = displayField.value();
                     Field field1 = relatedEntityClass.getDeclaredField(displayFieldName);
                     Field idField = relatedEntityClass.getDeclaredField(related.getPrimaryKey());
-//                            log.info("field1 {}", field1);
                     field1.setAccessible(true);
                     idField.setAccessible(true);
                     key = field1.get(related.getEntity());
@@ -59,18 +55,12 @@ public class SearchableSelectFieldStrategy implements FormFieldStrategy {
                     optionsMap.put(key, value1);
                 } else {
                     Field idField = relatedEntityClass.getDeclaredField(related.getPrimaryKey());
-//                            log.info("idfield1 {}", idField);
                     idField.setAccessible(true);
                     key = idField.get(related.getEntity());
                     value1 = idField.get(related.getEntity());
                     optionsMap.put(key, value1);
                 }
-
-                primaryKey = related.getPrimaryKey();
-
-//                        log.info("key {}, value {} ", key, value1);
-//                        log.info("optionsMap {}", optionsMap);
-//                        log.info("form_name {}", optionsMap);
+//                primaryKey = related.getPrimaryKey();
 
             } catch (Exception e) {
                 log.error("Error extracting options from related entity", e);
