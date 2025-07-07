@@ -1,82 +1,21 @@
 package com.bowerzlabs;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.criteria.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 
 public class DynamicQueryBuilder {
     private static final Logger log = LoggerFactory.getLogger(DynamicQueryBuilder.class);
-//    private static List<Predicate> predicates = new ArrayList<>();
-//    public static CriteriaQuery<Object> buildQuery(
-//            CriteriaBuilder cb,
-//            Class<?> entityClass,
-//            Map<String, String> filters,
-//            String searchKeyword,
-//            List<String> sortParams
-//    ) {
-//        CriteriaQuery<Object> query = cb.createQuery(Object.class);
-//        Root<?> root = query.from(entityClass);
-//        List<jakarta.persistence.criteria.Order> orderList = new ArrayList<>();
-//        List<Predicate> predicates = new ArrayList<>();
-//
-//
-//        for (Map.Entry<String, String> entry : filters.entrySet()) {
-//                String key = entry.getKey();
-//                String value = entry.getValue();
-//                if (key.equalsIgnoreCase("search")) continue;
-//                if (key.equalsIgnoreCase("sortBy")) {
-//                    Sort.Direction dir = Sort.Direction.fromString(filters.get("sortOrder"));
-////                    log.info("field {}, fieldType {}, direction {}, isAscending {}", value, dir, filters.get("sortOrder"), dir);
-//                    orderList.add(dir.isAscending() ? cb.asc(root.get(value)) : cb.desc(root.get(value)));
-//                    query.orderBy(orderList);
-//                }
-//
-//                if (!value.isBlank()) {
-//                    try {
-//                        Field field = entityClass.getDeclaredField(key);
-//                        Class<?> fieldType = field.getType();
-//                        if (fieldType.isEnum()) {
-//                            Object enumValue = Arrays.stream(fieldType.getEnumConstants())
-//                                    .filter(e -> e.toString().equalsIgnoreCase(value))
-//                                    .findFirst()
-//                                    .orElseThrow(() -> new IllegalArgumentException("Invalid enum value: " + value));
-//                            predicates.add(cb.equal(root.get(key), enumValue));
-//                        } else {
-//                            Object converted = convertValue(fieldType, value);
-//                            predicates.add(cb.equal(root.get(key), converted));
-//                        }
-//                    } catch (NoSuchFieldException e) {
-//                        log.warn("Skipping unknown filter key: {}", key);
-//                    } catch (IllegalAccessException e) {
-//                        log.info("exception {}", e.getMessage());
-//                        throw new RuntimeException(e);
-//                    }
-//                }
-//            }
-//
-//            // --- Apply filters ---
-//            query.select(root).where(predicates.toArray(new Predicate[0]));
-//
-//        if (searchKeyword != null && !searchKeyword.isBlank()) {
-//            for (Field field : entityClass.getDeclaredFields()) {
-//                if (field.getType() == String.class) {
-//                    predicates.add(cb.like(cb.lower(root.get(field.getName())), "%" + searchKeyword.toLowerCase() + "%"));
-//                }
-//            }
-//        }
-//
-//        query.select(root).where(cb.and(predicates.toArray(new Predicate[0])));
-//
-////        predicates.stream().peek(predicate -> log.info("predicate {}", predicate.getExpressions()));
-//
-//        return query;
-//    }
-
 
     public static CriteriaQuery<Object> buildQuery(
             CriteriaBuilder cb,
@@ -186,3 +125,4 @@ public class DynamicQueryBuilder {
         return entityManager.createQuery(countQuery).getSingleResult();
     }
 }
+
