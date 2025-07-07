@@ -1,13 +1,85 @@
+<!--<!DOCTYPE html>-->
+<!--<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <title>Error Page</title>-->
+<!--    <link th:href="@{/css/kraft.css}" th:rel="stylesheet">-->
+<!--</head>-->
+<!--<body class="bg-slate-200 flex items-center justify-center h-screen">-->
+<!--   <div class="w-1/2 mx-auto bg-white p-2 rounded shadow">-->
+<!--       <h3 th:text="${error}"></h3>-->
+<!--   </div>-->
+
+<!-- -->
+<!--</body>-->
+<!--</html>-->
+
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Error Page</title>
-    <link th:href="@{/css/app.css}" th:rel="stylesheet">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title th:text="${errorType ?: 'Error'}">Error</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Hide loader immediately on error pages */
+        #loader { display: none !important; }
+    </style>
 </head>
-<body class="bg-slate-200 flex items-center justify-center h-screen">
-   <div class="w-1/2 mx-auto bg-white p-2 rounded shadow">
-       <h3 th:text="${error}"></h3>
-   </div>
+<body class="bg-gray-50">
+<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8">
+        <div class="text-center">
+            <div class="mx-auto h-12 w-12 text-red-500">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"
+                          stroke-width="2"></path>
+                </svg>
+            </div>
+            <h2 class="mt-6 text-3xl font-extrabold text-gray-900" th:text="${errorType ?: 'Application Error'}">
+                Error
+            </h2>
+            <div class="mt-4 bg-red-50 border border-red-200 rounded-md p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path clip-rule="evenodd"
+                                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                  fill-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-red-800" th:text="${errorMessage ?: 'An unexpected error occurred'}">
+                            Error message
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-6 flex space-x-4 justify-center">
+                <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                        onclick="window.location.reload()">
+                    Reload Page
+                </button>
+                <button class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded" onclick="window.history.back()"
+                        th:if="${showBackButton}">
+                    Go Back
+                </button>
+                <a class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded" href="/">
+                    Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Ensure loader is hidden on error pages
+    document.addEventListener('DOMContentLoaded', function() {
+        const loader = document.getElementById('loader');
+        if (loader) {
+            loader.style.display = 'none';
+        }
+    });
+</script>
 </body>
 </html>
