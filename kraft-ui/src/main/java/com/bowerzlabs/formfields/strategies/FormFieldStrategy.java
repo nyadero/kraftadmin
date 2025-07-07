@@ -11,5 +11,5 @@ import java.util.List;
 public interface FormFieldStrategy {
     boolean supports(Field field, DbObjectSchema dbObjectSchema);
 
-    FormField createField(Field field, DbObjectSchema dbObjectSchema, String inputName, boolean isSearch, List<EntityType<?>> subTypes) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException;
+    FormField createField(Field field, DbObjectSchema dbObjectSchema, String inputName, boolean isSearch, List<EntityType<?>> subTypes) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchFieldException;
 }

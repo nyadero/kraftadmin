@@ -21,9 +21,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 
-import static com.bowerzlabs.EntitiesScanner.resolveEntityName;
-import static org.atteo.evo.inflector.English.plural;
-
 @Component
 public class FormFieldFactory {
     private static final Logger log = LoggerFactory.getLogger(FormFieldFactory.class);
@@ -85,7 +82,7 @@ public class FormFieldFactory {
                     if (column.length() > 255) {
                         return new TextAreaField(label, placeholder, required, (String) value, inputName, validationErrors, validationRules);
                     } else {
-                        TextField textField = new TextField(label, placeholder, required, (String) value, inputName, validationRules, validationErrors);
+                        TextField textField = new TextField(label, placeholder, required, value, inputName, validationRules, validationErrors);
                         if (isSearch){
                             textField.setSearchOperations(getSearchOperationsForType(field.getType()));
                         }
@@ -96,18 +93,18 @@ public class FormFieldFactory {
                 }else if (field.getType().equals(byte[].class)){
                     return new ImageField(label,placeholder,required, value, inputName, validationErrors, validationRules);
                 }
-                 return new TextField(label, placeholder, required, (String) value, inputName, validationRules, validationErrors);
+                 return new TextField(label, placeholder, required, value, inputName, validationRules, validationErrors);
             }else if (field.isAnnotationPresent(FormInputType.class)) {
                 FormInputType inputType = field.getAnnotation(FormInputType.class);
                  return switch (inputType.value()) {
                      case TEXT ->
-                             new TextField(label, placeholder, required, (String) value, inputName, validationRules, validationErrors);
+                             new TextField(label, placeholder, required, value, inputName, validationRules, validationErrors);
                      case NUMBER ->
                              new NumberField(label, value != null ? (Number) value : 0, inputName, required, validationErrors, validationRules);
                      case COLOR ->
                              new ColorField(label, placeholder, required, (String) value, inputName, validationErrors, validationRules);
                      case IMAGE ->
-                             new ImageField(label, placeholder, required, (String) value, inputName, validationErrors, validationRules);
+                             new ImageField(label, placeholder, required, value, inputName, validationErrors, validationRules);
                      case DATE ->
                              new DateField(label, placeholder, required, (LocalDate) value, inputName, validationErrors, validationRules);
                      case EMAIL ->
@@ -131,7 +128,7 @@ public class FormFieldFactory {
                      case URL ->
                              new URLField(label, placeholder, required, (String) value, inputName, validationRules, validationErrors);
                      case RADIO -> new RadioField(label, placeholder, required, (boolean) value, inputName, new ArrayList<>(),  validationRules, validationErrors);
-                     default -> new TextField(label, placeholder, required, (String) value, inputName, validationRules, validationErrors);
+                     default -> new TextField(label, placeholder, required, value, inputName, validationRules, validationErrors);
                  };
             } else if (isNumeric(field.getType())) {
                 NumberField numberField = new NumberField(label, value != null ? (Number) value : 0, inputName, required, validationErrors, validationRules);
@@ -144,7 +141,6 @@ public class FormFieldFactory {
             } else if (field.isAnnotationPresent(ManyToOne.class) || field.isAnnotationPresent(OneToOne.class))
             {
                 Class<?> relatedEntityClass = field.getType();
-                 String entityName = resolveEntityName(relatedEntityClass);
                  List<DbObjectSchema> relatedEntities = staticCrudService.getAll(relatedEntityClass.getSimpleName());
 //                log.info("related entities {}", relatedEntities);
                 Map<Object, Object> optionsMap = new HashMap<>();
@@ -211,7 +207,7 @@ public class FormFieldFactory {
                  // Loop through embedded fields and generate form fields
                  for (Field embeddedField : field.getType().getDeclaredFields()) {
                      embeddedField.setAccessible(true);
-                     FormField subField = createFormFieldsFromEntity(dbObjectSchema, embeddedField, "", isSearch, subTypes);
+                     FormField subField = generateFormField(dbObjectSchema, embeddedField, "", isSearch, subTypes);
                      if (subField != null) {
                          String name1 = embeddedFieldName.concat(".").concat(subField.getPlaceholder().replace("Enter ", ""));
                          subField.setName(name1);
@@ -226,7 +222,7 @@ public class FormFieldFactory {
              // Handle Array and Collection (List, Set) Fields
             else if (field.getType().isArray()) {
                 // Convert array to list
-                return new TextField(label, placeholder, required, (String) value, inputName, validationRules, validationErrors);
+                return new TextField(label, placeholder, required, value, inputName, validationRules, validationErrors);
             }else if (!(field.getType().equals(String.class) || field.getType().equals(byte[].class))) {
                 // Check for collection
 //                if (List.class.isAssignableFrom(field.getType()) || Set.class.isAssignableFrom(field.getType())) {
