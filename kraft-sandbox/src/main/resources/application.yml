@@ -27,13 +27,12 @@ spring:
   servlet:
     multipart:
       max-file-size: 100000000MB
-#      max-request-size: 100000000MB
-
+      max-request-size: 100000000MB
 
 kraft:
   kraft-admin:
     enabled: true
   title: Kraft Sandbox
   storage:
-    provider: local
-    upload-dir: ${user.dir}/uploads
+    provider: LOCAL
+    upload-dir: uploads
