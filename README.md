@@ -39,7 +39,7 @@ Add the Maven Dependency
 ````
 <dependency>
   <groupId>com.bowerzlabs</groupId>
-  <artifactId>kraft-starter</artifactId>
+  <artifactId>kraft-admin</artifactId>
   <version>0.1.0</version>
 </dependency>
 ````
@@ -71,11 +71,11 @@ Update your main application class to scan KraftAdmin's models and repositories:
 ````
 @SpringBootApplication
 @EnableJpaRepositories(basePackages = {
-  "your.own.repository.package",
+  "your.package",
   "com.bowerzlabs.repository.kraftrepos"
 })
 @EntityScan(basePackages = {
-  "your.own.model.package",
+  "your.package",
   "com.bowerzlabs.models.kraftmodels"
 })
 public class Application {
@@ -95,7 +95,7 @@ public class Application {
 | `kraft-ui`       | UI components for the admin dashboard         |
 | `kraft-security` | Auth & permission middleware                  |
 | `kraft-admin`    | Core admin logic and utilities                |
-| `kraft-starter`  | Combines and exposes all modules for plug-and-play |
+| `kraft-admin`  | Combines and exposes all modules for plug-and-play |
 
 ### Coming Soon
 
@@ -184,7 +184,7 @@ Why it matters
 
 This means you can declaratively control whether a field appears as a textbox, number input, image uploader, WYSIWYG editor, etc., just by annotating the field.
 
-Kraftr AdminX will automatically reflect this in the UI form without extra frontend code.
+KraftAdmin will automatically reflect this in the UI form without extra frontend code.
 
 ### Screenshots
 
