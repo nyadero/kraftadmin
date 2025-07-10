@@ -20,8 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.atteo.evo.inflector.English.plural;
-
 @ControllerAdvice
 public class GlobalControllerAdvice {
     private static final Logger log = LoggerFactory.getLogger(GlobalControllerAdvice.class);
@@ -53,13 +51,13 @@ public class GlobalControllerAdvice {
                     if (entity.getEntityClass().getJavaType().isAnnotationPresent(KraftAdminResource.class)) {
                         KraftAdminResource kraftAdminResource = entity.getEntityClass().getJavaType().getAnnotation(KraftAdminResource.class);
                         return new ResourceMetadata(
-                                new ResourceName(kraftAdminResource.name(), plural(entity.getEntityClass().getJavaType().getSimpleName())),
+                                new ResourceName(kraftAdminResource.name(), entity.getEntityClass().getJavaType().getSimpleName()),
                                 kraftAdminResource.group(),
                                 kraftAdminResource.icon(),
                                 kraftAdminResource.editable()
                         );
                     }
-                    return new ResourceMetadata(new ResourceName(plural(entity.getEntityClass().getJavaType().getSimpleName()), plural(entity.getEntityClass().getJavaType().getSimpleName())));
+                    return new ResourceMetadata(new ResourceName(entity.getEntityClass().getJavaType().getSimpleName(), entity.getEntityClass().getJavaType().getSimpleName()));
                 })
                 .collect(Collectors.toList());
 

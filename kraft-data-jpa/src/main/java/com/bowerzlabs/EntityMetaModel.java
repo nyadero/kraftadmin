@@ -15,11 +15,13 @@ import java.util.List;
 public class EntityMetaModel {
     private static final Logger log = LoggerFactory.getLogger(EntityMetaModel.class);
     private final EntityType<?> entityClass;
+    private final String entityName;
     private final List<EntityType<?>> subTypes;
     private final boolean superClass;
 
     public EntityMetaModel(EntityType<?> entityClass, List<EntityType<?>> subTypes) {
         this.entityClass = entityClass;
+        this.entityName = entityClass.getJavaType().getSimpleName();
         this.subTypes = subTypes;
         superClass = true;
     }
@@ -68,4 +70,12 @@ public class EntityMetaModel {
 //        }
 //        return this; // fallback to parent
 //    }
+
+    public String getEntityName() {
+        return entityName;
+    }
+
+    public boolean isSuperClass() {
+        return superClass;
+    }
 }

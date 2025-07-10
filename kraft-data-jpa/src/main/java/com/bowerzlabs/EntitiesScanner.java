@@ -1,9 +1,7 @@
 package com.bowerzlabs;
 
 import com.bowerzlabs.annotations.InternalAdminResource;
-import jakarta.persistence.Entity;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.Table;
 import jakarta.persistence.metamodel.EntityType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,10 +26,8 @@ public class EntitiesScanner {
     public EntitiesScanner(EntityManager entityManager) {
         this.allEntities = entityManager.getMetamodel().getEntities();
 
-//      Todo  get the entity name from @Table/@Entity name value
         this.cachedEntities = entityManager.getMetamodel().getEntities()
                 .stream()
-                .map(entityType -> entityType)
                 .sorted(Comparator.comparing(EntityType::getName))
                 .filter(entityType -> entityType.getSupertype() == null)
 //                .filter(this::isInternalResource)
@@ -45,60 +41,12 @@ public class EntitiesScanner {
         });
     }
 
-//    public EntitiesScanner(EntityManager entityManager) {
-////      Todo  get the entity name from @Table/@Entity name value
-//        this.cachedEntities = entityManager.getMetamodel().getEntities()
-//                .stream()
-//                .map(Type::getJavaType)
-////                .filter(this::isInternalResource)
-//                .sorted(Comparator.comparing(Class::getSimpleName))
-//                .collect(Collectors.toList());
-//
-//        Set<EntityType<?>> entities = entityManager.getMetamodel().getEntities();
-//        entities.forEach(entityType -> log.info(" entityType {}, entityName {}", entityType.getSupertype(), entityType.getBindableType()));
-//        entities.stream().filter(entityType -> entityType.getSupertype() == null).toList().forEach(entityType -> log.info("entity2 {}", entityType));
-//    }
-
     /**
      * Return all entities declared in the parent application
      */
     public List<EntityMetaModel> getAllEntityClasses() {
         return cachedEntities;
     }
-
-
-    /**
-    * Return a single entity using its name
-     */
-    public EntityMetaModel getEntityByName(String name) {
-        return cachedEntities.stream()
-                .filter(entityType -> {
-                    Class<?> javaType = entityType.getEntityClass().getJavaType();
-                    String entityName = javaType.getSimpleName();
-                    String pluralized = plural(entityName);
-
-
-                    // Direct match with name or plural
-                    if (name.equalsIgnoreCase(entityName) || name.equalsIgnoreCase(pluralized)) {
-                        return true;
-                    }
-
-                    // Match superclass name (e.g., search "User" and match "AdminUser" that extends User)
-                    Class<?> superClass = javaType.getSuperclass();
-                    while (superClass != null && superClass != Object.class) {
-                        String superName = superClass.getSimpleName();
-                        if (name.equalsIgnoreCase(superName) || name.equalsIgnoreCase(plural(superName))) {
-                            return true;
-                        }
-                        superClass = superClass.getSuperclass();
-                    }
-
-                    return false;
-                })
-                .findFirst()
-                .orElse(null);
-    }
-
 
     public EntityMetaModel getEntityFromAllByName(String name){
         return allEntities.stream()
@@ -145,18 +93,74 @@ public class EntitiesScanner {
                .toList();
     }
 
-    public static String resolveEntityName(Class<?> clazz) {
-        Table tableAnnotation = clazz.getAnnotation(Table.class);
-        Entity entityAnnotation = clazz.getAnnotation(Entity.class);
-        if (tableAnnotation != null && !tableAnnotation.name().isBlank()) {
-            log.info("table name value {}", tableAnnotation.name());
-            return tableAnnotation.name();
+
+    // Manual entity name resolution that checks @Entity annotation directly
+    public static String resolveEntityNameManual(Class<?> clazz) {
+        try {
+            if (clazz.isAnnotationPresent(jakarta.persistence.Entity.class)) {
+                jakarta.persistence.Entity entityAnnotation = clazz.getAnnotation(jakarta.persistence.Entity.class);
+                String name = entityAnnotation.name();
+
+                if (name != null && !name.trim().isEmpty()) {
+                    log.debug("Found @Entity(name='{}') for class {}", name, clazz.getSimpleName());
+                    return name;
+                }
+            }
+
+//            log.debug("Using class simple name for {}", clazz.getSimpleName());
+            return clazz.getSimpleName();
+
+        } catch (Exception e) {
+            log.error("Error resolving entity name for {}, falling back to simple name", clazz.getSimpleName(), e);
+            return clazz.getSimpleName();
         }
-//        else if (entityAnnotation != null && !entityAnnotation.name().isBlank()) {
-//            log.info("entity name value {}", entityAnnotation.name());
-//            return entityAnnotation.name();
-//        }
-        return clazz.getSimpleName();
+    }
+
+
+    /**
+     * Find an EntityMetamodel based on the name param passed
+     */
+    public EntityMetaModel getEntityByName(String name) {
+//        log.info("=== Searching for entity with name: {} ===", name);
+
+        // First, let's see what entities we have
+        cachedEntities.forEach(entityMetaModel -> {
+            EntityType<?> entityType = entityMetaModel.getEntityClass();
+            Class<?> javaType = entityType.getJavaType();
+
+//            log.info("Available entity - JPA name: '{}', Simple class: '{}', Full class: '{}'",
+//                    entityType.getName(),
+//                    javaType.getSimpleName(),
+//                    javaType.getName());
+        });
+
+        EntityMetaModel result = cachedEntities.stream()
+                .filter(entityMetaModel -> {
+                    EntityType<?> entityType = entityMetaModel.getEntityClass();
+                    String jpaEntityName = entityType.getName();
+                    Class<?> javaType = entityType.getJavaType();
+                    String simpleClassName = javaType.getSimpleName();
+
+//                    log.info("Comparing '{}' with JPA name '{}' and simple class '{}'",
+//                            name, jpaEntityName, simpleClassName);
+
+                    boolean matches = name.equalsIgnoreCase(jpaEntityName) ||
+                            name.equalsIgnoreCase(simpleClassName);
+
+                    if (matches) {
+                        log.info("MATCH FOUND!");
+                    }
+
+                    return matches;
+                })
+                .findFirst()
+                .orElse(null);
+
+        if (result == null) {
+            log.error("No entity found with name: {}", name);
+        }
+
+        return result;
     }
 
 
