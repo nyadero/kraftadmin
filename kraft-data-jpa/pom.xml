@@ -6,13 +6,13 @@
     <parent>
         <groupId>io.github.bowerzlabs</groupId>
         <artifactId>kraftadmin</artifactId>
-        <version>0.1.0</version>
+        <!--        <version>0.1.0</version>-->
+        <version>{project.version}</version>
     </parent>
 
     <artifactId>kraft-data-jpa</artifactId>
     <name>Kraft Data JPA Module</name>
     <description>Sql database integration</description>
-
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
