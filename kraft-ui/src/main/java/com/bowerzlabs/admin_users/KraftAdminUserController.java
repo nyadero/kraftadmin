@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 @Controller
 @RequestMapping("/admin/administrators")
 public class KraftAdminUserController {
-    private static final String ENTITY_NAME = "AdminUsers";
+    private static final String ENTITY_NAME = "AdminUser";
     private static final Logger log = LoggerFactory.getLogger(KraftAdminUserController.class);
     private final KraftAdminUsersRepository userRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
