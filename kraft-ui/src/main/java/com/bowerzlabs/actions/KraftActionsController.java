@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/admin")
 //@AdminController
 public class KraftActionsController {
-    public static final String ENTITY_NAME = "AdminUserActions";
+    public static final String ENTITY_NAME = "AdminUserAction";
     private final CrudService crudService;
     private static final Logger log = LoggerFactory.getLogger(KraftActionsController.class);
     private final EntitiesScanner entitiesScanner;
