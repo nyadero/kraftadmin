@@ -23,8 +23,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 
-import static org.atteo.evo.inflector.English.plural;
-
 public class DbObjectSchema {
     private static final Logger log = LoggerFactory.getLogger(DbObjectSchema.class);
     public static final int MAX_FIELDS = 6;
@@ -111,9 +109,11 @@ public class DbObjectSchema {
     KraftDisplayedFieldPreferenceRepository prefRepo =
             SpringContextHolder.getBean(KraftDisplayedFieldPreferenceRepository.class);
 
+
     public DbObjectSchema(EntityMetaModel entityClass, Object entity) {
+        log.info("entiName {} metamodel name {}", entityClass.getEntityName(), entityClass.getEntityClass().getJavaType().getSimpleName());
         // fetch the display preferences for this entity
-        Optional<DisplayFieldsPreference> pref = prefRepo.findById(plural(entityClass.getEntityClass().getName()));
+        Optional<DisplayFieldsPreference> pref = prefRepo.findById(entityClass.getEntityName());
 
         try {
             if (!entityClass.getEntityClass().getJavaType().isAnnotationPresent(Entity.class)) {
