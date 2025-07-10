@@ -1,11 +1,12 @@
 package com.bowerzlabs.files;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -17,7 +18,8 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.UUID;
 
-@Controller
+@Component
+@AllArgsConstructor
 public class LocalMultipartFileStorage implements MultipartFileStorage {
     private final static Logger log = LoggerFactory.getLogger(LocalMultipartFileStorage.class);
     private final HttpServletRequest httpServletRequest;
@@ -28,13 +30,13 @@ public class LocalMultipartFileStorage implements MultipartFileStorage {
 //        log.info("Local Multipart Storage initialized {} {}", storageProperties.getProvider(), storageProperties.getUploadDir());
 //    }
 
-    public LocalMultipartFileStorage(HttpServletRequest request, StorageProperties storageProperties) {
-        this.httpServletRequest = request;
-        this.storageProperties = storageProperties;
-
-        log.info("Local Multipart Storage initialized - Provider: {}, Upload Directory: {}",
-                storageProperties.getProvider(), storageProperties.getUploadDir());
-    }
+//    public LocalMultipartFileStorage(HttpServletRequest request, StorageProperties storageProperties) {
+//        this.httpServletRequest = request;
+//        this.storageProperties = storageProperties;
+//
+//        log.info("Local Multipart Storage initialized - Provider: {}, Upload Directory: {}",
+//                storageProperties.getProvider(), storageProperties.getUploadDir());
+//    }
 
     @Override
     public List<String> uploadMultiple(List<MultipartFile> files) {
