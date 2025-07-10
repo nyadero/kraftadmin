@@ -8,10 +8,8 @@ import org.apache.tika.Tika;
 import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.Base64;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class DisplayUtils {
@@ -41,7 +39,7 @@ public class DisplayUtils {
     public static FieldValue resolveFieldValue(Object value) {
         Tika tika = new Tika();
 
-        log.info("tika value {}", tika.detect(String.valueOf(value)));
+//        log.info("tika value {}", tika.detect(String.valueOf(value)));
         FieldValue fieldValue = new FieldValue();
 
         if (value == null) {
@@ -280,9 +278,27 @@ public class DisplayUtils {
         } else if (fieldType == Date.class) {
             return new SimpleDateFormat("yyyy-MM-dd hh:mm:ss a").format((Date) value);
         } else if (Collection.class.isAssignableFrom(fieldType)) {
-            return String.join(", ", ((Collection<?>) value).stream().map(Object::toString).toList());
-        } else if (fieldType.isEnum()) {
+            // Display collections with square brackets
+            String items = String.join(", ", ((Collection<?>) value).stream().map(Object::toString).toList());
+            return "[" + items + "]";
+        }
+//        else if (Collection.class.isAssignableFrom(fieldType)) {
+//            return String.join(", ", ((Collection<?>) value).stream().map(Object::toString).toList());
+//        }
+        else if (fieldType.isEnum()) {
             return value.toString();
+        }
+
+        // Handle comma-separated string values that represent collections
+        // Check if the value is a string that looks like a comma-separated list
+        if (value instanceof String stringValue && stringValue.contains(",")) {
+            // Split by comma, trim whitespace, and format as array
+            String[] parts = stringValue.split(",");
+            String formattedItems = Arrays.stream(parts)
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .collect(Collectors.joining(", "));
+            return "[" + formattedItems + "]";
         }
 
         return value.toString();
