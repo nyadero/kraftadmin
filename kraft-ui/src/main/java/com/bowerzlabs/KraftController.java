@@ -37,10 +37,4 @@ public class KraftController {
         return "test";
     }
 
-//    @ExceptionHandler(Exception.class)
-//    public ModelAndView handleException(Exception ex) {
-//        return new ModelAndView("error").addObject("exception", ex);
-//    }
-
-
 }

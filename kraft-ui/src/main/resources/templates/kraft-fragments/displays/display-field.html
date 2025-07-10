@@ -2,7 +2,9 @@
     <div>
         <!-- Image -->
         <img alt="Image"
-             class="rounded shadow" height="30px" th:attr="onerror=|this.onerror=null;this.src='@{/images/person.png}';|" th:if="${displayField?.fieldType?.name() == 'IMAGE'}" th:src="${displayField.value}"
+             class="rounded shadow" height="30px" loading="lazy"
+             th:attr="onerror=|this.onerror=null;this.src='@{/images/person.png}';|"
+             th:if="${displayField?.fieldType?.name() == 'IMAGE'}" th:src="${displayField.value}"
              width="30px"
         />
 
@@ -32,11 +34,11 @@
              th:utext="${displayField.value}"></div>
 
         <!-- Video -->
-        <video controls
+        <video controls preload="none"
                th:if="${displayField?.fieldType?.name() == 'VIDEO'}" th:src="${displayField.value}" width="250"></video>
 
         <!-- Audio -->
-        <audio controls
+        <audio controls muted
                th:if="${displayField?.fieldType?.name() == 'AUDIO'}" th:src="${displayField.value}"></audio>
 
         <!-- QR Code -->

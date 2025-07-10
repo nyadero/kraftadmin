@@ -20,7 +20,7 @@
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title th:text="${errorType ?: 'Error'}">Error</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link th:href="@{/css/kraft.css}" th:rel="stylesheet">
     <style>
         /* Hide loader immediately on error pages */
         #loader { display: none !important; }

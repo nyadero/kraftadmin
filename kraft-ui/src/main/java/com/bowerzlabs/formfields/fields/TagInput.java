@@ -12,9 +12,10 @@ public class TagInput extends FormField {
     private final Map<String, String> validationRules;
     private String label;
     private String name;
+    private final Map<Object, Object> options;
 
     public TagInput(String name, String label, String placeholder, boolean required, Object value,
-                    Map<String, String> validationErrors, Map<String, String> validationRules) {
+                    Map<String, String> validationErrors, Map<String, String> validationRules, Map<Object, Object> options) {
         super();
         this.name = name;
         this.label = label;
@@ -23,6 +24,7 @@ public class TagInput extends FormField {
         this.value = value;
         this.validationErrors = validationErrors;
         this.validationRules = validationRules;
+        this.options = options;
     }
 
     /**
@@ -99,6 +101,10 @@ public class TagInput extends FormField {
         return validationRules;
     }
 
+    public Map<Object, Object> getOptions() {
+        return options;
+    }
+
     /**
      * builds the input model data
      */
@@ -112,20 +118,22 @@ public class TagInput extends FormField {
                 "required", required,
                 "type", getType(),
                 "validationRules", validationRules,
-                "validationErrors", validationErrors
+                "validationErrors", validationErrors,
+                "options", options
         );
     }
 
     @Override
     public String toString() {
         return "TagInput{" +
-                "label='" + label + '\'' +
-                ", placeholder='" + placeholder + '\'' +
+                "placeholder='" + placeholder + '\'' +
                 ", required=" + required +
                 ", value=" + value +
-                ", name='" + name + '\'' +
                 ", validationErrors=" + validationErrors +
                 ", validationRules=" + validationRules +
+                ", label='" + label + '\'' +
+                ", name='" + name + '\'' +
+                ", options=" + options +
                 '}';
     }
 }

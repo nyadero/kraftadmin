@@ -5,7 +5,6 @@ import com.bowerzlabs.formfields.FormField;
 import com.bowerzlabs.formfields.FormFieldFactory;
 import com.bowerzlabs.formfields.fields.SelectField;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Transient;
 import jakarta.persistence.metamodel.EntityType;
@@ -68,6 +67,7 @@ public class InputGenerator {
 
             for (Field field : clazz.getEntityClass().getJavaType().getDeclaredFields()){
                 field.setAccessible(true);
+//                log.info("field {} should excluded {}", field, shouldExcludeField(field, isCreating));
                 if (field.isSynthetic() || shouldExcludeField(field, isCreating)) continue;
 
                 String fieldName = (prefix.isEmpty() ? "" : prefix + ".") + field.getName();
@@ -89,6 +89,7 @@ public class InputGenerator {
 
                 for (Field subField : subClass.getDeclaredFields()) {
                     subField.setAccessible(true);
+//                    log.info("subfield {} should excluded {}", subField, shouldExcludeField(subField, isCreating));
                     if (subField.isSynthetic() || shouldExcludeField(subField, isCreating)) continue;
 
                     String fieldName = (prefix.isEmpty() ? "" : prefix + ".") + subField.getName();
@@ -98,8 +99,7 @@ public class InputGenerator {
 
                     if (subFormField != null) {
                         subFormField.setLabel(formatLabel(fieldName));
-                        // This is what allows you to toggle fields per subtype using JS
-//                        subFormField.setWrapperClass("subtype-group subtype-group-" + subtypeName);
+                        // This is what allows us to toggle fields per subtype using JS
                         subFormField.setWrapperClass("subtype-group subtype-group-" + subtypeName + " hidden");
                         formFields.add(subFormField);
                     }
@@ -139,10 +139,9 @@ public class InputGenerator {
      */
     static boolean shouldExcludeField(Field field, boolean isCreating) {
         if (field.isAnnotationPresent(Id.class)) return true;
-
+        // Todo  skip fields having formIgnore annotation
         // Only skip collections
-        if (field.isAnnotationPresent(OneToMany.class) ||
-                field.isAnnotationPresent(ManyToMany.class)) return true;
+        if (field.isAnnotationPresent(OneToMany.class)) return true;
 
         if (field.isAnnotationPresent(CreationTimestamp.class) ||
                 field.isAnnotationPresent(CreatedDate.class) ||

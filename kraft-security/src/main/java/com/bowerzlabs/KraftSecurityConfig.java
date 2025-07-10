@@ -92,13 +92,14 @@ public class KraftSecurityConfig {
      * All other endpoints remain unaffected, even if parent app has no security.
      */
     @Bean
-    @Order(1) // Ensure this is evaluated before default Spring Security
+    @Order(1)
     public SecurityFilterChain adminSecurityFilterChain(HttpSecurity http) throws Exception {
         http
-                .securityMatcher("/admin/**") // Limit scope of this config
+                .securityMatcher("/admin/**") // Limit scope of this config to routes containing 'admin'
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/admin/auth/**",
+                                "/admin/uploads/**", "/uploads/**",
                                 "/admin/css/**", "/admin/js/**", "/admin/images/**"
                         ).permitAll()
                         .anyRequest().authenticated()
@@ -121,17 +122,5 @@ public class KraftSecurityConfig {
         return http.build();
     }
 
-    /**
-     * Disable Spring Boot default security fallback (i.e. the "generated password" login)
-     * by explicitly allowing everything else through a default filter chain.
-     */
-    @Bean
-    @Order(99)
-    public SecurityFilterChain permitAllOtherRequests(HttpSecurity http) throws Exception {
-        http
-                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-                .csrf(AbstractHttpConfigurer::disable);
 
-        return http.build();
-    }
 }

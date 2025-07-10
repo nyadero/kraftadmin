@@ -117,7 +117,6 @@ public class TagInputFieldStrategy implements FormFieldStrategy {
                     optionsMap.put(key, value1);
                 }
 //                primaryKey = related.getPrimaryKey();
-
             } catch (Exception e) {
                 log.error("Error extracting options from related entity", e);
             }
@@ -126,8 +125,12 @@ public class TagInputFieldStrategy implements FormFieldStrategy {
         boolean required = extractRequiredValidation(dbObjectSchema.getValidationRules(), field);
 //        log.info("Field required: {}", required);
 
-        TagInput tagInput = new TagInput(inputName, label, placeholder, required, optionsMap,
-                dbObjectSchema.getValidationRules(), dbObjectSchema.getValidationErrors());
+//        TagInput tagInput = new TagInput(inputName, label, placeholder, required, optionsMap,
+//                dbObjectSchema.getValidationRules(), dbObjectSchema.getValidationErrors(), optionsMap);
+
+        // Use the correct constructor parameter order
+        TagInput tagInput = new TagInput(inputName, label, placeholder, required, value,
+                dbObjectSchema.getValidationErrors(), dbObjectSchema.getValidationRules(), optionsMap);
 
 //        log.info("Created TagInput: {}", tagInput);
         return tagInput;

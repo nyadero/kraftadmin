@@ -23,21 +23,38 @@
 </th:block>
 
 <!-- Select input (dropdown) -->
+<!--<th:block th:fragment="selectInput(field)">-->
+<!--  <label th:for="${field.name}">-->
+<!--    <select th:name="${field.name}" class="w-full p-2 rounded border outline-none bg-white my-5">-->
+<!--      <option disabled th:text="${field.placeholder}" selected></option>-->
+<!--      <option th:each="opt : ${field.options}"-->
+<!--              th:value="${opt}"-->
+<!--              th:text="${opt}"-->
+<!--              th:selected="${opt == field.value}"></option>-->
+<!--    </select>-->
+<!--  </label>-->
+<!--  &lt;!&ndash; Validation error for select field &ndash;&gt;-->
+<!--  <span th:if="${field.validationErrors != null and field.validationErrors.containsKey(field.name)}"-->
+<!--        th:text="${field.validationErrors[field.name]}"-->
+<!--        style="color:red;">-->
+<!--    </span>-->
+<!--</th:block>-->
+
 <th:block th:fragment="selectInput(field)">
-  <label th:for="${field.name}">
-    <select th:name="${field.name}" class="w-full p-2 rounded border outline-none bg-white my-5">
-      <option disabled th:text="${field.placeholder}" selected></option>
-      <option th:each="opt : ${field.options}"
-              th:value="${opt}"
-              th:text="${opt}"
-              th:selected="${opt == field.value}"></option>
-    </select>
-  </label>
-  <!-- Validation error for select field -->
-  <span th:if="${field.validationErrors != null and field.validationErrors.containsKey(field.name)}"
-        th:text="${field.validationErrors[field.name]}"
-        style="color:red;">
-    </span>
+    <label th:for="${field.name}">
+        <select class="w-full p-2 rounded border outline-none bg-white my-5" th:name="${field.name}">
+            <option disabled selected th:text="${field.placeholder}"></option>
+            <option th:each="opt : ${field.options}"
+                    th:selected="${opt.value == field.value}"
+                    th:text="${opt.displayText}"
+                    th:value="${opt.value}"></option>
+        </select>
+    </label>
+    <!-- Validation error for select field -->
+    <span style="color:red;"
+          th:if="${field.validationErrors != null and field.validationErrors.containsKey(field.name)}"
+          th:text="${field.validationErrors[field.name]}">
+  </span>
 </th:block>
 
 <!-- Checkbox input -->
@@ -466,22 +483,47 @@
   </div>
 </th:block>
 
-<!-- Tag Input Field -->
-<div class="mb-4" th:if="${field.type == 'taginput'}">
-    <label class="block text-sm font-medium text-gray-700 mb-1" th:for="${field.name}" th:text="${field.label}"></label>
 
-    <input class="tagify-input border border-gray-300 rounded px-3 py-2 w-full"
-           th:id="${field.name}"
-           th:name="${field.name}"
-           th:placeholder="${field.placeholder}"
-           th:value="${#strings.arrayJoin(field.value, ',')}"/>
+<!--<th:block th:fragment="tagInput(field)">-->
+<!--    <select th:id="${field.name}"-->
+<!--            th:name="${field.name}"-->
+<!--            th:data-placeholder="${field.placeholder}"-->
+<!--            class="tom-tags w-full"-->
+<!--            th:placeholder="${field.placeholder}"-->
+<!--            multiple>-->
+<!--        <option th:each="option : ${field.value}"-->
+<!--                th:value="${option.value}"-->
+<!--                th:text="${option.key}"-->
+<!--                th:selected="${#lists.contains(field.value, option.value)}">-->
+<!--        </option>-->
+<!--    </select>-->
 
-    <!-- Validation error -->
-    <div class="text-sm text-red-600 mt-1"
-         th:if="${field.validationErrors[field.name]}"
-         th:text="${field.validationErrors[field.name]}"></div>
-</div>
+<!--    &lt;!&ndash; Validation error &ndash;&gt;-->
+<!--    <div class="text-sm text-red-600 mt-1"-->
+<!--         th:if="${field.validationErrors[field.name]}"-->
+<!--         th:text="${field.validationErrors[field.name]}"></div>-->
+<!--</th:block>-->
 
+<!--<th:block th:fragment="tagInput(field)">-->
+<!--    <pre th:text="${field}"></pre>-->
+<!--    <select th:id="${field.name}"-->
+<!--            th:name="${field.name}"-->
+<!--            th:data-placeholder="${field.placeholder}"-->
+<!--            class="tom-tags w-full"-->
+<!--            th:placeholder="${field.placeholder}"-->
+<!--            multiple>-->
+<!--        <option th:each="option : ${field.options}"-->
+<!--                th:value="${option.value}"-->
+<!--                th:text="${option.key}"-->
+<!--                th:selected="${#lists.contains(field.value, option.value)}">-->
+<!--        </option>-->
+<!--    </select>-->
+
+<!--    &lt;!&ndash; Validation error &ndash;&gt;-->
+<!--    <div class="text-sm text-red-600 mt-1"-->
+<!--         th:if="${field.validationErrors[field.name]}"-->
+<!--         th:text="${field.validationErrors[field.name]}"></div>-->
+<!--</th:block>-->
 
 <!-- Radio Input -->
 <th:block th:fragment="radioGroupInput(field)">

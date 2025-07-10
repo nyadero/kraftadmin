@@ -1,8 +1,12 @@
 <div th:fragment="sidebar-container" xmlns:th="http://www.w3.org/1999/xhtml" >
-    <div id="sidebar" class="h-screen w-80 bg-white overflow-y-auto sticky top-0 left-0 border-l-2 border-l-black transition-transform duration-300 transform translate-x-0">
+    <!--    <div id="sidebar" class="h-screen w-80 bg-white overflow-y-auto sticky top-0 left-0 border-l-2 border-l-black transition-transform duration-300 transform translate-x-0">-->
+    <div class="h-screen w-80 bg-white overflow-y-auto sticky top-0 left-0 border-l-2 border-l-black
+            transition-all duration-300 transform translate-x-0"
+         id="sidebar">
+
         <!-- Title -->
         <div class="py-5 px-4 flex items-center">
-            <h3 class="text-lg font-bold" th:text="${title}">Library System</h3>
+            <h3 class="text-lg font-bold" th:text="${title}">KraftAdmin</h3>
         </div>
 
 <!--        <hr class="border-dark" />-->
@@ -48,7 +52,7 @@
                     <button type="button"
                             onclick="document.getElementById('entity-list').classList.toggle('hidden')"
                             class="w-full flex items-center justify-between px-4 py-2 border border-blue-500 rounded hover:bg-blue-500 hover:text-white transition group">
-                        <span class="font-semibold">📁 Content</span>
+                        <span class="font-semibold">📁 Crud</span>
                         <i class="fa fa-chevron-down group-hover:rotate-180 transition-transform"></i>
                     </button>
 

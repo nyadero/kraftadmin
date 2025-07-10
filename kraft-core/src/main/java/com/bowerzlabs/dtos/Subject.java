@@ -1,5 +1,6 @@
 package com.bowerzlabs.dtos;
 
+import com.bowerzlabs.annotations.DisplayField;
 import jakarta.persistence.Embeddable;
 
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.List;
  * The table name of the Entity class and the id of the item this operation occurred on.
  */
 @Embeddable
+@DisplayField("tableName")
 public class Subject {
     private String tableName;
     private List<String> dataId;

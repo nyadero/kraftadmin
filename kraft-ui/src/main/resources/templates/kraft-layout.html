@@ -16,31 +16,30 @@
   <!-- Sidebar -->
   <div th:replace="~{kraft-components/sidebar :: sidebar-container}"></div>
   <!-- Sidebar Wrapper -->
-  <!--  <div id="sidebar-wrapper" class="transition-all duration-300 w-64">-->
-  <!--    <div id="sidebar" class="h-screen fixed z-30 bg-white w-64 transition-transform transform translate-x-0">-->
-  <!--      <div th:replace="~{components/sidebar :: sidebar-container}"></div>-->
-  <!--    </div>-->
-  <!--  </div>-->
+  <!--      <div id="sidebar" class="h-screen w-80 bg-white overflow-y-auto sticky top-0 left-0 border-l-2 border-l-black transition-transform duration-300 transform translate-x-0">-->
+  <!--        <div th:replace="~{kraft-components/sidebar :: sidebar-container}"></div>-->
+  <!--      </div>-->
 
-
-  <!-- Page Content (shifted to the right of sidebar) -->
-  <div class="flex-1 flex flex-col">
+  <!-- Page Content  -->
+  <div class="flex-1 flex flex-col w-full">
 
     <!-- Top Navbar -->
-    <div class="sticky top-0 bg-white shadow-md z-40">
+    <div class="sticky top-0 bg-white shadow-md z-40 w-full">
       <div th:replace="~{kraft-components/navbar :: navbar-container}"></div>
     </div>
 
     <!-- Main Content -->
-    <!--    <main class="flex-1 p-4 overflow-y-hidden">-->
-    <div class="flex-1 flex flex-col transition-all duration-300 p-4" id="main">
-      <h3 class="ws-data">Hello from websocket</h3>
+    <!--        <main class="flex-1 p-4 overflow-y-hidden">-->
+    <div class="flex flex-col transition-all duration-300 p-4 w-full" id="main">
+      <h3 class="ws-data"></h3>
       <div id="loader" class="fixed inset-0 flex items-center justify-center bg-white z-50">
         <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-32 w-32"></div>
       </div>
       <div th:replace="~{kraft-components/snackbar :: toast-container}"></div>
       <th:block layout:fragment="content"></th:block>
-    </main>
+    </div>
+
+    <!--        </main>-->
 
   </div>
 </div>
@@ -54,5 +53,6 @@
   <script defer th:src="@{/js/dropdown.js}" type="module"></script>
 <script defer th:src="@{/js/websocket.js}" type="module"></script>
 <script defer th:src="@{/js/analytics.js}" type="module"></script>
+<script defer th:src="@{/js/error.js}" type="module"></script>
 </body>
 </html>

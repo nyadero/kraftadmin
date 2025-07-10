@@ -12,6 +12,7 @@ import com.bowerzlabs.dtos.PageResponse;
 import com.bowerzlabs.dtos.Subject;
 import com.bowerzlabs.events.UIEvent;
 import com.bowerzlabs.events.UserActionEvent;
+import com.bowerzlabs.files.LocalMultipartFileStorage;
 import com.bowerzlabs.files.MultipartFileStorage;
 import com.bowerzlabs.files.StorageProperties;
 import com.bowerzlabs.formfields.FormField;
@@ -20,8 +21,10 @@ import com.bowerzlabs.service.CrudService;
 import com.bowerzlabs.service.FileStorageService;
 import com.bowerzlabs.utils.DisplayUtils;
 import com.bowerzlabs.utils.KraftUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
@@ -50,15 +53,14 @@ public class CrudController {
     private final DataExporterRegistry dataExporterRegistry;
     private FileStorageService fileStorageService;
     private MultipartFileStorage multipartFileStorage;
-    private final StorageProperties storageProperties;
-//    private final LocalStorageServiceProvider localStorageServiceProvider;
+    @Autowired
+    private StorageProperties storageProperties;
 
     public CrudController(EntitiesScanner entitiesScanner, ApplicationEventPublisher applicationEventPublisher, CrudService crudService, DataExporterRegistry dataExporterRegistry) {
         this.entitiesScanner = entitiesScanner;
         this.applicationEventPublisher = applicationEventPublisher;
         this.crudService = crudService;
         this.dataExporterRegistry = dataExporterRegistry;
-        this.storageProperties = new StorageProperties();
     }
 
     // render create item page
@@ -92,7 +94,8 @@ public class CrudController {
             @PathVariable("entityName") String entityName,
             @RequestParam Map<String, String> formValues,
             @RequestParam(required = false) Map<String, MultipartFile> fileInputs,
-            RedirectAttributes redirectAttributes
+            RedirectAttributes redirectAttributes,
+            HttpServletRequest request
     ) {
         try {
             EntityMetaModel entityInstance = entitiesScanner.getEntityByName(entityName);
@@ -119,28 +122,25 @@ public class CrudController {
                     String field = entry.getKey();
                     MultipartFile file = entry.getValue();
                     String uploadedFile = null;
-
-//                    if (file != null && !file.isEmpty()) {
-//                        switch (new StorageProperties().getProvider()){
-//                            case Local:
-//                                multipartFileStorage = new LocalMultipartFileStorage(storageProperties);
-//                                uploadedFile = multipartFileStorage.uploadSingle(file);
-//                                break;
-//                            case Cloudinary:
-//                                break;
-//                            case AWS_S3:
-//                                break;
-//                            default:
-//                                log.info("Unknown provider");
-//                        }
-//                        String uploadedFileName = null;
-//                        formValues.put(field, uploadedFile); // Add it as if it was submitted in the form
-//                        System.out.println("File uploaded for field " + field + ": " + uploadedFile);
-//                    }
-//                    formValues.put(field, Arrays.toString(file.getBytes()));
+                    if (file != null && !file.isEmpty()) {
+                        log.info("storage provider {} and directory {}", storageProperties.getProvider(), storageProperties.getUploadDir());
+                        switch (storageProperties.getProvider()) {
+                            case Local:
+                                multipartFileStorage = new LocalMultipartFileStorage(request, storageProperties);
+                                uploadedFile = multipartFileStorage.uploadSingle(file);
+                                break;
+                            case Cloudinary:
+                                break;
+                            case AWS_S3:
+                                break;
+                            default:
+                                log.info("Unknown provider");
+                        }
+                        formValues.put(field, uploadedFile);
+                    }
+                    formValues.put(field, uploadedFile);
                 }
             }
-
             Object entity = crudService.save(entityName, formValues, null);
             savedEntity = new DbObjectSchema(entityInstance, entity);
             applicationEventPublisher.publishEvent(new UIEvent(this, savedEntity.getClass().getSimpleName() + " saved successfully", Status.Success));
@@ -149,6 +149,7 @@ public class CrudController {
                     (AdminUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal(), subject));
 
         } catch (Exception e) {
+            log.info("creation error {}", e.toString());
             redirectAttributes.addFlashAttribute("errorMessage", "Failed to save entity: " + e.getMessage());
             applicationEventPublisher.publishEvent(new UIEvent(this, "Failed to save entity", Status.Error));
             return "redirect:/admin/crud/" + entityName;
@@ -156,7 +157,6 @@ public class CrudController {
 
         return "redirect:/admin/crud/" + entityName;
     }
-
 
     // get entity by ID dynamically
     @GetMapping("/{entityName}/{id}")
@@ -176,10 +176,9 @@ public class CrudController {
                 Object value = entry.getValue();
                 FieldValue displayField = DisplayUtils.resolveFieldValue(value);
                 displayItem.put(fieldName, displayField);
-
             }
             displayMap.add(displayItem);
-            model.addAttribute("fieldNames", item.get().getDisplayFields().stream().map(Field::getName).toList());
+            model.addAttribute("fieldNames", item.get().getAllFields().stream().map(Field::getName).toList());
             model.addAttribute("item", displayMap);
             Subject subject = new Subject(item.get().getEntityName(), List.of(item.get().getIdValue().toString()));
             applicationEventPublisher.publishEvent(new UserActionEvent(this, UserActionType.Read, (AdminUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal(), subject));
@@ -188,6 +187,7 @@ public class CrudController {
         }
         return "kraft-crud/details";
     }
+
 
     // render all items, use pagination
     @GetMapping("/{entityName}")
@@ -198,7 +198,9 @@ public class CrudController {
             @RequestParam Map<String, String> allParams1,
             Model model
     ) {
+//        EntityMetaModel entityInstance = entitiesScanner.getEntityByName(entityName);
         EntityMetaModel entityInstance = entitiesScanner.getEntityByName(entityName);
+        log.info("entityInstance {}", entityInstance);
         try {
             DbObjectSchema schema = new DbObjectSchema(entityInstance,null);
 //            List<FormField> formFields = InputGenerator.generateFormInput(entityInstance, schema, "/admin/crud/" + entityName + "/create", false, true, new HashMap<>());
@@ -436,6 +438,7 @@ public class CrudController {
         byte[] content = null;
         HttpHeaders headers = null;
         try {
+            EntityMetaModel entityMetaModel = entitiesScanner.getEntityByName(entityName);
             List<Map<String, Object>> data = crudService.getAll(entityName).stream().map(DbObjectSchema::getAllFieldsWithData).toList();
             DataExporter exporter = dataExporterRegistry.getExporter(format);
             content = exporter.export(data);

@@ -1,36 +1,23 @@
 document.addEventListener("DOMContentLoaded", function () {
+         console.log("scriptjs loaded");
  const loader = document.getElementById('loader');
  if (loader) loader.style.display = 'none';
 
   /** ---------------- Sidebar Toggle ---------------- **/
-  const menuToggle = document.getElementById('menu-toggle');
+        const menuToggle = document.getElementById('menu-toggle');
       const sidebar = document.getElementById('sidebar');
 
       if (menuToggle && sidebar) {
+         console.log("toggling sidebar");
           menuToggle.addEventListener('click', () => {
-              sidebar.classList.toggle('-translate-x-full'); // hide
-              sidebar.classList.toggle('translate-x-0');     // show
+//              sidebar.classList.toggle('-translate-x-full'); // hide
+//              sidebar.classList.toggle('translate-x-0');     // show
+              sidebar.classList.toggle('-translate-x-full'); // hide class
+                sidebar.classList.toggle('w-0');               // hide class
+                sidebar.classList.toggle('translate-x-0');     // show class
+                sidebar.classList.toggle('w-80');
           });
       }
-//   const menuToggle = document.getElementById('menu-toggle');
-//   const sidebar = document.getElementById('sidebar');
-//   const sidebarWrapper = document.getElementById('sidebar-wrapper');
-//
-//   if (menuToggle && sidebar && sidebarWrapper) {
-//     menuToggle.addEventListener('click', () => {
-//       sidebar.classList.toggle('-translate-x-full');
-//       sidebarWrapper.classList.toggle('w-64');
-//       sidebarWrapper.classList.toggle('w-0');
-//     });
-//   }
-
-//const main = document.getElementById('main');
-//
-//if (main) {
-//  main.classList.toggle('ml-64');
-//  main.classList.toggle('ml-0');
-//}
-
 
   /** ---------------- Tab Navigation ---------------- **/
   const buttons = document.querySelectorAll(".tab-button");
