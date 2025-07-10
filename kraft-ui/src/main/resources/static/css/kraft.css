@@ -251,6 +251,9 @@
 .justify-center {
   justify-content: center;
 }
+.justify-end {
+  justify-content: flex-end;
+}
 .gap-2 {
   gap: calc(var(--spacing) * 2);
 }
@@ -371,6 +374,9 @@
 .bg-blue-600 {
   background-color: var(--color-blue-600);
 }
+.bg-blue-700 {
+  background-color: var(--color-blue-700);
+}
 .bg-gray-50 {
   background-color: var(--color-gray-50);
 }
@@ -385,6 +391,9 @@
 }
 .bg-red-50 {
   background-color: var(--color-red-50);
+}
+.bg-red-200 {
+  background-color: var(--color-red-200);
 }
 .bg-red-500 {
   background-color: var(--color-red-500);
