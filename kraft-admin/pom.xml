@@ -6,7 +6,8 @@
     <parent>
         <groupId>io.github.bowerzlabs</groupId>
         <artifactId>kraftadmin</artifactId>
-        <version>{project.version}</version>
+        <version>0.1.1</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>kraft-admin</artifactId>
@@ -61,9 +62,10 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.nyadero</groupId>
+            <groupId>io.github.bowerzlabs</groupId>
             <artifactId>kraft-monitoring</artifactId>
             <!--            <version>1.0.0</version>-->
+            <!--            <version>0.1.1</version>-->
         </dependency>
 
     </dependencies>

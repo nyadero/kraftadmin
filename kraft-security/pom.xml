@@ -14,7 +14,8 @@
         <groupId>io.github.bowerzlabs</groupId>
         <artifactId>kraftadmin</artifactId>
         <!--        <version>0.1.0</version>-->
-        <version>{project.version}</version>
+        <version>0.1.1</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>kraft-security</artifactId>
@@ -40,7 +41,7 @@
         <dependency>
             <groupId>io.github.bowerzlabs</groupId>
             <artifactId>kraft-core</artifactId>
-            <version>0.1.0</version>
+            <!--            <version>0.1.0</version>-->
         </dependency>
     </dependencies>
 

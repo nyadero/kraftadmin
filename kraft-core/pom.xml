@@ -8,7 +8,8 @@
         <groupId>io.github.bowerzlabs</groupId>
         <artifactId>kraftadmin</artifactId>
         <!--        <version>0.1.0</version>-->
-        <version>{project.version}</version>
+        <version>0.1.1</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>kraft-core</artifactId>
@@ -72,7 +73,7 @@
         <dependency>
             <groupId>io.github.bowerzlabs</groupId>
             <artifactId>kraft-data-jpa</artifactId>
-            <version>0.1.0</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.tomcat.embed</groupId>
@@ -111,10 +112,11 @@
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-core</artifactId>
         </dependency>
-        <dependency>
-            <groupId>io.github.bowerzlabs</groupId>
-            <artifactId>kraft-data-jpa</artifactId>
-        </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>io.github.bowerzlabs</groupId>-->
+        <!--            <artifactId>kraft-data-jpa</artifactId>-->
+        <!--&lt;!&ndash;            <version>${project.version}</version>&ndash;&gt;-->
+        <!--        </dependency>-->
 
     </dependencies>
 
