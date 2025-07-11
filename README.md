@@ -38,9 +38,9 @@ Add the Maven Dependency
 
 ````
 <dependency>
-  <groupId>com.bowerzlabs</groupId>
+  <groupId>io.github.bowerzlabs</groupId>
   <artifactId>kraft-admin</artifactId>
-  <version>0.1.0</version>
+  <version>0.1.1</version>
 </dependency>
 ````
 
