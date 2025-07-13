@@ -31,7 +31,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 
@@ -121,42 +120,6 @@ public class CrudService {
         }
     }
 
-    // find all data, can sort, search and filter
-//    public Page<DbObjectSchema> findAll(String entityName, int page, int size, Map<String, String> filters) throws Exception {
-//        try {
-//            EntityMetaModel clazz = entityScanner.getEntityByName(entityName);
-//
-//            CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-//
-//            CriteriaQuery<Object> query = DynamicQueryBuilder.buildQuery(cb, clazz.getEntityClass().getJavaType(), filters, filters.get("search"));
-//            TypedQuery<Object> typedQuery = entityManager.createQuery(query);
-//            typedQuery.setFirstResult(page * size);
-//            typedQuery.setMaxResults(size);
-//            List<Object> results = typedQuery.getResultList();
-//
-//            // ---- Count Query ----
-//            CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
-//            Root<?> countRoot = countQuery.from(clazz.getEntityClass());
-//            Predicate[] countPredicates = DynamicQueryBuilder.buildPredicates(cb, countRoot, clazz.getEntityClass().getJavaType(), filters, filters.get("search"));
-//            countQuery.select(cb.count(countRoot)).where(countPredicates);
-//            long total = entityManager.createQuery(countQuery).getSingleResult();
-//
-//            // ---- Transform to Schema List ----
-//            List<DbObjectSchema> schemaList = results.stream().map(entity -> {
-//                try {
-//                    return new DbObjectSchema(clazz, entity);
-//                } catch (Exception e) {
-//                    throw new RuntimeException(e);
-//                }
-//            }).collect(Collectors.toList());
-//
-//            return new PageImpl<>(schemaList, PageRequest.of(page, size), total);
-//        } catch (Exception e) {
-//            log.error("Error fetching data", e);
-//            throw new RuntimeException(e);
-//        }
-//    }
-
     // Enhanced findAll method with nested field support and optimizations
     public Page<DbObjectSchema> findAll(String entityName, int page, int size, Map<String, String> filters) throws Exception {
         log.info("filters {}", filters.entrySet());
@@ -168,12 +131,9 @@ public class CrudService {
 
             // Extract search parameter - check both "search" and "filter.search"
             String searchKeyword = filters.get("search");
-            log.info("searchKeyword {}", searchKeyword);
             if (searchKeyword == null) {
                 searchKeyword = filters.get("search");
             }
-
-            log.info("searchKeyword2 {}", searchKeyword);
 
             // Build both queries efficiently with shared logic
             OptimizedDynamicQueryBuilder.QueryResult queryResult =
@@ -192,28 +152,21 @@ public class CrudService {
             dataQuery.setFirstResult(page * size);
             dataQuery.setMaxResults(size);
 
-            // Execute both queries concurrently for better performance
-            CompletableFuture<List<Object>> dataFuture = CompletableFuture.supplyAsync(() -> {
-                try {
-                    return dataQuery.getResultList();
-                } catch (Exception e) {
-                    log.error("Error executing data query: {}", e.getMessage());
-                    throw new RuntimeException("Failed to execute data query", e);
-                }
-            });
+            long total;
+            List<Object> results;
 
-            CompletableFuture<Long> countFuture = CompletableFuture.supplyAsync(() -> {
-                try {
-                    return countQuery.getSingleResult();
-                } catch (Exception e) {
-                    log.error("Error executing count query: {}", e.getMessage());
-                    throw new RuntimeException("Failed to execute count query", e);
-                }
-            });
+            try {
+                total = countQuery.getSingleResult();
+                log.debug("Count query executed successfully, total: {}", total);
 
-            // Wait for both queries to complete
-            List<Object> results = dataFuture.get();
-            long total = countFuture.get();
+                // Execute data query second
+                results = dataQuery.getResultList();
+                log.debug("Data query executed successfully, results: {}", results.size());
+
+            } catch (Exception e) {
+                log.error("Error executing queries: {}", e.getMessage(), e);
+                throw new RuntimeException("Failed to execute queries", e);
+            }
 
             // Transform to schema list with parallel processing for large datasets
             List<DbObjectSchema> schemaList;
@@ -247,6 +200,7 @@ public class CrudService {
                     schemaList.size(), total, entityName, page, size, searchKeyword);
 
             return new PageImpl<>(schemaList, PageRequest.of(page, size), total);
+
         } catch (Exception e) {
             log.error("Error fetching data for entity '{}', page {}, size {}: {}",
                     entityName, page, size, e.getMessage(), e);
