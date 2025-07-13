@@ -24,19 +24,6 @@ public class LocalMultipartFileStorage implements MultipartFileStorage {
     private final static Logger log = LoggerFactory.getLogger(LocalMultipartFileStorage.class);
     private final HttpServletRequest httpServletRequest;
     private final StorageProperties storageProperties;
-//
-//    public LocalMultipartFileStorage(StorageProperties storageProperties) {
-//        this.storageProperties = storageProperties;
-//        log.info("Local Multipart Storage initialized {} {}", storageProperties.getProvider(), storageProperties.getUploadDir());
-//    }
-
-//    public LocalMultipartFileStorage(HttpServletRequest request, StorageProperties storageProperties) {
-//        this.httpServletRequest = request;
-//        this.storageProperties = storageProperties;
-//
-//        log.info("Local Multipart Storage initialized - Provider: {}, Upload Directory: {}",
-//                storageProperties.getProvider(), storageProperties.getUploadDir());
-//    }
 
     @Override
     public List<String> uploadMultiple(List<MultipartFile> files) {
@@ -55,8 +42,6 @@ public class LocalMultipartFileStorage implements MultipartFileStorage {
     @Override
     @Async
     public String uploadSingle(MultipartFile multipartFile) {
-//            Path uploadDirectory = Paths.get("src/main/resources/uploads");
-//        Path uploadDirectory = Paths.get("uploads");
 
         // Use the configured upload directory
         Path uploadDirectory = Paths.get(storageProperties.getUploadDir());
