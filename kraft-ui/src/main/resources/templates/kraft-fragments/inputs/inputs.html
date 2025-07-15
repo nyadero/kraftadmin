@@ -59,13 +59,20 @@
 
 <!-- Checkbox input -->
 <th:block th:fragment="checkboxInput(field)">
-  <label th:for="${field.name}">
-    <input type="checkbox"
-           th:name="${field.name}"
-           th:value="${field.value}"
-           th:checked="${field.value}"
-           class="p-2 rounded border outline-none bg-white my-5"/>
-  </label>
+    <label th:for="${field.name}">
+        <!-- Checkbox input -->
+        <input class="p-2 rounded border outline-none bg-white my-5"
+               th:checked="${field.value}"
+               th:name="${field.name}"
+               type="checkbox"
+               value="true"/>
+
+        <!-- Hidden fallback input for unchecked value - only when checkbox is not checked -->
+        <input th:name="${field.name}"
+               th:unless="${field.value}"
+               type="hidden"
+               value="false"/>
+    </label>
 </th:block>
 
 <!-- Tags input (multi-select) -->
@@ -97,13 +104,6 @@
 <th:block th:fragment="numberInput(field)">
   <label th:for="${field.name}">
     <div class="flex space-x-2 items-center">
-      <!-- Operation dropdown -->
-      <select th:name="${field.name + 'Operation'}" class="rounded border px-2 py-1">
-        <option th:each="op : ${field.searchOperations}"
-                th:value="${op}"
-                th:text="${op}"></option>
-      </select>
-
       <!-- Value input -->
       <input type="number"
              th:id="${field.name}"

@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class CheckboxField extends FormField {
     private String label;
-    private final Boolean value;
+    private final boolean value;
     private String name;
     private final boolean required;
     private final Map<String, String> validationErrors;
@@ -60,7 +60,7 @@ public class CheckboxField extends FormField {
      */
     @Override
     public boolean getRequired() {
-        return false;
+        return required;
     }
 
     /**
@@ -76,7 +76,7 @@ public class CheckboxField extends FormField {
      */
     @Override
     public Map<String, String> getValidationErrors() {
-        return Map.of();
+        return validationErrors;
     }
 
     /**
@@ -84,7 +84,7 @@ public class CheckboxField extends FormField {
      */
     @Override
     public Map<String, String> getValidationRules() {
-        return Map.of();
+        return validationRules;
     }
 
     /**
@@ -122,4 +122,15 @@ public class CheckboxField extends FormField {
     }
 
 
+    @Override
+    public String toString() {
+        return "CheckboxField{" +
+                "label='" + label + '\'' +
+                ", value=" + value +
+                ", name='" + name + '\'' +
+                ", required=" + required +
+                ", validationErrors=" + validationErrors +
+                ", validationRules=" + validationRules +
+                '}';
+    }
 }
