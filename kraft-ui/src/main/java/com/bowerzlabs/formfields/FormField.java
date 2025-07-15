@@ -7,6 +7,7 @@ import java.util.Map;
 public abstract class FormField {
     private String name;
     private String label;
+    private Object value;
     private List<String> searchOperations = new ArrayList<>();
     public String wrapperClass = "wrapper";
 
@@ -117,5 +118,9 @@ public abstract class FormField {
 
     public void setWrapperClass(String wrapperClass) {
         this.wrapperClass = wrapperClass;
+    }
+
+    public void setValue(Object value) {
+        this.value = value;
     }
 }

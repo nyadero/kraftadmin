@@ -8,7 +8,7 @@ public class TextField extends FormField {
     private String label;
     private final String placeholder;
     private final boolean required;
-    private final Object value;
+    private Object value;
     private String name;
     private final Map<String, String> validationErrors;
     private final Map<String, String> validationRules;
@@ -89,6 +89,11 @@ public class TextField extends FormField {
     @Override
     public void setLabel(String s) {
         this.label = s;
+    }
+
+    @Override
+    public void setValue(Object value) {
+        this.value = value;
     }
 
     @Override
