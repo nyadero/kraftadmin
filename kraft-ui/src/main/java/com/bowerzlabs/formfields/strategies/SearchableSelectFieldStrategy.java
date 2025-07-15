@@ -34,8 +34,7 @@ public class SearchableSelectFieldStrategy implements FormFieldStrategy {
 
         boolean required = extractRequiredValidation(dbObjectSchema.getValidationRules(), field);
         Class<?> relatedEntityClass = field.getType();
-        log.info("relatedEntityClass in search select field strategy {}", relatedEntityClass);
-        String entityName = EntitiesScanner.resolveEntityNameManual(relatedEntityClass); // Pass EntityManager
+        String entityName = EntitiesScanner.resolveEntityNameManual(relatedEntityClass);
         List<DbObjectSchema> relatedEntities = staticCrudService.getAll(entityName);
         Map<Object, Object> optionsMap = new HashMap<>();
         for (DbObjectSchema related : relatedEntities) {
@@ -43,29 +42,44 @@ public class SearchableSelectFieldStrategy implements FormFieldStrategy {
             Object value1;
 
             try {
+                Field idField = relatedEntityClass.getDeclaredField(related.getPrimaryKey());
+                idField.setAccessible(true);
+
                 if (field.isAnnotationPresent(DisplayField.class)) {
                     DisplayField displayField = field.getAnnotation(DisplayField.class);
                     String displayFieldName = displayField.value();
                     Field field1 = relatedEntityClass.getDeclaredField(displayFieldName);
-                    Field idField = relatedEntityClass.getDeclaredField(related.getPrimaryKey());
                     field1.setAccessible(true);
-                    idField.setAccessible(true);
+
                     key = field1.get(related.getEntity());
-                    value1 = idField.get(related.getEntity());
-                    optionsMap.put(key, value1);
                 } else {
-                    Field idField = relatedEntityClass.getDeclaredField(related.getPrimaryKey());
-                    idField.setAccessible(true);
-                    key = idField.get(related.getEntity());
-                    value1 = idField.get(related.getEntity());
-                    optionsMap.put(key, value1);
+                    key = idField.get(related.getEntity()); // fallback key
                 }
-//                primaryKey = related.getPrimaryKey();
+
+                value1 = idField.get(related.getEntity());
+                optionsMap.put(key, value1);
 
             } catch (Exception e) {
                 log.error("Error extracting options from related entity", e);
             }
         }
+
+//  Only set value if editing
+        if (dbObjectSchema.getEntity() != null) {
+            Object fieldValue = extractValue(field, dbObjectSchema);
+            if (fieldValue != null) {
+                try {
+                    Field idField = fieldValue.getClass().getDeclaredField("id");
+                    idField.setAccessible(true);
+                    // Extract actual ID from Talent object
+                    value = idField.get(fieldValue);
+                } catch (Exception e) {
+                    log.error("Failed to extract ID from related object value", e);
+                }
+            }
+        }
+
+
         return new SearchableSelectField(label, inputName, "Type " + inputName + " " + inputName + " to search", optionsMap, value, required, dbObjectSchema.getValidationErrors(), dbObjectSchema.getValidationRules());
     }
 }
