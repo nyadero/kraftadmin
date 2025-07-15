@@ -110,6 +110,7 @@ public class FieldFactory {
                 new RadioFieldStrategy(),
                 new MultiSelectFieldStrategy(),
                 new CurrencyInputStrategy(),
+                new CollectionTextFieldStrategy(),
                 new TextFieldStrategy()
         );
     }
