@@ -72,7 +72,7 @@ public class GlobalControllerAdvice {
 //        });
 
         model.addAttribute("entities", entities);
-        // ✅ Only pass groupedEntities if grouping exists
+        // Only pass groupedEntities if grouping exists
 //        if (!grouped.isEmpty()) {
 //            model.addAttribute("groupedEntities", grouped);
 //        } else {
@@ -82,4 +82,15 @@ public class GlobalControllerAdvice {
         model.addAttribute("title", properties.getTitle());
         model.addAttribute("httpSession", httpSession.toString());
     }
+
+//    @ModelAttribute
+//    public void checkAdminSession(HttpServletRequest request, HttpServletResponse response, Authentication auth) throws IOException {
+//        if (request.getRequestURI().startsWith("/admin")) {
+//            if (auth == null || !(auth.getPrincipal() instanceof AdminUser)) {
+//                request.getSession().invalidate();
+//                response.sendRedirect("/admin/auth/login");
+//            }
+//        }
+//    }
+
 }

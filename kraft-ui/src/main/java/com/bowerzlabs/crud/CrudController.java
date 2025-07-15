@@ -18,7 +18,6 @@ import com.bowerzlabs.files.StorageProperties;
 import com.bowerzlabs.formfields.FormField;
 import com.bowerzlabs.models.kraftmodels.AdminUser;
 import com.bowerzlabs.service.CrudService;
-import com.bowerzlabs.service.FileStorageService;
 import com.bowerzlabs.utils.DisplayUtils;
 import com.bowerzlabs.utils.KraftUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -51,7 +50,6 @@ public class CrudController {
     private final ApplicationEventPublisher applicationEventPublisher;
     private final CrudService crudService;
     private final DataExporterRegistry dataExporterRegistry;
-    private FileStorageService fileStorageService;
     private MultipartFileStorage multipartFileStorage;
     @Autowired
     private StorageProperties storageProperties;
@@ -346,9 +344,12 @@ public class CrudController {
             @PathVariable("entityName") String entityName,
             @PathVariable("id") String id,
             @RequestParam Map<String, String> formValues,
+            @RequestParam(required = false) Map<String, MultipartFile> fileInputs,
             RedirectAttributes redirectAttributes
     ) {
         EntityMetaModel entityInstance = entitiesScanner.getEntityByName(entityName);
+        System.out.println("Received form values: " + formValues);
+        System.out.println("Received files: " + fileInputs);
         try {
             Optional<DbObjectSchema> item = crudService.findById(entityName, id);
             if (item.isPresent()) {
@@ -461,7 +462,7 @@ public class CrudController {
     public ResponseEntity<Resource> download(@PathVariable String filename) {
         Resource file = null;
         try {
-            file = fileStorageService.download(filename);
+            file = multipartFileStorage.download(filename);
         } catch (Exception e) {
             applicationEventPublisher.publishEvent(new UIEvent(this, e.getMessage(), Status.Error));
             log.info("error {}", e.toString());

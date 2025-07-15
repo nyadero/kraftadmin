@@ -35,10 +35,10 @@ public class EntitiesScanner {
                 .collect(Collectors.toList());
 
 //        entities.forEach(entityType -> log.info(" entityType {}, entityName {}", entityType.getClass().getEnclosingClass(), entityType.getName()));
-        cachedEntities.forEach(entityType -> {
-            log.info("subtypes for {} are {}, supers {}", entityType.getEntityClass().getName(), getAllSubTypesOf(entityType.getEntityClass()
-            ), getEntityByName(entityType.getEntityClass().getName()));
-        });
+//        cachedEntities.forEach(entityType -> {
+//            log.info("subtypes for {} are {}, supers {}", entityType.getEntityClass().getName(), getAllSubTypesOf(entityType.getEntityClass()
+//            ), getEntityByName(entityType.getEntityClass().getName()));
+//        });
     }
 
     /**
@@ -102,7 +102,7 @@ public class EntitiesScanner {
                 String name = entityAnnotation.name();
 
                 if (name != null && !name.trim().isEmpty()) {
-                    log.debug("Found @Entity(name='{}') for class {}", name, clazz.getSimpleName());
+//                    log.debug("Found @Entity(name='{}') for class {}", name, clazz.getSimpleName());
                     return name;
                 }
             }
@@ -147,9 +147,9 @@ public class EntitiesScanner {
                     boolean matches = name.equalsIgnoreCase(jpaEntityName) ||
                             name.equalsIgnoreCase(simpleClassName);
 
-                    if (matches) {
-                        log.info("MATCH FOUND!");
-                    }
+//                    if (matches) {
+//                        log.info("MATCH FOUND!");
+//                    }
 
                     return matches;
                 })

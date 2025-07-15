@@ -17,10 +17,6 @@ import java.util.Collections;
 
 @Component
 @Slf4j
-//@ConditionalOnProperty(
-//        name = "kraft.kraft-security.enabled",
-//        havingValue = "true"
-//)
 @Qualifier("kraftAuthProvider")
 public class KraftAuthProvider implements AuthenticationProvider {
 
@@ -36,7 +32,7 @@ public class KraftAuthProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        System.out.println("Using KRAFTR provider");
+        System.out.println("Using KRAFT provider");
         String username = authentication.getName();
         String password = authentication.getCredentials().toString();
 
