@@ -106,6 +106,9 @@ public class InputGenerator {
                 }
             }
 
+//            formFields.forEach(formField -> {
+//                log.info("formfield {}", formField);
+//            });
             return formFields;
         } catch (RuntimeException e) {
             log.info("exception {}", e.toString());
