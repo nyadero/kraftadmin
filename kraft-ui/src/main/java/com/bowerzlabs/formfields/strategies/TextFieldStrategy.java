@@ -47,7 +47,6 @@ public class TextFieldStrategy implements FormFieldStrategy {
 
     @Override
     public FormField createField(Field field, DbObjectSchema dbObjectSchema, String inputName, boolean isSearch, List<EntityType<?>> subTypes) {
-//        log.info("inside create-field in textfieldstrategy for {}", field.getName());
         String label = FormField.formatLabel(field.getName());
         String placeholder = "Enter " + label;
         Object value = extractValue(field, dbObjectSchema);
