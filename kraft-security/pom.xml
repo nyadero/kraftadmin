@@ -41,7 +41,6 @@
         <dependency>
             <groupId>io.github.bowerzlabs</groupId>
             <artifactId>kraft-core</artifactId>
-            <!--            <version>0.1.0</version>-->
         </dependency>
     </dependencies>
 

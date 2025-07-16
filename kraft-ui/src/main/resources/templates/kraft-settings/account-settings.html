@@ -14,15 +14,8 @@
             <input type="text" name="username" placeholder="email" th:value="${adminUser.username}" class="w-full p-2 rounded shadow bg-white">
         </div>
 
-<!--        role-->
-        <!--        <div class="w-full mt-2">-->
-        <!--        <label>Role:</label>-->
-        <!--        <select name="role" >-->
-        <!--            <option value="ADMIN">ADMIN</option>-->
-        <!--            <option value="MODERATOR">MODERATOR</option>-->
-        <!--        </select>-->
-        <!--        </div>-->
-        <input name="role" type="hidden" value="${adminUser.role}">
+        <!-- role -->
+        <input name="role" th:value="${adminUser.role}" type="hidden">
 
 <!--        password-->
         <div class="w-full mt-2">
