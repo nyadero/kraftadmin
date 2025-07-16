@@ -1,5 +1,6 @@
 package com.bowerzlabs.models.kraftmodels;
 
+import com.bowerzlabs.annotations.FormInputType;
 import com.bowerzlabs.annotations.InternalAdminResource;
 import com.bowerzlabs.constants.Role;
 import jakarta.persistence.*;
@@ -11,7 +12,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -45,9 +45,8 @@ public class AdminUser implements UserDetails, Serializable {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @Lob
-    @Basic(fetch = FetchType.LAZY)
-    private byte[] avatar;
+    @FormInputType(FormInputType.Type.FILE)
+    private String avatar;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -63,7 +62,7 @@ public class AdminUser implements UserDetails, Serializable {
         this.role = role;
     }
 
-    public AdminUser(String name, String email, String password, byte[] avatar) {
+    public AdminUser(String name, String email, String password, String avatar) {
         this.name = name;
         this.username = email;
         this.password = password;
@@ -176,11 +175,11 @@ public class AdminUser implements UserDetails, Serializable {
         this.updatedAt = updatedAt;
     }
 
-    public byte[] getAvatar() {
+    public String getAvatar() {
         return avatar;
     }
 
-    public void setAvatar(byte[] avatar) {
+    public void setAvatar(String avatar) {
         this.avatar = avatar;
     }
 
