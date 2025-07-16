@@ -3,25 +3,27 @@ package com.bowerzlabs.admin_users;
 import com.bowerzlabs.EntitiesScanner;
 import com.bowerzlabs.EntityMetaModel;
 import com.bowerzlabs.InputGenerator;
+import com.bowerzlabs.constants.Role;
 import com.bowerzlabs.constants.Status;
 import com.bowerzlabs.database.DbObjectSchema;
 import com.bowerzlabs.dtos.AdminUserForm;
 import com.bowerzlabs.dtos.FieldValue;
 import com.bowerzlabs.dtos.PageResponse;
 import com.bowerzlabs.events.UIEvent;
+import com.bowerzlabs.files.LocalMultipartFileStorage;
+import com.bowerzlabs.files.MultipartFileStorage;
+import com.bowerzlabs.files.StorageProperties;
 import com.bowerzlabs.formfields.FormField;
 import com.bowerzlabs.models.kraftmodels.AdminUser;
 import com.bowerzlabs.repository.kraftrepos.KraftAdminUsersRepository;
 import com.bowerzlabs.service.CrudService;
 import com.bowerzlabs.utils.DisplayUtils;
 import com.bowerzlabs.utils.KraftUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -46,13 +48,24 @@ public class KraftAdminUserController {
     private final ApplicationEventPublisher applicationEventPublisher;
     private final EntitiesScanner entitiesScanner;
     private final CrudService crudService;
+    private final StorageProperties storageProperties;
+    private MultipartFileStorage multipartFileStorage;
 
 
-    public KraftAdminUserController(KraftAdminUsersRepository kraftAdminUsersRepository, ApplicationEventPublisher applicationEventPublisher, EntitiesScanner entitiesScanner, CrudService crudService) {
+    public KraftAdminUserController(
+            KraftAdminUsersRepository kraftAdminUsersRepository,
+            ApplicationEventPublisher applicationEventPublisher,
+            EntitiesScanner entitiesScanner,
+            CrudService crudService,
+            StorageProperties storageProperties,
+            MultipartFileStorage multipartFileStorage
+    ) {
         this.userRepository = kraftAdminUsersRepository;
         this.applicationEventPublisher = applicationEventPublisher;
         this.entitiesScanner = entitiesScanner;
         this.crudService = crudService;
+        this.storageProperties = storageProperties;
+        this.multipartFileStorage = multipartFileStorage;
     }
 
 
@@ -237,7 +250,11 @@ public class KraftAdminUserController {
 
     @PostMapping("/update-admin")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public String createAdminUser(@ModelAttribute AdminUserForm form, RedirectAttributes redirectAttributes) throws IOException {
+    public String updateAdminUser(
+            @ModelAttribute AdminUserForm form,
+            RedirectAttributes redirectAttributes,
+            HttpServletRequest request
+    ) throws IOException {
         Optional<AdminUser> user = userRepository.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
         if (user.isPresent()) {
             user.get().setUsername(form.getUsername());
@@ -247,11 +264,24 @@ public class KraftAdminUserController {
             }
 
             if (form.getRole() != null) {
-                user.get().setRole(form.getRole());
+                user.get().setRole(Role.valueOf(form.getRole()));
             }
 
             if (!form.getAvatar().isEmpty()) {
-                user.get().setAvatar(form.getAvatar().getBytes());
+                String uploadedFile = "";
+                switch (storageProperties.getProvider()) {
+                    case Local:
+                        multipartFileStorage = new LocalMultipartFileStorage(request, storageProperties);
+                        uploadedFile = multipartFileStorage.uploadSingle(form.getAvatar());
+                        break;
+                    case Cloudinary:
+                        break;
+                    case AWS_S3:
+                        break;
+                    default:
+                        log.info("Unknown provider");
+                }
+                user.get().setAvatar(uploadedFile);
             }
 
             userRepository.save(user.get());
@@ -260,19 +290,19 @@ public class KraftAdminUserController {
         return "redirect:/admin/settings";
     }
 
-    @GetMapping("/avatar/{userId}")
-    public ResponseEntity<byte[]> getUserAvatar(@PathVariable Long userId) {
-        Optional<AdminUser> userOpt = userRepository.findById(userId);
-
-        if (userOpt.isEmpty() || userOpt.get().getAvatar() == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        byte[] avatar = userOpt.get().getAvatar();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(headers.getContentType());
-        return new ResponseEntity<>(avatar, headers, HttpStatus.OK);
-    }
+//    @GetMapping("/avatar/{userId}")
+//    public ResponseEntity<byte[]> getUserAvatar(@PathVariable Long userId) {
+//        Optional<AdminUser> userOpt = userRepository.findById(userId);
+//
+//        if (userOpt.isEmpty() || userOpt.get().getAvatar() == null) {
+//            return ResponseEntity.notFound().build();
+//        }
+//
+//        byte[] avatar = userOpt.get().getAvatar();
+//
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setContentType(headers.getContentType());
+//        return new ResponseEntity<>(avatar, headers, HttpStatus.OK);
+//    }
 
 }
