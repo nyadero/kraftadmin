@@ -1,6 +1,5 @@
 package com.bowerzlabs.dtos;
 
-import com.bowerzlabs.constants.Role;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,7 +14,7 @@ public class AdminUserForm {
     //    @NotBlank
     private String password;
 
-    private Role role;
+    private String role;
 
     private MultipartFile avatar;
 
@@ -45,11 +44,11 @@ public class AdminUserForm {
         this.password = password;
     }
 
-    public Role getRole() {
+    public String getRole() {
         return role;
     }
 
-    public void setRole(Role role) {
+    public void setRole(String role) {
         this.role = role;
     }
 
