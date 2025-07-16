@@ -19,6 +19,7 @@
         <micrometer.version>1.12.2</micrometer.version>
         <tika.version>2.9.0</tika.version>
         <project.version>0.1.1</project.version>
+        <jupiter.version>5.10.0</jupiter.version>
     </properties>
 
     <groupId>io.github.bowerzlabs</groupId>
@@ -72,6 +73,12 @@
                 <groupId>org.apache.tika</groupId>
                 <artifactId>tika-core</artifactId>
                 <version>${tika.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>${jupiter.version}</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>io.micrometer</groupId>
