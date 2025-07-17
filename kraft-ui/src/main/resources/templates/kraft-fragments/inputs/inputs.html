@@ -23,23 +23,6 @@
 </th:block>
 
 <!-- Select input (dropdown) -->
-<!--<th:block th:fragment="selectInput(field)">-->
-<!--  <label th:for="${field.name}">-->
-<!--    <select th:name="${field.name}" class="w-full p-2 rounded border outline-none bg-white my-5">-->
-<!--      <option disabled th:text="${field.placeholder}" selected></option>-->
-<!--      <option th:each="opt : ${field.options}"-->
-<!--              th:value="${opt}"-->
-<!--              th:text="${opt}"-->
-<!--              th:selected="${opt == field.value}"></option>-->
-<!--    </select>-->
-<!--  </label>-->
-<!--  &lt;!&ndash; Validation error for select field &ndash;&gt;-->
-<!--  <span th:if="${field.validationErrors != null and field.validationErrors.containsKey(field.name)}"-->
-<!--        th:text="${field.validationErrors[field.name]}"-->
-<!--        style="color:red;">-->
-<!--    </span>-->
-<!--</th:block>-->
-
 <th:block th:fragment="selectInput(field)">
     <label th:for="${field.name}">
         <select class="w-full p-2 rounded border outline-none bg-white my-5" th:name="${field.name}">
@@ -86,19 +69,6 @@
     </select>
   </label>
 </th:block>
-
-<!-- number input -->
-<!--<th:block th:fragment="numberInput(field)">-->
-<!--  <span th:text="${field.searchOperations}"></span>-->
-<!--  <label th:for="${field.name}">-->
-<!--    <input type="number"-->
-<!--           th:id="${field.name}"-->
-<!--           th:name="${field.name}"-->
-<!--           th:placeholder="${field.placeholder}"-->
-<!--           th:value="${field.value}"-->
-<!--           th:attr="required=${field.required ? 'required' : null}" />-->
-<!--  </label>-->
-<!--</th:block>-->
 
 <!-- number input with search operations -->
 <th:block th:fragment="numberInput(field)">
@@ -404,11 +374,6 @@
 
 <!--taginput-->
 <th:block th:fragment="tagInput(field)">
-    <!--    <label class="block mb-2 font-medium text-sm text-gray-700"-->
-    <!--           th:for="${field.name}"-->
-    <!--           th:text="${field.label} + (field.required ? ' *' : '')">-->
-    <!--    </label>-->
-
     <input type="text"
            th:id="${field.name}"
            th:name="${field.name}"
@@ -483,48 +448,6 @@
   </div>
 </th:block>
 
-
-<!--<th:block th:fragment="tagInput(field)">-->
-<!--    <select th:id="${field.name}"-->
-<!--            th:name="${field.name}"-->
-<!--            th:data-placeholder="${field.placeholder}"-->
-<!--            class="tom-tags w-full"-->
-<!--            th:placeholder="${field.placeholder}"-->
-<!--            multiple>-->
-<!--        <option th:each="option : ${field.value}"-->
-<!--                th:value="${option.value}"-->
-<!--                th:text="${option.key}"-->
-<!--                th:selected="${#lists.contains(field.value, option.value)}">-->
-<!--        </option>-->
-<!--    </select>-->
-
-<!--    &lt;!&ndash; Validation error &ndash;&gt;-->
-<!--    <div class="text-sm text-red-600 mt-1"-->
-<!--         th:if="${field.validationErrors[field.name]}"-->
-<!--         th:text="${field.validationErrors[field.name]}"></div>-->
-<!--</th:block>-->
-
-<!--<th:block th:fragment="tagInput(field)">-->
-<!--    <pre th:text="${field}"></pre>-->
-<!--    <select th:id="${field.name}"-->
-<!--            th:name="${field.name}"-->
-<!--            th:data-placeholder="${field.placeholder}"-->
-<!--            class="tom-tags w-full"-->
-<!--            th:placeholder="${field.placeholder}"-->
-<!--            multiple>-->
-<!--        <option th:each="option : ${field.options}"-->
-<!--                th:value="${option.value}"-->
-<!--                th:text="${option.key}"-->
-<!--                th:selected="${#lists.contains(field.value, option.value)}">-->
-<!--        </option>-->
-<!--    </select>-->
-
-<!--    &lt;!&ndash; Validation error &ndash;&gt;-->
-<!--    <div class="text-sm text-red-600 mt-1"-->
-<!--         th:if="${field.validationErrors[field.name]}"-->
-<!--         th:text="${field.validationErrors[field.name]}"></div>-->
-<!--</th:block>-->
-
 <!-- Radio Input -->
 <th:block th:fragment="radioGroupInput(field)">
   <div class="form-group" th:id="${field.name}">
@@ -561,7 +484,6 @@
          oninput="document.getElementById('${field.name}-value').textContent = this.value" />
   <span th:id="${field.name + '-value'}" th:text="${field.value}"></span>
 </th:block>
-
 
 </body>
 </html>
