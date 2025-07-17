@@ -101,9 +101,8 @@ public class CrudController {
             DbObjectSchema dbObjectSchema = new DbObjectSchema(entityInstance, null);
             DbObjectSchema savedEntity = null;
 
-
-            System.out.println("Received form values: " + formValues);
-            System.out.println("Received files: " + fileInputs);
+//            System.out.println("Received form values: " + formValues);
+//            System.out.println("Received files: " + fileInputs);
 
             //  Validate input
             Map<String, String> validationErrors = dbObjectSchema.validateFormValues(formValues);
@@ -121,7 +120,7 @@ public class CrudController {
                     MultipartFile file = entry.getValue();
                     String uploadedFile = null;
                     if (file != null && !file.isEmpty()) {
-                        log.info("storage provider {} and directory {}", storageProperties.getProvider(), storageProperties.getUploadDir());
+//                        log.info("storage provider {} and directory {}", storageProperties.getProvider(), storageProperties.getUploadDir());
                         switch (storageProperties.getProvider()) {
                             case Local:
                                 multipartFileStorage = new LocalMultipartFileStorage(request, storageProperties);
@@ -345,11 +344,12 @@ public class CrudController {
             @PathVariable("id") String id,
             @RequestParam Map<String, String> formValues,
             @RequestParam(required = false) Map<String, MultipartFile> fileInputs,
+            HttpServletRequest request,
             RedirectAttributes redirectAttributes
     ) {
         EntityMetaModel entityInstance = entitiesScanner.getEntityByName(entityName);
-        System.out.println("Received form values: " + formValues);
-        System.out.println("Received files: " + fileInputs);
+//        System.out.println("Received form values: " + formValues);
+//        System.out.println("Received files: " + fileInputs);
         try {
             Optional<DbObjectSchema> item = crudService.findById(entityName, id);
             if (item.isPresent()) {
@@ -361,6 +361,32 @@ public class CrudController {
                     redirectAttributes.addFlashAttribute("formValues", formValues);
                     return "redirect:/admin/crud/" + entityName + "/edit";
                 }
+
+                //  Upload files
+                if (fileInputs != null && !fileInputs.isEmpty()) {
+                    for (Map.Entry<String, MultipartFile> entry : fileInputs.entrySet()) {
+                        String field = entry.getKey();
+                        MultipartFile file = entry.getValue();
+                        String uploadedFile = null;
+                        if (file != null && !file.isEmpty()) {
+                            log.info("storage provider {} and directory {}", storageProperties.getProvider(), storageProperties.getUploadDir());
+                            switch (storageProperties.getProvider()) {
+                                case Local:
+                                    multipartFileStorage = new LocalMultipartFileStorage(request, storageProperties);
+                                    uploadedFile = multipartFileStorage.uploadSingle(file);
+                                    break;
+                                case Cloudinary:
+                                    break;
+                                case AWS_S3:
+                                    break;
+                                default:
+                                    log.info("Unknown provider");
+                            }
+                            formValues.put(field, uploadedFile);
+                        }
+                        formValues.put(field, uploadedFile);
+                    }
+                }
                 // Save the updated entity
                 Object savedEntity = crudService.save(entityName, formValues, item.get().getEntity());
                 applicationEventPublisher.publishEvent(new UIEvent(this, entityName + " updated successfully", Status.Success));
@@ -369,6 +395,7 @@ public class CrudController {
             }
         } catch (Exception e) {
             applicationEventPublisher.publishEvent(new UIEvent(this, "Error updating " + entityName, Status.Error));
+//            return "redirect:/admin/crud/${entityName}/edit/${id}(entityName=${entityName},id=${id})" + entityName;
         }
 
         return "redirect:/admin/crud/" + entityName;
@@ -409,11 +436,12 @@ public class CrudController {
             case Delete -> {
                 crudService.bulkDelete(entityName, selectedIds);
                 redirectAttributes.addFlashAttribute("success", "Items deleted successfully.");
-//                return "redirect:/admin/crud/" + entityName;
+                return "redirect:/admin/crud/" + entityName;
             }
             case Export -> {
                 crudService.exportData(entityName, selectedIds, format);
                 redirectAttributes.addFlashAttribute("success", "Items exported successfully.");
+                return "redirect:/admin/crud/" + entityName;
             }
             case Print -> {
                 // Todo
