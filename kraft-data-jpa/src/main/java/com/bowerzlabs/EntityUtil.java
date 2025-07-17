@@ -65,9 +65,6 @@ public static Object convertValue(Class<?> type, Object value) {
 
     // Enums
     if (type.isEnum()) return Enum.valueOf((Class<Enum>) type, str);
-
-    // Arrays (e.g., comma-separated)
-//    if (type.equals(String[].class)) return str.split(",");
     if (type.equals(Integer[].class))
         return Arrays.stream(str.split(",")).map(Integer::valueOf).toArray(Integer[]::new);
     if (type.equals(Long[].class))
@@ -76,15 +73,13 @@ public static Object convertValue(Class<?> type, Object value) {
         return Arrays.stream(str.split(",")).map(Double::valueOf).toArray(Double[]::new);
 
     // Lists
-//    if (type.equals(List.class) || type.equals(ArrayList.class)) {
-//        return Arrays.asList(str.split(","));
-//    }
+    if (type.equals(List.class) || type.equals(ArrayList.class)) {
+        return Arrays.asList(str.split(","));
+    }
     // Already parsed collections
     if (Collection.class.isAssignableFrom(type) && value instanceof Collection) {
         return value;
     }
-
-// ...
 
 // Lists
     if (type.equals(List.class) || type.equals(ArrayList.class)) {
