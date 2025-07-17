@@ -8,8 +8,10 @@ import org.apache.tika.Tika;
 import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Base64;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Set;
 
 @Slf4j
 public class DisplayUtils {
@@ -282,23 +284,8 @@ public class DisplayUtils {
             String items = String.join(", ", ((Collection<?>) value).stream().map(Object::toString).toList());
             return "[" + items + "]";
         }
-//        else if (Collection.class.isAssignableFrom(fieldType)) {
-//            return String.join(", ", ((Collection<?>) value).stream().map(Object::toString).toList());
-//        }
         else if (fieldType.isEnum()) {
             return value.toString();
-        }
-
-        // Handle comma-separated string values that represent collections
-        // Check if the value is a string that looks like a comma-separated list
-        if (value instanceof String stringValue && stringValue.contains(",")) {
-            // Split by comma, trim whitespace, and format as array
-            String[] parts = stringValue.split(",");
-            String formattedItems = Arrays.stream(parts)
-                    .map(String::trim)
-                    .filter(s -> !s.isEmpty())
-                    .collect(Collectors.joining(", "));
-            return "[" + formattedItems + "]";
         }
 
         return value.toString();
