@@ -279,40 +279,10 @@ public class DbObjectSchema {
         return name.substring(0, 1).toUpperCase() + name.substring(1).replaceAll("([A-Z])", " $1").trim();
     }
 
-//    private Object getFieldValue(Object entity, Field field) {
-//        if (entity == null || field == null) return null;
-//
-//        field.setAccessible(true);
-//
-//        try {
-//            Object value = field.get(entity); // Could be a nested object or collection
-//
-//            if (field.isAnnotationPresent(DisplayField.class)) {
-//                DisplayField displayField = field.getAnnotation(DisplayField.class);
-//                String path = displayField.value(); // e.g., "name" or "profile.name"
-//
-//                if (value instanceof Collection<?>) {
-//                    Collection<?> collection = (Collection<?>) value;
-//                    List<Object> displayValues = new ArrayList<>();
-//                    for (Object item : collection) {
-//                        displayValues.add(getNestedValue(item, path));
-//                    }
-//                    return displayValues;
-//                }
-//
-//                return getNestedValue(value, path); // Handle single nested object
-//            }
-//
-//
-//            return value;
-//
-//        } catch (Exception e) {
-//            throw new RuntimeException("Error getting field value", e);
-//        }
-//    }
-
     private Object getFieldValue(Object entity, Field field) {
-        if (entity == null || field == null) return null;
+        if (entity == null || field == null) {
+            return null;
+        }
 
         field.setAccessible(true);
 
@@ -337,6 +307,29 @@ public class DbObjectSchema {
                 return DisplayUtils.formatForDisplay(nestedValue != null ? nestedValue.getClass() : String.class, nestedValue);
             }
 
+            // display relations id by default if @FormInputType or @DisplayImage annotations are not present
+            if (field.isAnnotationPresent(ManyToOne.class)
+                    || field.isAnnotationPresent(OneToMany.class)
+                    || field.isAnnotationPresent(OneToOne.class)
+                    || field.isAnnotationPresent(ManyToMany.class)) {
+
+                if (value == null) return null;
+
+                // Handle collections of related entities
+                if (value instanceof Collection<?> collection) {
+                    List<String> results = new ArrayList<>();
+                    for (Object relatedEntity : collection) {
+                        String display = getIdAndNameString(relatedEntity);
+                        if (display != null) results.add(display);
+                    }
+                    return String.join(", ", results);
+                }
+
+                // Handle single related entity
+                return getIdAndNameString(value);
+            }
+
+
             // Fallback formatting for non-nested fields
             return DisplayUtils.formatForDisplay(field.getType(), value);
 
@@ -344,6 +337,26 @@ public class DbObjectSchema {
             log.info("exception {}", e.toString());
             return null;
 //            throw new RuntimeException("Error getting field value", e);
+        }
+    }
+
+    private String getIdAndNameString(Object entity) {
+        log.info("entity {}", entity);
+        if (entity == null) return null;
+        try {
+            Field idField = Arrays.stream(entity.getClass().getDeclaredFields()).filter(f -> f.isAnnotationPresent(Id.class))
+                    .findFirst().orElse(null);
+            String nameField = entity.getClass().getSimpleName();
+            if (idField == null) return null;
+            idField.setAccessible(true);
+            Object idValue = idField.get(entity);
+            return String.format("%s (ID: %s)",
+                    nameField,
+                    idValue != null ? idValue.toString() : "N/A"
+            );
+        } catch (Exception ex) {
+            log.info("exception {}", ex);
+            return entity.toString();
         }
     }
 
