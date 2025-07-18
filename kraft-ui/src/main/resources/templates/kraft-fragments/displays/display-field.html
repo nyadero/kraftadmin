@@ -49,6 +49,11 @@
         <div th:if="${displayField?.fieldType?.name() == 'HTML'}"
              th:utext="${displayField.value}"></div>
 
+        <!-- Embedded Object (formatted HTML) -->
+        <div class="embedded-content text-sm text-gray-700"
+             th:if="${displayField?.fieldType?.name() == 'EMBEDDED'}"
+             th:utext="${displayField.value}"></div>
+
         <!-- JSON (formatted) -->
         <pre th:if="${displayField?.fieldType?.name() == 'JSON'}"
              th:text="${displayField.value}"></pre>

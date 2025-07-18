@@ -4,20 +4,42 @@ document.addEventListener("DOMContentLoaded", function () {
  if (loader) loader.style.display = 'none';
 
   /** ---------------- Sidebar Toggle ---------------- **/
-        const menuToggle = document.getElementById('menu-toggle');
-      const sidebar = document.getElementById('sidebar');
+const menuToggle = document.getElementById('menu-toggle');
+const sidebar = document.getElementById('sidebar');
 
-      if (menuToggle && sidebar) {
-         console.log("toggling sidebar");
-          menuToggle.addEventListener('click', () => {
-//              sidebar.classList.toggle('-translate-x-full'); // hide
-//              sidebar.classList.toggle('translate-x-0');     // show
-              sidebar.classList.toggle('-translate-x-full'); // hide class
-                sidebar.classList.toggle('w-0');               // hide class
-                sidebar.classList.toggle('translate-x-0');     // show class
-                sidebar.classList.toggle('w-80');
-          });
-      }
+if (menuToggle && sidebar) {
+    console.log("toggling sidebar");
+    menuToggle.addEventListener('click', () => {
+        // Toggle sidebar width between expanded (w-80) and collapsed (w-fit)
+        sidebar.classList.toggle('w-80');
+        sidebar.classList.toggle('w-fit');
+sidebar.classList.toggle('collapsed');
+
+        // Toggle visibility of text elements, but preserve dropdown state
+        const textElements = sidebar.querySelectorAll('.sidebar-text');
+        textElements.forEach(element => {
+            // Skip dropdown containers - they should maintain their current state
+            if (element.id === 'entity-list' || element.id === 'monitoring-list') {
+                return;
+            }
+            element.classList.toggle('hidden');
+        });
+
+        // Handle dropdown containers separately
+        const entityList = document.getElementById('entity-list');
+        const monitoringList = document.getElementById('monitoring-list');
+
+        if (sidebar.classList.contains('w-fit')) {
+            // When collapsed, ensure dropdowns are hidden
+            entityList.classList.add('hidden');
+            monitoringList.classList.add('hidden');
+        }
+
+        // Adjust horizontal padding for smaller state
+        sidebar.classList.toggle('px-2');
+    });
+}
+
 
   /** ---------------- Tab Navigation ---------------- **/
   const buttons = document.querySelectorAll(".tab-button");
