@@ -329,6 +329,17 @@ public class DbObjectSchema {
                 return getIdAndNameString(value);
             }
 
+//            display embedded fields
+            if (field.isAnnotationPresent(Embedded.class)) {
+                if (value == null) return null;
+
+                try {
+                    return buildEmbeddedHtml(value, 0);
+                } catch (IllegalAccessException e) {
+                    log.error("Error accessing embedded field values", e);
+                    return "Error accessing embedded fields";
+                }
+            }
 
             // Fallback formatting for non-nested fields
             return DisplayUtils.formatForDisplay(field.getType(), value);
@@ -523,6 +534,67 @@ public class DbObjectSchema {
                 ", sortableFields=" + sortableFields +
                 ", filterableFields=" + filterableFields +
                 '}';
+    }
+
+    private String buildEmbeddedHtml(Object value, int indentLevel) throws IllegalAccessException {
+        if (value == null) return "N/A";
+
+        List<String> fieldStrings = new ArrayList<>();
+        String indent = "&nbsp;&nbsp;".repeat(indentLevel);
+
+        for (Field embeddedField : value.getClass().getDeclaredFields()) {
+            // Skip static and transient fields
+            if (Modifier.isStatic(embeddedField.getModifiers()) ||
+                    Modifier.isTransient(embeddedField.getModifiers())) {
+                continue;
+            }
+
+            embeddedField.setAccessible(true);
+
+            String fieldName = embeddedField.getName();
+            Object fieldValue = embeddedField.get(value);
+
+            log.info("Processing embeddedField: {} = {}", fieldName, fieldValue);
+
+            String formattedValue;
+
+            // Check if this field is also an embedded object
+            if (embeddedField.isAnnotationPresent(Embedded.class) && fieldValue != null) {
+                // For nested embedded objects, use <strong> tag and recurse
+                String nestedFields = buildEmbeddedHtml(fieldValue, indentLevel + 1);
+                formattedValue = String.format("%s<strong>%s:</strong><br/>%s",
+                        indent, capitalize(fieldName), nestedFields);
+            } else {
+                // For regular fields, use <span> tag
+                formattedValue = String.format("%s<span>%s:</span> %s",
+                        indent,
+                        capitalize(fieldName),
+                        fieldValue != null ? escapeHtml(fieldValue.toString()) : "N/A"
+                );
+            }
+
+            fieldStrings.add(formattedValue);
+        }
+
+        return fieldStrings.isEmpty() ? indent + "Empty" : String.join("<br/>", fieldStrings);
+    }
+
+    // Helper method to capitalize field names
+    private String capitalize(String str) {
+        if (str == null || str.isEmpty()) {
+            return str;
+        }
+        return str.substring(0, 1).toUpperCase() + str.substring(1);
+    }
+
+    // Helper method to escape HTML characters in field values
+    private String escapeHtml(String str) {
+        if (str == null) return null;
+        return str.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#39;");
     }
 
 }
