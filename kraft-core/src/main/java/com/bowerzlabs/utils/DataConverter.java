@@ -7,7 +7,9 @@ import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.UUID;
 
 @Slf4j
 public class DataConverter {
@@ -40,63 +42,6 @@ public class DataConverter {
         return value.toString(); // Default fallback
     }
 
-
-    /**
-     converts field value to its equivalent field type
-     */
-    private static Object convertValue(Class<?> fieldType, Object value) throws NoSuchFieldException, IllegalAccessException {
-        List<String> enumValues;
-
-        if (value == null) {
-            return null;
-        }
-
-        if (fieldType == Integer.class || fieldType == int.class) {
-            return Integer.parseInt(value.toString().trim());
-        } else if (fieldType == Long.class || fieldType == long.class) {
-            return Long.parseLong(value.toString().trim());
-        } else if (fieldType == Double.class || fieldType == double.class) {
-            return Double.parseDouble(value.toString().trim());
-        } else if (fieldType == Boolean.class || fieldType == boolean.class) {
-            return Boolean.parseBoolean(String.valueOf(value));
-        }
-        else if (fieldType == LocalDateTime.class) {
-            return LocalDateTime.parse(value.toString());
-        }
-        else if (fieldType == LocalTime.class) {
-            // Support both 24hr and 12hr (AM/PM) formats
-            DateTimeFormatter formatter = value.toString().contains("am") || value.toString().toLowerCase().contains("pm")
-                    ? DateTimeFormatter.ofPattern("hh:mm a")
-                    : DateTimeFormatter.ofPattern("HH:mm");
-            return LocalTime.parse((CharSequence) value, formatter);
-        } else if (fieldType == LocalDate.class) {
-            if (value instanceof LocalDate) {
-                return value; // Already a LocalDate
-            } else if (value instanceof String) {
-                return LocalDate.parse((String) value); // Parse from String
-            }
-        } else if (fieldType == ZonedDateTime.class) {
-            return ZonedDateTime.parse(value.toString());
-        } else if (fieldType == OffsetDateTime.class) {
-            return OffsetDateTime.parse(value.toString());
-        } else if (fieldType == Date.class) {
-            return java.sql.Date.valueOf(value.toString()); // Convert to SQL Date
-        } else if (Collection.class.isAssignableFrom(fieldType)) {
-            // Handle List types (Assuming comma-separated values)
-            return Arrays.stream(value.toString().replaceAll("[\\[\\]]", "").split(","))
-                    .map(String::trim)
-                    .toList(); // Ensure it's a proper list
-        } else if (fieldType.isEnum()) {
-            Class<? extends Enum<?>> enumClass = (Class<? extends Enum<?>>) fieldType;
-            enumValues = Arrays.stream(enumClass.getEnumConstants())
-                    .map(Enum::name)
-                    .toList();
-            log.info("enumValues {}", enumValues);
-            return enumClass.getField((String) value).get(value);
-        }
-
-        return value.toString().trim(); // Default: String
-    }
 
     /**
      *     id is passed as a string, so we need to parse it to field's class
