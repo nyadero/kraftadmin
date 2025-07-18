@@ -100,6 +100,8 @@ public class DisplayUtils {
             fieldValue.setFieldType(FieldType.LINK);
         } else if (isColorValue(val)) {
             fieldValue.setFieldType(FieldType.COLOR);
+        } else if (isHtml(val)) {
+            fieldValue.setFieldType(FieldType.HTML);
         } else {
             fieldValue.setFieldType(FieldType.TEXT);
         }
@@ -189,6 +191,9 @@ public class DisplayUtils {
         }
     }
 
+    private static boolean isHtml(String val) {
+        return val != null && val.matches("(?s).*<[^>]+>.*"); // detects tags like <span>, <br/>, etc.
+    }
 
     private static boolean isAudio(byte[] data) {
         // Basic magic number check for MP3 (ID3 header) or WAV
