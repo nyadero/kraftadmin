@@ -52,7 +52,7 @@ public class CrudService {
     public Object save(String entityName, Map<String, String> formValues, Object existing) {
         try {
             EntityMetaModel clazz = entityScanner.getEntityByName(entityName);
-            Object subtype = formValues.get("subtype"); // comes from the form
+            Object subtype = formValues.get("subtype");
             Class<?> actualClass = clazz.getEntityClass().getJavaType();
             log.info("entity {} formValues {}, actualClass {}", existing, formValues, actualClass);
 
@@ -67,12 +67,7 @@ public class CrudService {
                     ? actualClass.getDeclaredConstructor().newInstance()
                     : existing;
 
-            //  Use actualMetaModel here, not the original parent model
-//            for (Map.Entry<String, String> entry : formValues.entrySet()) {
-//                EntityValueAccessor.setFieldValue(actualMetaModel.getEntityClass(), entity, entry.getKey(), entry.getValue(), entityManager);
-//            }
-
-            // Handle regular fields and ManyToMany relations separately
+            // Process all fields using EntityValueAccessor
             for (Map.Entry<String, String> entry : formValues.entrySet()) {
                 String fieldName = entry.getKey();
                 String fieldValue = entry.getValue();
@@ -82,21 +77,30 @@ public class CrudService {
                     continue;
                 }
 
-                // Check if this field is a ManyToMany relation
-                if (isManyToManyField(actualMetaModel, fieldName)) {
-                    handleManyToManyField(entity, fieldName, fieldValue, actualMetaModel);
-                } else {
-                    // Handle regular fields
-                    EntityValueAccessor.setFieldValue(actualMetaModel.getEntityClass(), entity, fieldName, fieldValue, entityManager);
+                // Skip empty values to avoid unnecessary processing
+                if (fieldValue == null || fieldValue.trim().isEmpty()) {
+                    continue;
+                }
+
+                try {
+                    // Check if this field is a ManyToMany relation
+                    if (isManyToManyField(actualMetaModel, fieldName)) {
+                        handleManyToManyField(entity, fieldName, fieldValue, actualMetaModel);
+                    } else {
+                        // Handle regular fields and embedded fields
+                        EntityValueAccessor.setFieldValue(actualMetaModel.getEntityClass(), entity, fieldName, fieldValue, entityManager);
+                    }
+                } catch (Exception e) {
+                    log.error("Error processing field {}: {}", fieldName, e.getMessage());
+                    // Continue processing other fields
                 }
             }
 
             Object savedEntity = entityManager.merge(entity);
-            entityManager.flush(); // Force synchronization
+            entityManager.flush();
             return savedEntity;
-//            return entityManager.merge(entity);
         } catch (Exception e) {
-            log.info("error {}", e.toString());
+            log.error("Save operation failed", e);
             throw new RuntimeException(e);
         }
     }
