@@ -1,6 +1,8 @@
 package com.bowerzlabs.utils;
 
 import com.bowerzlabs.config.KraftProperties;
+import jakarta.persistence.metamodel.EntityType;
+import kotlin.Metadata;
 
 /**
  * Collection of utility functions used across the library
@@ -67,10 +69,8 @@ public class KraftUtils {
         if (!result.isEmpty()) {
             result = result.substring(0, 1).toUpperCase() + result.substring(1);
         }
-
         return result;
     }
-
 
     public static String unformatLabel(String label) {
         if (label == null || label.trim().isEmpty()) {
@@ -97,8 +97,8 @@ public class KraftUtils {
 
 
 //     Detect Kotlin-Compiled Entities
-//    public static boolean isKotlinClass(EntityType<?> clazz) {
-//        return clazz.getJavaType().getAnnotation(Metadata.class) != null;
-//    }
+public static boolean isKotlinClass(EntityType<?> clazz) {
+    return clazz.getJavaType().getAnnotation(Metadata.class) != null;
+}
 
 }
