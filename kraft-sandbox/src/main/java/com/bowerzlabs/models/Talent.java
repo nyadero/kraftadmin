@@ -35,7 +35,7 @@ public class Talent {
     private Double salary;
     private LocalTime timeAvailable;
     @Embedded
-    @DisplayField("address")
+//    @DisplayField("address")
     private Contact contact;
     @Lob
     @Basic(fetch = FetchType.LAZY)
