@@ -40,4 +40,13 @@ public class Contact {
     public void setAddress(String address) {
         this.address = address;
     }
+
+    @Override
+    public String toString() {
+        return "Contact{" +
+                "phone2='" + phone2 + '\'' +
+                ", phone1='" + phone1 + '\'' +
+                ", address='" + address + '\'' +
+                '}';
+    }
 }
