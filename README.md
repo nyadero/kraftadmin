@@ -23,9 +23,7 @@ Coming soon as a Maven/Gradle dependency. For now, clone and build locally.
 
 - Enum-based filters for structured querying
 
-### Installation (Current Method)
-
-Until it's available via Maven Central or GitHub Packages, you can use it by cloning and building the project locally:
+### Installation
 
 ```bash
 git clone https://github.com/nyadero/kraftadmin.git
@@ -40,7 +38,7 @@ Add the Maven Dependency
 <dependency>
   <groupId>io.github.bowerzlabs</groupId>
   <artifactId>kraft-admin</artifactId>
-  <version>0.1.1</version>
+  <version>0.1.2</version>
 </dependency>
 ````
 
@@ -98,8 +96,6 @@ public class Application {
 | `kraft-admin`  | Combines and exposes all modules for plug-and-play |
 
 ### Coming Soon
-
-- GitHub Packages + Maven Central
 
 - Example project
 
