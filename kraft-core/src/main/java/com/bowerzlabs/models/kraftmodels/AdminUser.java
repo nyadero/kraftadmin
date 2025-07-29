@@ -2,6 +2,9 @@ package com.bowerzlabs.models.kraftmodels;
 
 import com.bowerzlabs.annotations.FormInputType;
 import com.bowerzlabs.annotations.InternalAdminResource;
+import com.bowerzlabs.annotations.KraftAdminField;
+import com.bowerzlabs.annotations.KraftAdminResource;
+import com.bowerzlabs.constants.PerformableAction;
 import com.bowerzlabs.constants.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -20,7 +23,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "kraft_admin_users")
-//@KraftAdminResource(name = "Administrators", group = "Admin", icon = "", editable = false)
+@KraftAdminResource(name = "Administrators", rolesAllowed = {Role.SUPER_ADMIN}, actions = {PerformableAction.CREATE, PerformableAction.READ, PerformableAction.DELETE})
 @InternalAdminResource
 public class AdminUser implements UserDetails, Serializable {
 
@@ -47,6 +50,10 @@ public class AdminUser implements UserDetails, Serializable {
 
     @FormInputType(FormInputType.Type.FILE)
     private String avatar;
+
+    @OneToMany(mappedBy = "adminUser", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @KraftAdminField(showInTable = false)
+    private List<AdminUserAction> adminUserActions;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
