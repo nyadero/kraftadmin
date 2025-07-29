@@ -1,6 +1,7 @@
 package com.bowerzlabs.annotations;
 
 import com.bowerzlabs.constants.PerformableAction;
+import com.bowerzlabs.constants.Role;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -13,11 +14,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.TYPE_USE, ElementType.FIELD})
 public @interface KraftAdminResource {
-//    String name() default "";   // Optional name for the field
-//    String group() default "";  // Optional group for organization
-//    String icon() default "\uD83D\uDCDA"; // the resource's icon
-//    boolean editable() default true;  // User can change name
-
     /**
      * Display name of the resource in the admin panel.
      */
@@ -64,12 +60,14 @@ public @interface KraftAdminResource {
     boolean manageable() default true;
 
     /**
-     * Limit access to only users with ADMIN role (same as @AdminOnly).
+     * Limit access to only users with SUPER_ADMIN role.
      */
     boolean adminOnly() default false;
 
     /**
      * Limit access to users with specific roles (same as @RolesAllowed).
      */
-    String[] rolesAllowed() default {};
+    Role[] rolesAllowed() default {
+            Role.ADMIN, Role.SUPER_ADMIN, Role.MANAGER
+    };
 }
