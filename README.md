@@ -5,7 +5,8 @@ A modular and customizable admin dashboard library for Spring Boot applications.
 
 Ideal for building internal tools, CMS interfaces, data dashboards, or managing entities in CRUD-heavy applications.
 
-Coming soon as a Maven/Gradle dependency. For now, clone and build locally.
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.bowerzlabs/kraftadmin.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.bowerzlabs/kraftadmin)
+[![GitHub stars](https://img.shields.io/github/stars/nyadero/kraftadmin.svg?style=social)](https://github.com/nyadero/kraftadmin)
 
 #### Features
 
@@ -23,15 +24,7 @@ Coming soon as a Maven/Gradle dependency. For now, clone and build locally.
 
 - Enum-based filters for structured querying
 
-### Installation (Current Method)
-
-Until it's available via Maven Central or GitHub Packages, you can use it by cloning and building the project locally:
-
-```bash
-git clone https://github.com/nyadero/kraftadmin.git
-cd kraftadmin
-mvn clean install
-```
+### Installation
 
 #### Add to Your Spring Boot Project
 Add the Maven Dependency
@@ -40,7 +33,7 @@ Add the Maven Dependency
 <dependency>
   <groupId>io.github.bowerzlabs</groupId>
   <artifactId>kraft-admin</artifactId>
-  <version>0.1.1</version>
+  <version>0.1.2</version>
 </dependency>
 ````
 
@@ -98,8 +91,6 @@ public class Application {
 | `kraft-admin`  | Combines and exposes all modules for plug-and-play |
 
 ### Coming Soon
-
-- GitHub Packages + Maven Central
 
 - Example project
 
