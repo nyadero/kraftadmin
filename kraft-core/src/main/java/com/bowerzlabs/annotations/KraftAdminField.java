@@ -1,7 +1,5 @@
 package com.bowerzlabs.annotations;
 
-import com.bowerzlabs.constants.FieldType;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -28,7 +26,7 @@ public @interface KraftAdminField {
     /**
      * Type of input (text, number, textarea, select, date, etc).
      */
-    FieldType inputType() default FieldType.TEXT;
+    FormInputType.Type inputType() default FormInputType.Type.UNSET;
 
     /**
      * Whether the field should be shown in the list/table view.
@@ -43,7 +41,7 @@ public @interface KraftAdminField {
     /**
      * Whether the field is required in forms.
      */
-    boolean required() default false;
+    boolean required() default true;
 
     /**
      * Whether the field should be searchable in the admin.
@@ -74,4 +72,10 @@ public @interface KraftAdminField {
      * Provide custom display formatter (optional).
      */
     String formatter() default "";
+
+    /**
+     * Field  to display in the relationship
+     */
+    String value() default "";
+
 }
