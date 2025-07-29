@@ -7,7 +7,6 @@ Ideal for building internal tools, CMS interfaces, data dashboards, or managing 
 
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.bowerzlabs/kraftadmin.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.bowerzlabs/kraftadmin)
 [![GitHub stars](https://img.shields.io/github/stars/nyadero/kraftadmin.svg?style=social)](https://github.com/nyadero/kraftadmin)
-[![Downloads](https://img.shields.io/badge/dynamic/json?color=blue&label=installs&query=$.count&url=https://your-api.com/stats)](https://your-api.com/stats)
 
 #### Features
 
