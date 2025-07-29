@@ -1,6 +1,7 @@
 package com.bowerzlabs.formfields.strategies;
 
 import com.bowerzlabs.annotations.FormInputType;
+import com.bowerzlabs.annotations.KraftAdminField;
 import com.bowerzlabs.database.DbObjectSchema;
 import com.bowerzlabs.formfields.FormField;
 import com.bowerzlabs.formfields.fields.TextField;
@@ -17,19 +18,18 @@ import static com.bowerzlabs.formfields.FormFieldFactory.extractValue;
 
 public class TextFieldStrategy implements FormFieldStrategy {
     private static final Logger log = LoggerFactory.getLogger(TextFieldStrategy.class);
-
-//    @Override
-//    public boolean supports(Field field, DbObjectSchema dbObjectSchema) {
-//        log.info("inside supports in textfieldstrategy for {}", field.getName());
-//        return (field.getType().equals(String.class) || field.getType().equals(Character.class))
-//                && !field.isAnnotationPresent(FormInputType.class);
-//    }
-
     @Override
     public boolean supports(Field field, DbObjectSchema dbObjectSchema) {
-        if (field.isAnnotationPresent(FormInputType.class)) {
-            FormInputType formInputType = field.getAnnotation(FormInputType.class);
-            if (!formInputType.value().equals(FormInputType.Type.TEXT)) {
+//        if (field.isAnnotationPresent(FormInputType.class)) {
+//            FormInputType formInputType = field.getAnnotation(FormInputType.class);
+//            if (!formInputType.value().equals(FormInputType.Type.TEXT)) {
+//                return false;
+//            }
+//        }
+
+        if (field.isAnnotationPresent(KraftAdminField.class)) {
+            KraftAdminField kraftAdminField = field.getAnnotation(KraftAdminField.class);
+            if (kraftAdminField.inputType() == null || kraftAdminField.inputType() != FormInputType.Type.TEXT) {
                 return false;
             }
         }
@@ -49,6 +49,17 @@ public class TextFieldStrategy implements FormFieldStrategy {
     public FormField createField(Field field, DbObjectSchema dbObjectSchema, String inputName, boolean isSearch, List<EntityType<?>> subTypes) {
         String label = FormField.formatLabel(field.getName());
         String placeholder = "Enter " + label;
+
+        if (field.isAnnotationPresent(KraftAdminField.class)) {
+            KraftAdminField kraftAdminField = field.getAnnotation(KraftAdminField.class);
+            label = !kraftAdminField.label().trim().isEmpty() ? kraftAdminField.label() : FormField.formatLabel(field.getName());
+            placeholder = !kraftAdminField.placeholder().trim().isEmpty() ? kraftAdminField.placeholder() : "Enter " + FormField.formatLabel(field.getName());
+        }
+//        else {
+//            label = FormField.formatLabel(field.getName());
+//            placeholder = "Enter " + label;
+//        }
+
         Object value = extractValue(field, dbObjectSchema);
 
         boolean required = extractRequiredValidation(dbObjectSchema.getValidationRules(), field);
