@@ -2,6 +2,10 @@ package com.bowerzlabs.models;
 
 import com.bowerzlabs.annotations.DisplayField;
 import com.bowerzlabs.annotations.FormInputType;
+import com.bowerzlabs.annotations.KraftAdminField;
+import com.bowerzlabs.annotations.KraftAdminResource;
+import com.bowerzlabs.constants.PerformableAction;
+import com.bowerzlabs.constants.Role;
 import com.bowerzlabs.enums.Gender;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
@@ -15,14 +19,30 @@ import java.util.List;
 
 @Entity(name = "talents")
 @Table(name = "talents")
+@KraftAdminResource(
+        name = "Talentsssss",
+        actions = {PerformableAction.CREATE, PerformableAction.EDIT, PerformableAction.DELETE, PerformableAction.READ},
+        adminOnly = true,
+        rolesAllowed = {Role.MANAGER, Role.ADMIN},
+        group = "Talents"
+)
 public class Talent {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false)
     @Size(min = 3, max = 256, message = "Name should not be less than 3 characters long")
+    @KraftAdminField(
+            inputType = FormInputType.Type.TEXT,
+            label = "Talent Name",
+            placeholder = "Enter talent's name"
+    )
     private String name;
     @Enumerated(EnumType.STRING)
+    @KraftAdminField(
+            label = "Talent Gender",
+            placeholder = "Enter talent's gender"
+    )
     private Gender gender;
     private List<String> hobbies;
     private LocalDate dob;
