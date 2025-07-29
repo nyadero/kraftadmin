@@ -26,12 +26,6 @@ Ideal for building internal tools, CMS interfaces, data dashboards, or managing 
 
 ### Installation
 
-```bash
-git clone https://github.com/nyadero/kraftadmin.git
-cd kraftadmin
-mvn clean install
-```
-
 #### Add to Your Spring Boot Project
 Add the Maven Dependency
 
