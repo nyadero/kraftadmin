@@ -77,7 +77,7 @@ public class ImageField extends FormField {
      */
     @Override
     public Map<String, String> getValidationErrors() {
-        return Map.of();
+        return validationErrors;
     }
 
     /**
@@ -85,7 +85,7 @@ public class ImageField extends FormField {
      */
     @Override
     public Map<String, String> getValidationRules() {
-        return Map.of();
+        return validationRules;
     }
 
     @Override
