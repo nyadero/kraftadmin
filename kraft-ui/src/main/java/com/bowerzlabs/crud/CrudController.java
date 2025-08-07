@@ -3,6 +3,7 @@ package com.bowerzlabs.crud;
 import com.bowerzlabs.EntitiesScanner;
 import com.bowerzlabs.EntityMetaModel;
 import com.bowerzlabs.InputGenerator;
+import com.bowerzlabs.annotations.KraftAdminResource;
 import com.bowerzlabs.constants.*;
 import com.bowerzlabs.data.DataExporter;
 import com.bowerzlabs.data.DataExporterRegistry;
@@ -16,8 +17,9 @@ import com.bowerzlabs.files.LocalMultipartFileStorage;
 import com.bowerzlabs.files.MultipartFileStorage;
 import com.bowerzlabs.files.StorageProperties;
 import com.bowerzlabs.formfields.FormField;
-import com.bowerzlabs.models.kraftmodels.AdminUser;
+import com.bowerzlabs.models.AdminUser;
 import com.bowerzlabs.service.CrudService;
+import com.bowerzlabs.service.KraftCrudService;
 import com.bowerzlabs.utils.DisplayUtils;
 import com.bowerzlabs.utils.KraftUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,6 +30,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -53,12 +56,14 @@ public class CrudController {
     private MultipartFileStorage multipartFileStorage;
     @Autowired
     private StorageProperties storageProperties;
+    private final KraftCrudService kraftCrudService;
 
-    public CrudController(EntitiesScanner entitiesScanner, ApplicationEventPublisher applicationEventPublisher, CrudService crudService, DataExporterRegistry dataExporterRegistry) {
+    public CrudController(EntitiesScanner entitiesScanner, ApplicationEventPublisher applicationEventPublisher, CrudService crudService, DataExporterRegistry dataExporterRegistry, KraftCrudService kraftCrudService) {
         this.entitiesScanner = entitiesScanner;
         this.applicationEventPublisher = applicationEventPublisher;
         this.crudService = crudService;
         this.dataExporterRegistry = dataExporterRegistry;
+        this.kraftCrudService = kraftCrudService;
     }
 
     // render create item page
@@ -66,19 +71,31 @@ public class CrudController {
     public String renderCreateForm(
             @PathVariable("entityName") String entityName,
             @RequestParam Map<String, String> formData,
+            @AuthenticationPrincipal AdminUser adminUser,
+            RedirectAttributes redirectAttributes,
             Model model
     ){
         try {
             EntityMetaModel clazz = entitiesScanner.getEntityByName(entityName);
             Map<String, String> validationErrors = (Map<String, String>) model.getAttribute("validationErrors");
             DbObjectSchema dbObjectSchema = new DbObjectSchema(clazz,null);
+            if (clazz.getEntityClass().getJavaType().isAnnotationPresent(KraftAdminResource.class)) {
+                KraftAdminResource kraftAdminResource = clazz.getEntityClass().getJavaType().getAnnotation(KraftAdminResource.class);
+                if (!dbObjectSchema.getRoles().contains(adminUser.getRole())) {
+                    redirectAttributes.addFlashAttribute("error", "Unauthorized to perform this operation");
+                    return "redirect:/admin/crud/" + entityName;
+                }
+
+                if (!dbObjectSchema.getPerformableActions().contains(PerformableAction.CREATE)) {
+                    redirectAttributes.addFlashAttribute("error", "Unauthorized to create " + entityName);
+                    return "redirect:/admin/crud/" + entityName;
+                }
+            }
             List<FormField> formFields = InputGenerator.generateFormInput(clazz, dbObjectSchema, "/admin/crud/" + entityName + "/create", false, false, validationErrors);
-            log.info("formFields {}", formFields);
             model.addAttribute("actionUrl", "/admin/crud/" + entityName + "/create");
             model.addAttribute("fields", formFields);
             model.addAttribute("entityName", entityName);
             assert validationErrors != null;
-//            model.addAttribute("validationErrors", !validationErrors.isEmpty() ? validationErrors : new HashMap<>());
             model.addAttribute("validationErrors", validationErrors);
         } catch (Exception e) {
             model.addAttribute("error", "Error rendering form " + e.getMessage());
@@ -160,11 +177,13 @@ public class CrudController {
     public String getItem(
             @PathVariable("entityName") String entityName,
             @PathVariable("id") String id,
-            Model model
+            Model model,
+            @AuthenticationPrincipal AdminUser adminUser
     ) {
         List<Map<String, FieldValue>> displayMap = new ArrayList<>();
         try {
             Optional<DbObjectSchema> item =  crudService.findById(entityName, id);
+            log.info("relation {}", kraftCrudService.loadRelation(entityName, id));
             assert item.isPresent();
             Map<String, Object> rawFields = item.get().getAllFieldsWithData();
             Map<String, FieldValue> displayItem = new LinkedHashMap<>();
@@ -193,13 +212,14 @@ public class CrudController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam Map<String, String> allParams1,
+            @AuthenticationPrincipal AdminUser adminUser,
             Model model
     ) {
-//        EntityMetaModel entityInstance = entitiesScanner.getEntityByName(entityName);
         EntityMetaModel entityInstance = entitiesScanner.getEntityByName(entityName);
-        log.info("entityInstance {}", entityInstance);
+//        log.info("entityInstance {}", entityInstance);
         try {
             DbObjectSchema schema = new DbObjectSchema(entityInstance,null);
+            log.info("Roles allowed {}, permissions allowed {}", schema.getAllFields(), schema.getDisplayFields());
 //            List<FormField> formFields = InputGenerator.generateFormInput(entityInstance, schema, "/admin/crud/" + entityName + "/create", false, true, new HashMap<>());
             List<Field> filterFields = schema.getFilterableFields();
             List<Field> searchFields = schema.getSearchableFields();
@@ -245,7 +265,7 @@ public class CrudController {
                 firstItem = pagedResult.getContent().get(0);
                 List<String> fieldNames = new ArrayList<>(firstItem.getFieldsWithData().keySet());
                 primaryKey = firstItem.getPrimaryKey();
-                performableActions = firstItem.getPerformableActions();
+//                performableActions = firstItem.getPerformableActions();
                 for (DbObjectSchema item : pagedResult.getContent()) {
                     processedItems.add(item.getFieldsWithData());
                     Map<String, Object> rawFields = item.getFieldsWithData();
@@ -264,7 +284,6 @@ public class CrudController {
                 model.addAttribute("items", processedItems);  // Processed data
                 model.addAttribute("displayItems", displayMap);
                 model.addAttribute("fieldNames", fieldNames);
-                model.addAttribute("actions", performableActions);
             }
             // Dynamically add enum values for each enum field
             Map<String, List<String>> enumFields = new HashMap<>();
@@ -285,10 +304,9 @@ public class CrudController {
 
             // Build a query string for pagination/sorting links
             String queryString = allParams.entrySet().stream()
-                    .filter(e -> !e.getKey().equals("page")) // omit `page`, it will be replaced in pagination links
+                    .filter(e -> !e.getKey().equals("page"))
                     .map(e -> e.getKey() + "=" + URLEncoder.encode(e.getValue(), StandardCharsets.UTF_8))
                     .collect(Collectors.joining("&"));
-
             model.addAttribute("queryString", "&" + queryString);
             model.addAttribute("currentParams", allParams); // for hidden inputs
             model.addAttribute("enumFields", enumFields);
@@ -296,12 +314,14 @@ public class CrudController {
             model.addAttribute("primaryKey", KraftUtils.formatLabel(primaryKey));
             model.addAttribute("currentPage", page);
             model.addAttribute("totalPages", pagedResult.getTotalPages());
+            model.addAttribute("actions", schema.getPerformableActions());
             model.addAttribute("totalElements", pagedResult.getTotalElements());
             model.addAttribute("pagination", new PageResponse(pagedResult.getContent(), pagedResult.getNumber(), pagedResult.getTotalElements(), pagedResult.getTotalPages()));
             model.addAttribute("searchableFieldNames", searchFields);
             model.addAttribute("sortableFieldNames", sortableFieldNames);
             model.addAttribute("filterableFieldNames", filterFieldNames);
             model.addAttribute("sortBy", sortBy);
+            model.addAttribute("roles", schema.getRoles());
             model.addAttribute("sortOrder", sortOrder);
 //            model.addAttribute("fields", formFields);
             Subject subject = new Subject(schema.getEntityName(), idValues);
@@ -318,17 +338,33 @@ public class CrudController {
     public String editForm(
             @PathVariable("entityName") String entityName,
             @PathVariable("id") String id,
+            @AuthenticationPrincipal AdminUser adminUser,
+            RedirectAttributes redirectAttributes,
             Model model
     ) {
         try {
             EntityMetaModel clazz = entitiesScanner.getEntityByName(entityName);
-            Optional<DbObjectSchema> item = crudService.findById(entityName, id);
-            Map<String, String> validationErrors = (Map<String, String>) model.getAttribute("validationErrors");
-            if (item.isPresent()) {
-                List<FormField> formFields = InputGenerator.generateFormInput(clazz, item.get(), "/admin/crud/" + entityName + "/edit", true, false, validationErrors);
-                model.addAttribute("fields", formFields);
-                model.addAttribute("entityName", entityName);
+            DbObjectSchema dbObjectSchema = crudService.findById(entityName, id).get();
+            if (clazz.getEntityClass().getJavaType().isAnnotationPresent(KraftAdminResource.class)) {
+                KraftAdminResource kraftAdminResource = clazz.getEntityClass().getJavaType().getAnnotation(KraftAdminResource.class);
+                if (!dbObjectSchema.getRoles().contains(adminUser.getRole())) {
+                    redirectAttributes.addFlashAttribute("error", "Unauthorized to perform this action");
+                    applicationEventPublisher.publishEvent(new UIEvent(this, "Unauthorized to perform this operation", Status.Error));
+                    return "redirect:/admin/crud/" + entityName;
+                }
+                if (!dbObjectSchema.getPerformableActions().contains(PerformableAction.EDIT)) {
+                    redirectAttributes.addFlashAttribute("unauthorized", "Unauthorized");
+                    applicationEventPublisher.publishEvent(new UIEvent(this, "Unauthorized to perform this operation", Status.Error));
+                    return "redirect:/admin/crud/" + entityName;
+                }
+                log.info("kraftAdmin resource {}", kraftAdminResource);
+
+
             }
+            Map<String, String> validationErrors = (Map<String, String>) model.getAttribute("validationErrors");
+            List<FormField> formFields = InputGenerator.generateFormInput(clazz, dbObjectSchema, "/admin/crud/" + entityName + "/edit", true, false, validationErrors);
+            model.addAttribute("fields", formFields);
+            model.addAttribute("entityName", entityName);
         } catch (Exception e) {
             applicationEventPublisher.publishEvent(new UIEvent(this, e.getMessage(), Status.Error));
             return "redirect:/admin/crud/" + entityName;
@@ -345,11 +381,10 @@ public class CrudController {
             @RequestParam Map<String, String> formValues,
             @RequestParam(required = false) Map<String, MultipartFile> fileInputs,
             HttpServletRequest request,
+            @AuthenticationPrincipal AdminUser adminUser,
             RedirectAttributes redirectAttributes
     ) {
         EntityMetaModel entityInstance = entitiesScanner.getEntityByName(entityName);
-//        System.out.println("Received form values: " + formValues);
-//        System.out.println("Received files: " + fileInputs);
         try {
             Optional<DbObjectSchema> item = crudService.findById(entityName, id);
             if (item.isPresent()) {
@@ -405,10 +440,24 @@ public class CrudController {
     @GetMapping("/{entityName}/delete/{id}")
     public String deleteItem(
             @PathVariable("entityName") String entityName,
-            @PathVariable("id") String id
+            @AuthenticationPrincipal AdminUser adminUser,
+            @PathVariable("id") String id,
+            RedirectAttributes redirectAttributes
     ) {
         try {
+            EntityMetaModel clazz = entitiesScanner.getEntityByName(entityName);
             Optional<DbObjectSchema> item = crudService.findById(entityName, id);
+            if (clazz.getEntityClass().getJavaType().isAnnotationPresent(KraftAdminResource.class)) {
+                KraftAdminResource kraftAdminResource = clazz.getEntityClass().getJavaType().getAnnotation(KraftAdminResource.class);
+                if (!item.get().getRoles().contains(adminUser.getRole())) {
+                    redirectAttributes.addFlashAttribute("error", "Unauthorized to perform this operation");
+                    return "redirect:/admin/crud/" + entityName;
+                }
+                if (!item.get().getPerformableActions().contains(PerformableAction.DELETE)) {
+                    redirectAttributes.addFlashAttribute("error", "Unauthorized to delete " + entityName);
+                    return "redirect:/admin/crud/" + entityName;
+                }
+            }
             if (item.isPresent()){
                 crudService.deleteById(entityName, id);
                 Subject subject = new Subject(item.get().getEntityName(), List.of(item.get().getIdValue().toString()));
@@ -429,6 +478,7 @@ public class CrudController {
             @RequestParam(name= "selectedIds") List<String> selectedIds,
             @RequestParam(name = "format", defaultValue = "JSON") String format,
             RedirectAttributes redirectAttributes,
+            @AuthenticationPrincipal AdminUser adminUser,
             Model model
     ) throws Exception {
         log.info("action {} ids {}", bulkAction, selectedIds);
@@ -462,6 +512,7 @@ public class CrudController {
     @GetMapping("/{entityName}/export")
     public Object exportEntityData(
             @RequestParam(defaultValue = "json") String format,
+            @AuthenticationPrincipal AdminUser adminUser,
             @PathVariable("entityName") String entityName
     ) {
         byte[] content = null;
@@ -487,7 +538,10 @@ public class CrudController {
      * download file
       */
     @GetMapping("/download/{filename}")
-    public ResponseEntity<Resource> download(@PathVariable String filename) {
+    public ResponseEntity<Resource> download(
+            @PathVariable String filename,
+            @AuthenticationPrincipal AdminUser adminUser
+    ) {
         Resource file = null;
         try {
             file = multipartFileStorage.download(filename);
@@ -500,5 +554,5 @@ public class CrudController {
                 .body(file);
     }
 
-    
+
 }
