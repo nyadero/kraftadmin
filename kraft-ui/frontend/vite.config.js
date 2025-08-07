@@ -17,7 +17,8 @@ export default {
         script: resolve(__dirname, 'src/js/script.js'),
         websocket: resolve(__dirname, 'src/js/websocket.js'),
         wysiwyg: resolve(__dirname, 'src/js/wysiwyg.js'),
-                error: resolve(__dirname, 'src/js/error.js'),
+        error: resolve(__dirname, 'src/js/error.js'),
+        heatmap: resolve(__dirname, 'src/js/heatmap.js'),
       },
       output: {
         entryFileNames: '[name].js',
