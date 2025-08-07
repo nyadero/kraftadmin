@@ -1,4 +1,4 @@
-package com.bowerzlabs.models.kraftmodels;
+package com.bowerzlabs.models;
 
 public class ResourceName {
     private  String key;
@@ -29,7 +29,7 @@ public class ResourceName {
     public String toString() {
         return "ResourceName{" +
                 "key='" + key + '\'' +
-                ", value='" + value + '\'' +
+                ", displayField='" + value + '\'' +
                 '}';
     }
 

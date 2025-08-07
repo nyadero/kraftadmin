@@ -1,4 +1,4 @@
-package com.bowerzlabs.models.kraftmodels;
+package com.bowerzlabs.models;
 
 /**
  * This class will store metadata for each resource field.

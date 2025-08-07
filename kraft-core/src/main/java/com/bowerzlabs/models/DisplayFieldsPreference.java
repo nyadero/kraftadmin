@@ -1,4 +1,4 @@
-package com.bowerzlabs.models.kraftmodels;
+package com.bowerzlabs.models;
 
 import com.bowerzlabs.annotations.InternalAdminResource;
 import jakarta.persistence.Entity;

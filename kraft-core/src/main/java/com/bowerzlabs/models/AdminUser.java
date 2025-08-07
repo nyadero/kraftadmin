@@ -1,4 +1,4 @@
-package com.bowerzlabs.models.kraftmodels;
+package com.bowerzlabs.models;
 
 import com.bowerzlabs.annotations.FormInputType;
 import com.bowerzlabs.annotations.InternalAdminResource;
@@ -23,7 +23,9 @@ import java.util.List;
 
 @Entity
 @Table(name = "kraft_admin_users")
-@KraftAdminResource(name = "Administrators", rolesAllowed = {Role.SUPER_ADMIN}, actions = {PerformableAction.CREATE, PerformableAction.READ, PerformableAction.DELETE})
+@KraftAdminResource(name = "Administrators",
+        rolesAllowed = {Role.SUPER_ADMIN},
+        actions = {PerformableAction.CREATE, PerformableAction.READ})
 @InternalAdminResource
 public class AdminUser implements UserDetails, Serializable {
 

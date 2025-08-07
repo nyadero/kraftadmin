@@ -1,7 +1,8 @@
-package com.bowerzlabs.models.kraftmodels;
+package com.bowerzlabs.models;
 
 import com.bowerzlabs.annotations.DisplayField;
 import com.bowerzlabs.annotations.InternalAdminResource;
+import com.bowerzlabs.annotations.KraftAdminResource;
 import com.bowerzlabs.constants.UserActionType;
 import com.bowerzlabs.dtos.Subject;
 import jakarta.persistence.*;
@@ -16,7 +17,13 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "kraft_user_actions")
-//@KraftAdminResource(name = "User Actions", group = "Admin", icon = "\uD83D\uDCCA", editable = true)
+@KraftAdminResource(
+        name = "UserActions",
+        group = "",
+        icon = "\uD83D\uDCCA",
+        editable = false,
+        manageable = false
+)
 @InternalAdminResource
 public class AdminUserAction {
     @Id
