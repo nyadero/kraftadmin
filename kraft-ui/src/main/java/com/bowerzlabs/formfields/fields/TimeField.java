@@ -78,7 +78,7 @@ public class TimeField extends FormField {
      */
     @Override
     public Map<String, String> getValidationErrors() {
-        return Map.of();
+        return validationErrors;
     }
 
     /**
@@ -86,7 +86,7 @@ public class TimeField extends FormField {
      */
     @Override
     public Map<String, String> getValidationRules() {
-        return Map.of();
+        return validationRules;
     }
 
     @Override
@@ -104,15 +104,15 @@ public class TimeField extends FormField {
 //     * @param type
 //     * @param placeholder
 //     * @param name
-//     * @param value
+//     * @param displayField
 //     * @param required
 //     * @param validationErrors
 //     * @return
 //     */
 //    @Override
-//    public String toHtml(String label, String type, String placeholder, String name, Object value, boolean required, Map<String, String> validationErrors) {
-//        return "<label>" + label + ": <input type='" + type + "' name='" + name + "' value='" +
-//                (value != null ? value : "") + "' placeholder='" + placeholder + "' required='" + required + "'></label><br/>";
+//    public String toHtml(String label, String type, String placeholder, String name, Object displayField, boolean required, Map<String, String> validationErrors) {
+//        return "<label>" + label + ": <input type='" + type + "' name='" + name + "' displayField='" +
+//                (displayField != null ? displayField : "") + "' placeholder='" + placeholder + "' required='" + required + "'></label><br/>";
 //    }
 
     /**
