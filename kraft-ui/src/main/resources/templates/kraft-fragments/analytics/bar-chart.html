@@ -1,6 +1,6 @@
 <div th:fragment="chart(chartComponent)" xmlns:th="http://www.w3.org/1999/xhtml">
-    <div class="p-2 bg-white rounded shadow min-w-60">
-        <div class="flex items-center justify-between" id="${chartComponent.title}">
+    <div class="p-2 bg-white rounded shadow">
+        <div class="flex items-center justify-between">
             <div>
                 <h3 th:text="${chartComponent.title}"></h3>
                 <div class="flex items-center gap-4">
@@ -23,15 +23,14 @@
                     <span th:text="${chartComponent.data.percentageChange + '%'}"></span>
                 </span>
         </div>
-<!--        <canvas th:attr="-->
-<!--            id=${chartComponent.title.replaceAll(' ', '')},-->
-<!--            data-chart-title=${chartComponent.title.replaceAll(' ', '')},-->
-<!--            data-chart-labels=${chartComponent.data.labels},-->
-<!--            data-chart-values=${chartComponent.data.values}"-->
-<!--                height="50">-->
-<!--        </canvas>-->
 
-        <canvas id="revenueChart" height="100"></canvas>
+        <canvas
+                class="chart-canvas w-full"
+                height="100"
+                th:attr="data-labels=${chartComponent.data.labels}, data-values=${chartComponent.data.values}, data-title=${chartComponent.title}"
+                th:id="'chart-' + ${chartComponent.title} + '-' + ${#temporals.format(#temporals.createNow(), 'HHmmssSSS')}">
+        </canvas>
     </div>
 </div>
+
 

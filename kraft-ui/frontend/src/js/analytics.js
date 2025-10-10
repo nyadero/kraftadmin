@@ -1,105 +1,104 @@
-//import { Chart, registerables } from 'chart.js';
-//
-//Chart.register(...registerables);
+import Chart from 'chart.js/auto';
 
-document.addEventListener('DOMContentLoaded', () => {
-  const ctx = document.getElementById('myChart');
+document.addEventListener("DOMContentLoaded", function() {
+    console.log('Chart.js loaded:', Chart);
 
-  if (ctx) {
-    new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: ['Red', 'Blue', 'Yellow'],
-        datasets: [{
-          label: 'Votes',
-          data: [12, 19, 3],
-          backgroundColor: [
-            'rgba(255, 99, 132, 0.6)',
-            'rgba(54, 162, 235, 0.6)',
-            'rgba(255, 206, 86, 0.6)',
-          ],
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: {
-            beginAtZero: true
-          }
-        }
-      }
-    });
-  }
-});
+    // Find all canvas elements with the chart-canvas class
+    const canvases = document.querySelectorAll('.chart-canvas');
+    console.log('Found canvases:', canvases.length);
 
+     // Debug: Log all canvas IDs to see what we're finding
+       canvases.forEach((canvas, index) => {
+            console.log(`Canvas ${index}:`, canvas.id, canvas);
+        });
 
-document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll("canvas[data-type]").forEach(canvas => {
-        const type = canvas.dataset.type;
-        const title = canvas.dataset.title;
-//        const labels = canvas.dataset.labels;
-//        const values = canvas.dataset.values;
-        const labels = JSON.parse(canvas.dataset.labels);
-        const values = JSON.parse(canvas.dataset.values);
+            const processedIds = new Set();
 
-       console.log("labels" + labels + " values " + values)
-        const ctx = canvas.getContext("2d");
+    canvases.forEach((canvas, index) => {
+    console.log(`Canvas ${index}:`, canvas.id, canvas);
 
-        const config = {
-            type: type === "area" ? "line" : type,
+                // Get data from Thymeleaf attributes
+                const labels = JSON.parse(canvas.dataset.labels || '["No Data"]');
+                const values = JSON.parse(canvas.dataset.values || '[0]');
+                const title = canvas.dataset.title || 'Chart';
+
+        const ctx = canvas.getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
             data: {
-                labels,
+                labels: labels,
                 datasets: [{
                     label: title,
                     data: values,
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    backgroundColor: generateBackgroundColors(values.length, type),
-                    fill: type === "area"
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 205, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 205, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1,
+                     borderWidth: 2,
+                                        fill: true,
+                                        tension: 0.4, // Smooth curves
+                                        pointRadius: 0, // Hide individual points for cleaner look
+                                        pointHoverRadius: 4
                 }]
             },
-            options: {
-                responsive: true,
+//            options: {
+//                scales: {
+//                    y: {
+//                        beginAtZero: true
+//                    }
+//                }
+//            }
+ options: {
+                responsive: false,
                 maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
                 scales: {
                     x: {
+                        display: true,
                         ticks: {
-                            autoSkip: false,
-                            maxRotation: 0,
-                            minRotation: 0,
-                            callback: function(value, index, values) {
-                                const total = values.length;
-                                if (total > 60) {
-                                    return index % 10 === 0 ? this.getLabelForValue(value) : '';
-                                } else if (total > 30) {
-                                    return index % 5 === 0 ? this.getLabelForValue(value) : '';
-                                } else {
-                                    return this.getLabelForValue(value);
-                                }
+                            maxTicksLimit: 24, // Show only 6 labels max
+                            font: {
+                                size: 10
                             }
+                        },
+                        grid: {
+                            display: true
                         }
                     },
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        ticks: {
+                            font: {
+                                size: 10
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0,0,0,0.1)'
+                        }
                     }
                 },
-                plugins: {
-                    legend: { display: type !== "bar" }
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
                 }
-            }
-
-        };
-
-        new Chart(ctx, config);
+                }
+        });
     });
-
-    function generateBackgroundColors(count, type) {
-        const palette = [
-            '#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1', '#FF6384', '#36A2EB'
-        ];
-        return type === "pie" || type === "doughnut"
-            ? palette.slice(0, count)
-            : 'rgba(54, 162, 235, 0.6)';
-    }
 });
-

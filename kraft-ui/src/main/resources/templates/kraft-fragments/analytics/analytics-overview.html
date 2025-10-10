@@ -1,31 +1,6 @@
-<div th:fragment="analytics-overview(components)" xmlns:th="http://www.w3.org/1999/xhtml" class="charts flex items-center flex-wrap gap-4 overflow-y-scroll">
-    <div th:each="analyticComponent : ${components}" >
-      <div th:replace="~{fragments/analytics/bar-chart :: chart(${analyticComponent})}"></div>
+<div class="charts grid grid-cols-4 gap-5" th:fragment="analytics-overview(components)"
+     xmlns:th="http://www.w3.org/1999/xhtml">
+    <div th:each="analyticComponent, chartComponentStat : ${components}">
+        <div th:replace="~{kraft-fragments/analytics/bar-chart :: chart(${analyticComponent})}"></div>
     </div>
 </div>
-
-
-<!--<div th:fragment="analytics-overview(components)" class="overflow-x-scroll"-->
-<!--     xmlns:th="http://www.w3.org/1999/xhtml">-->
-<!--&lt;!&ndash;    <div th:each="component : ${components}">&ndash;&gt;-->
-<!--    <div th:each="component, iter : ${components}">-->
-<!--&lt;!&ndash;        <div th:if="${component.type == 'bar'}"&ndash;&gt;-->
-<!--&lt;!&ndash;             th:replace="~{fragments/analytics/chart-fragments :: chart(${component}, 'bar')}"></div>&ndash;&gt;-->
-
-<!--        <div th:if="${component.type == 'line'}"-->
-<!--             th:replace="~{fragments/analytics/chart-fragments :: chart(${component}, 'line')}"></div>-->
-
-<!--&lt;!&ndash;        <div th:if="${component.type == 'pie'}"&ndash;&gt;-->
-<!--&lt;!&ndash;             th:replace="~{fragments/analytics/chart-fragments :: chart(${component}, 'pie')}"></div>&ndash;&gt;-->
-
-<!--&lt;!&ndash;        <div th:if="${component.type == 'doughnut'}"&ndash;&gt;-->
-<!--&lt;!&ndash;             th:replace="~{fragments/analytics/chart-fragments :: chart(${component}, 'doughnut')}"></div>&ndash;&gt;-->
-
-<!--&lt;!&ndash;        <div th:if="${component.type == 'area'}"&ndash;&gt;-->
-<!--&lt;!&ndash;             th:replace="~{fragments/analytics/chart-fragments :: chart(${component}, 'area')}"></div>&ndash;&gt;-->
-
-<!--&lt;!&ndash;        <div th:if="${component.type != 'bar' and component.type != 'line' and component.type != 'pie' and component.type != 'doughnut' and component.type != 'area'}"&ndash;&gt;-->
-<!--&lt;!&ndash;             th:text="'Invalid chart type: ' + ${component.type}"></div>&ndash;&gt;-->
-<!--    </div>-->
-<!--</div>-->
-
