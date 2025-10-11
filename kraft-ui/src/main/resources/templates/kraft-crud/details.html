@@ -9,13 +9,52 @@
 <body>
 <th:block layout:fragment="content">
     <div class="p-6">
-        <h1 class="text-3xl font-bold text-gray-800 mb-8" th:text="${entityName} + ' Details'">Entity Details</h1>
+
+        <h1 class="text-xl text-gray-800 mb-2" th:text="${entityName} + ' Details'">Entity Details</h1>
+
+        <!-- Action Buttons -->
+        <div class="mt-2 flex justify-between">
+            <a class="hover:bg-gray-300 transition"
+               th:href="@{/admin/crud/{entityName}(entityName=${entityName})}">
+                ← Back to List
+            </a>
+
+
+            <!-- Admin projects page -->
+            <div class="admin-actions gap-5 my-5 flex items-center justify-end">
+                <div class="action-button" th:each="action : ${actions}">
+                    <!--                <a th:href="@{/admin/crud/{entityName}/kraft-actions-logs/execute(entityName=${entityName})}" th:text="${action.name}"></a>-->
+                    <form id="actionForm" method="post"
+                          th:action="@{/admin/crud/{entityName}/{id}/actions/execute?actionName={actionName}(entityName=${entityName}, id=${id}, actionName=${action.name})}">
+                        <button th:text="${action.name}" type="submit"></button>
+                        <!--                    <input type="hidden" name="actionName" id="actionNameInput">-->
+                        <!--                    <input type="hidden" name="entityType" id="entityTypeInput">-->
+                        <!--                    <input type="hidden" name="entityIds" id="entityIdsInput">-->
+                    </form>
+                    <!--                <button-->
+                    <!--                        th:data-action="${action.name}"-->
+                    <!--                        th:data-type="${action.type}"-->
+                    <!--                        th:data-confirm="${action.needsConfirmation}"-->
+                    <!--                        class="btn btn-primary">-->
+                    <!--                    <i th:class="${action.icon}"></i>-->
+                    <!--                    <span th:text="${action.name}"></span>-->
+                    <!--                </button>-->
+                </div>
+            </div>
+        </div>
+
+        <!--        <pre th:text="${fieldNames}" class="text-wrap"></pre>-->
+        <!--        <pre th:text="${fieldLabels}" class="text-wrap"></pre>-->
+
         <div th:if="${item}">
             <div class="flex flex-col gap-6" th:each="entry : ${item}">
                 <div class="p-5 bg-white rounded-md shadow-md" th:each="field : ${fieldNames}">
-                    <div class="text-lg text-gray-600 font-semibold mb-1" th:text="${field}">Field Name</div>
+                    <div class="text-lg text-gray-600 font-semibold mb-1" th:text="${fieldLabels.get(field)}">Field
+                        Name
+                    </div>
+                    <!--                    <pre th:text="${fieldLabels.get(field)}" class="text-wrap"></pre>-->
                     <div th:with="displayField=${entry.get(field)}">
-                        <div th:replace="~{kraft-fragments/displays/display-field :: render(${displayField})}"></div>
+                        <div th:replace="~{kraft-fragments/displays/display-field :: render(${displayField}, false)}"></div>
                     </div>
                 </div>
             </div>
@@ -25,20 +64,8 @@
             <h3 th:text="${entityName} + ' not found'">Entity not found</h3>
         </div>
 
-        <!-- Action Buttons -->
-        <!--        <div class="mt-10 flex justify-between">-->
-        <!--            <a th:href="@{/admin/crud/{entityName}(entityName=${entityName})}"-->
-        <!--               class="inline-block bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300 transition">-->
-        <!--                ← Back to List-->
-        <!--            </a>-->
-
-        <!--            <a th:href="@{/admin/crud/{entityName}/edit/{id}(entityName=${entityName}, id=${item.get(primaryKey)?.value})}"-->
-        <!--               class="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">-->
-        <!--                Edit-->
-        <!--            </a>-->
-        <!--        </div>-->
     </div>
 </th:block>
-</body>
 
+</body>
 </html>
