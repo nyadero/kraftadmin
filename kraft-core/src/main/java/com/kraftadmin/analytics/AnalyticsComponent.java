@@ -1,37 +1,26 @@
-package com.bowerzlabs.analytics;
+package com.kraftadmin.analytics;
 
-import com.bowerzlabs.dtos.AnalyticsData;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import com.kraftadmin.dtos.AnalyticsData;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class AnalyticsComponent implements AnalyticsSubject {
+    public String templatePath = "";
     private String title;
     private String description;
-    private AnalyticsData data =new AnalyticsData();
+    private AnalyticsData data = new AnalyticsData();
     private List<AnalyticsObserver> analyticsObservers;
-    public String templatePath = "";
     private String type;
-
-    public AnalyticsComponent() {
-    }
-
-
     /**
      * Optional filters, e.g. "dateFrom", "dateTo", "eventType", "appType".
      * Subclasses can override to support dynamic filtering.
      */
     private Map<String, Object> filters;
 
-    public String getType() {
-        return type;
-    }
 
-    public void setType(String type) {
-        this.type = type;
+    public AnalyticsComponent() {
     }
 
     public AnalyticsComponent(String title, String description) {
@@ -40,7 +29,13 @@ public class AnalyticsComponent implements AnalyticsSubject {
         this.analyticsObservers = new ArrayList<>();
     }
 
+    public String getType() {
+        return type;
+    }
 
+    public void setType(String type) {
+        this.type = type;
+    }
 
     public String getTitle() {
         return title;
@@ -62,13 +57,13 @@ public class AnalyticsComponent implements AnalyticsSubject {
         return data;
     }
 
-    public Map<String, Object> getFilters() {
-        return Map.of();
-    }
-
     public void setData(AnalyticsData data) {
         this.data = data;
         notifySubscribers();
+    }
+
+    public Map<String, Object> getFilters() {
+        return Map.of();
     }
 
     @Override
@@ -78,16 +73,16 @@ public class AnalyticsComponent implements AnalyticsSubject {
 
     @Override
     public void unSubscribe(AnalyticsObserver analyticsObserver) {
-         int i = analyticsObservers.indexOf(analyticsObserver);
-         if(i >= 0){
-             analyticsObservers.remove(i);
-         }
+        int i = analyticsObservers.indexOf(analyticsObserver);
+        if (i >= 0) {
+            analyticsObservers.remove(i);
+        }
     }
 
     @Override
     public void notifySubscribers() {
 //        could use event listener to track create and delete operations and update
-        for (AnalyticsObserver analyticsObserver: analyticsObservers){
+        for (AnalyticsObserver analyticsObserver : analyticsObservers) {
             analyticsObserver.update(data);
         }
     }
