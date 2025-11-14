@@ -1,4 +1,4 @@
-package com.bowerzlabs.annotations;
+package com.kraftadmin.annotations;
 
 import org.springframework.stereotype.Controller;
 
