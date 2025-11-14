@@ -2,7 +2,11 @@
     Account settings
 
     <form th:action="@{/admin/administrators/update-admin}" method="post" enctype="multipart/form-data">
-<!--        name-->
+        <input name="_method" type="hidden" value="put"/>
+
+        <input th:name="id" th:value="${adminUser.id}" type="hidden">
+
+        <!--        name-->
         <div class="w-full mt-2">
             <label class="mb-3">Name</label>
             <input type="text" name="name" placeholder="name" th:value="${adminUser.name}" class="w-full p-2 rounded shadow bg-white">
