@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
+@Builder
 @Document(collection = "kraft_admin_users")
 @KraftAdminResource(
         name = "Administrators",
