@@ -1,11 +1,13 @@
-package com.bowerzlabs.models;
+package com.kraftadmin.kraft_jpa_entities;
 
-import com.bowerzlabs.annotations.DisplayField;
-import com.bowerzlabs.annotations.InternalAdminResource;
-import com.bowerzlabs.annotations.KraftAdminResource;
-import com.bowerzlabs.constants.UserActionType;
-import com.bowerzlabs.dtos.Subject;
+import com.kraftadmin.annotations.DisplayField;
+import com.kraftadmin.annotations.InternalAdminResource;
+import com.kraftadmin.annotations.KraftAdminResource;
+import com.kraftadmin.constants.PerformableAction;
+import com.kraftadmin.constants.UserActionType;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -15,16 +17,15 @@ import java.time.LocalDateTime;
  * only holds metadata about the operation and not anything
  * concrete yet (e.g. a diff or SQL query) about what change was performed.
  */
+@Setter
+@Getter
 @Entity
 @Table(name = "kraft_user_actions")
 @KraftAdminResource(
-        name = "UserActions",
-        group = "",
-        icon = "\uD83D\uDCCA",
-        editable = false,
-        manageable = false
-)
+        name = "User Actions",
+        actions = {PerformableAction.READ})
 @InternalAdminResource
+//@ConditionalOnKraftJPASupported
 public class AdminUserAction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,7 +50,6 @@ public class AdminUserAction {
      */
     @Column(name = "subject", nullable = false)
     @Embedded
-//    @DisplayField("dataId")
     private Subject subject;
 
     /*
@@ -62,43 +62,4 @@ public class AdminUserAction {
     public AdminUserAction() {
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public UserActionType getAction() {
-        return action;
-    }
-
-    public void setAction(UserActionType action) {
-        this.action = action;
-    }
-
-    public AdminUser getAdminUser() {
-        return adminUser;
-    }
-
-    public void setAdminUser(AdminUser adminUser) {
-        this.adminUser = adminUser;
-    }
-
-    public Subject getSubject() {
-        return subject;
-    }
-
-    public void setSubject(Subject subject) {
-        this.subject = subject;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-    
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
 }
