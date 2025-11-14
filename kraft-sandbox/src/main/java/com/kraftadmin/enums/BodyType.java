@@ -1,4 +1,4 @@
-package com.bowerzlabs.enums;
+package com.kraftadmin.enums;
 
 public enum BodyType {
     Convertible,
@@ -11,5 +11,5 @@ public enum BodyType {
     Mpv,
     Truck,
     Trailer,
-    Other;
+    Other
 }
