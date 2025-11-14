@@ -1,8 +1,10 @@
-package com.bowerzlabs.analytics;
+package com.kraftadmin.analytics;
 
 public interface AnalyticsSubject {
     void addSubscriber(AnalyticsObserver analyticsObserver);
+
     void unSubscribe(AnalyticsObserver analyticsObserver);
+
     void notifySubscribers();
 }
 

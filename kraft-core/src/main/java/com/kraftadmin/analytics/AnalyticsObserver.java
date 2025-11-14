@@ -1,6 +1,6 @@
-package com.bowerzlabs.analytics;
+package com.kraftadmin.analytics;
 
-import com.bowerzlabs.dtos.AnalyticsData;
+import com.kraftadmin.dtos.AnalyticsData;
 
 public interface AnalyticsObserver {
     void update(AnalyticsData data);

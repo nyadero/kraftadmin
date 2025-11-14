@@ -1,8 +1,9 @@
-package com.bowerzlabs.components;
+package com.kraftadmin.components;
 
-import com.bowerzlabs.service.AnalyzeData;
+import com.kraftadmin.service.AnalyzeData;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 
-//@Component
 public class AnalyzeTrigger {
 
     private final AnalyzeData analyzeData;
@@ -12,7 +13,7 @@ public class AnalyzeTrigger {
     }
 
     // single startup run
-//    @EventListener(ApplicationReadyEvent.class)
+    @EventListener(ApplicationReadyEvent.class)
     public void onAppReady() {
         analyzeData.analyze();
     }

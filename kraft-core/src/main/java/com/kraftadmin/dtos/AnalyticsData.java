@@ -1,4 +1,4 @@
-package com.bowerzlabs.dtos;
+package com.kraftadmin.dtos;
 
 import java.time.LocalDateTime;
 import java.util.List;
