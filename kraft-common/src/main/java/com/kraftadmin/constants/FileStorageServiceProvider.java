@@ -1,0 +1,5 @@
+package com.kraftadmin.constants;
+
+public enum FileStorageServiceProvider {
+        Local, Cloudinary, AWS_S3
+}
