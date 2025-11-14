@@ -1,17 +1,19 @@
-package com.bowerzlabs.models;
+package com.kraftadmin.kraft_jpa_entities;
 
-import com.bowerzlabs.annotations.FormInputType;
-import com.bowerzlabs.annotations.InternalAdminResource;
-import com.bowerzlabs.annotations.KraftAdminField;
-import com.bowerzlabs.annotations.KraftAdminResource;
-import com.bowerzlabs.constants.PerformableAction;
-import com.bowerzlabs.constants.Role;
+import com.kraftadmin.annotations.FormInputType;
+import com.kraftadmin.annotations.InternalAdminResource;
+import com.kraftadmin.annotations.KraftAdminField;
+import com.kraftadmin.annotations.KraftAdminResource;
+import com.kraftadmin.constants.PerformableAction;
+import com.kraftadmin.constants.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,15 +25,24 @@ import java.util.List;
 
 @Entity
 @Table(name = "kraft_admin_users")
-@KraftAdminResource(name = "Administrators",
+@KraftAdminResource(
+        name = "Administrators",
         rolesAllowed = {Role.SUPER_ADMIN},
-        actions = {PerformableAction.CREATE, PerformableAction.READ})
+        actions = {PerformableAction.CREATE, PerformableAction.READ, PerformableAction.DELETE})
 @InternalAdminResource
+@Getter
+@Setter
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
+//@ConditionalOnKraftJPASupported
+@ConditionalOnProperty(name = "kraft.kraft-admin.primaryDB", havingValue = "JPA")
+@Builder
 public class AdminUser implements UserDetails, Serializable {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
 
     @Column(unique = true, nullable = false)
     @Email(message = "not a valid email")
@@ -45,6 +56,7 @@ public class AdminUser implements UserDetails, Serializable {
     @Column(nullable = false)
     @NotBlank(message = "Password is required")
     @Size(min = 8, message = "Password should have at least 8 characters")
+    @KraftAdminField(showInTable = false)
     private String password;
 
     @Enumerated(EnumType.STRING)
@@ -63,7 +75,7 @@ public class AdminUser implements UserDetails, Serializable {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    public AdminUser(Long id, String username, String name, String password, Role role) {
+    public AdminUser(String id, String username, String name, String password, Role role) {
         this.id = id;
         this.username = username;
         this.name = name;
@@ -78,18 +90,7 @@ public class AdminUser implements UserDetails, Serializable {
         this.avatar = avatar;
     }
 
-    @PrePersist
-    public void prePersist(){
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    @PostUpdate
-    public void postUpdate(){
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    public AdminUser(Long id, String username, String name, String password, Role role, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public AdminUser(String id, String username, String name, String password, Role role, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.username = username;
         this.name = name;
@@ -99,15 +100,15 @@ public class AdminUser implements UserDetails, Serializable {
         this.updatedAt = updatedAt;
     }
 
-    public AdminUser() {
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
+    @PostUpdate
+    public void postUpdate() {
+        this.updatedAt = LocalDateTime.now();
     }
 
     public String getUsername() {
@@ -134,75 +135,9 @@ public class AdminUser implements UserDetails, Serializable {
         return true;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + this.role.name()));
     }
 
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public String getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
-    }
-
-    @Override
-    public String toString() {
-        return "AdminUser{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", name='" + name + '\'' +
-                ", password='" + password + '\'' +
-                ", role=" + role +
-                ", avatar='" + avatar + '\'' +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                '}';
-    }
 }
