@@ -1,183 +1,76 @@
+# KraftAdmin
 
-### Spring Boot Admin Library
+**Build modern admin panels for Spring Boot.**
 
-A modular and customizable admin dashboard library for Spring Boot applications. It provides dynamic filtering, sorting, pagination, file preview, and global search across fields — all with minimal configuration.
+KraftAdmin is an annotation-driven admin framework that automatically generates CRUD interfaces, forms, tables, filters, actions, dashboards, and file management from your existing Spring Boot entities.
 
-Ideal for building internal tools, CMS interfaces, data dashboards, or managing entities in CRUD-heavy applications.
+> **This repository contains the original implementation of KraftAdmin.**
+>
+> 🚀 Active development has moved to the **official KraftAdmin repository**:
+>
+> **https://github.com/Kraft-Admin/kraftadmin**
+>
+> The new version features a cleaner architecture, improved modularity, richer extension APIs, and many new capabilities. New features, documentation, and future releases will be published there.
 
-[![Maven Central](https://img.shields.io/maven-central/v/io.github.bowerzlabs/kraftadmin.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.bowerzlabs/kraftadmin)
-[![GitHub stars](https://img.shields.io/github/stars/nyadero/kraftadmin.svg?style=social)](https://github.com/nyadero/kraftadmin)
+---
 
-#### Features
+## Features
 
-- Dynamic filtering and sorting on any field
+- Automatic CRUD generation
+- Dynamic forms
+- Search, filtering & sorting
+- Pagination
+- File uploads & previews
+- Entity relationships
+- Custom actions
+- Lifecycle events
+- Entity listeners
+- Import & Export
+- Dashboard navigation
+- Extensible architecture
 
-- File preview support in listings
+---
 
-- Pagination with URL state preservation
+## Example
 
-- Global search across all fields
+```java
+@Entity
+@KraftAdminResource(label = "Products", group = "Catalog")
+public class Product {
 
-- Easily customizable for different data models
-
-- Works out-of-the-box with Spring Data JPA
-
-- Enum-based filters for structured querying
-
-### Installation
-
-#### Add to Your Spring Boot Project
-Add the Maven Dependency
-
-````
-<dependency>
-  <groupId>io.github.bowerzlabs</groupId>
-  <artifactId>kraft-admin</artifactId>
-  <version>0.1.2</version>
-</dependency>
-````
-
-### Configuration
-application.properties
-````
-# Enable the admin library
-kraft.kraft-admin.enabled=true
-
-# Set the admin panel title
-kraft.title=Hacksurge Dashboard
-
-````
-
-OR application.yml
-
-````
-kraft:
-  kraft-admin:
-    enabled: true
-  title: Kraft Sandbox11
-````
-
-### Entity & Repository Setup
-
-Update your main application class to scan KraftAdmin's models and repositories:
-
-````
-@SpringBootApplication
-@EnableJpaRepositories(basePackages = {
-  "your.package",
-  "com.bowerzlabs.repository.kraftrepos"
-})
-@EntityScan(basePackages = {
-  "your.package",
-  "com.bowerzlabs.models.kraftmodels"
-})
-public class Application {
-  public static void main(String[] args) {
-  SpringApplication.run(Application.class, args);
-  }
-}
-
-````
-
-###  Modules Overview
-
-## Modules Overview
-
-| Module          | Description                                   |
-|------------------|-----------------------------------------------|
-| `kraft-ui`       | UI components for the admin dashboard         |
-| `kraft-security` | Auth & permission middleware                  |
-| `kraft-admin`    | Core admin logic and utilities                |
-| `kraft-admin`  | Combines and exposes all modules for plug-and-play |
-
-### Coming Soon
-
-- Example project
-
-- Admin UI customization docs
-
-- Starter guide with multi-tenant support
-- Monitoring and logging
-- Analytics 
-
-Form Field Factory
-
-The FormFieldFactory is a dynamic form generator for Java entity classes. It automatically generates form fields (e.g., TextField, DateField, SearchableSelectField, etc.) based on entity attributes and annotations.
-
-### Core Functionality
-
-- Field Type Inference: Determines the appropriate form field component by inspecting:
-
-  - Java type (e.g., String, LocalDate, boolean)
-
-  - JPA annotations (e.g., @Column, @Lob, @ManyToOne, @Enumerated)
-
-  - Custom annotations like @FormInputType and @DisplayField
-
-- Value Extraction:
-
-    Pulls values from the actual entity object (if present) or fallback map.
-
-- Validation Mapping:
-
-        Applies validation rules and error messages from DbObjectSchema.
-
-- Relationship Handling:
-
-        Supports @ManyToOne and @OneToOne by fetching related entities using a shared CrudService.
-
-        Builds option maps using @DisplayField for display labels.
-
-- Support for Enums & Embedded Objects:
-
-        Automatically generates select options for enum types.
-
-        Begins groundwork for handling embedded/complex objects (incomplete but structured for expansion).
-
-Annotate Your Entities
-
-    @Entity
-    public class Product {
-    @Id
-    private UUID id;
-
-    @FormInputType(FormInputType.Type.TEXT)
+    @KraftAdminField(label = "Name", searchable = true)
     private String name;
 
-    @FormInputType(FormInputType.Type.NUMBER)
-    private Double price;
+    @KraftAdminField(label = "Price")
+    private BigDecimal price;
+}
+```
 
-    @FormInputType(FormInputType.Type.IMAGE)
-    private String thumbnail;
+That's all it takes to expose an entity in the admin dashboard.
 
-    @FormInputType(FormInputType.Type.WYSIWYG)
-    private String description;
+---
 
-    // getters & setters...
-    }
+## What's Next
 
-Custom Field Display with @FormInputType
+The next generation of KraftAdmin includes:
 
-The annotation @FormInputType allows you to define how a field should be rendered on the admin form:
+- Cleaner modular architecture
+- Rich extension APIs
+- Dashboard widgets
+- Audit logging
+- Analytics
+- Multi-module support
+- Official demo application
+- Improved documentation
 
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.FIELD)
-    public @interface FormInputType {
-    Type value();
+---
 
-    enum Type {
-        TEXT, NUMBER, COLOR, CHECKBOX, IMAGE, DATE, EMAIL, PASSWORD, FILE,
-            TEXTAREA, WYSIWYG, DATETIME, TIME, RANGE, TEL, URL, RADIO
-        }
-    }
+## Contributing
 
-Why it matters
+Issues and pull requests are welcome. For new features and ongoing development, please use the new repository.
 
-This means you can declaratively control whether a field appears as a textbox, number input, image uploader, WYSIWYG editor, etc., just by annotating the field.
+---
 
-KraftAdmin will automatically reflect this in the UI form without extra frontend code.
+## License
 
-### Screenshots
-
-<img src="/images/kraft-admin.png" alt="kraftadmin list page">
-
+Released under the MIT License.
